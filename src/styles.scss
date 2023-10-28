@@ -1,4 +1,81 @@
-/* You can add global styles to this file, and also import other style files */
+// Custom Theming for Angular Material: https://material.angular.io/guide/theming
+@use "@angular/material" as mat;
+@use "./styles.theme" as styles;
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+@include mat.core();
+
+// Define the palettes for your theme using the Material Design palettes available in palette.scss
+// (imported above). For each palette, you can optionally specify a default, lighter, and darker
+// hue. Available color palettes: https://material.io/design/color/
+$hungry-horde-ui-primary: mat.define-palette(mat.$indigo-palette, 400);
+$hungry-horde-ui-accent: mat.define-palette(mat.$teal-palette, A200, A100, A400);
+$hungry-horde-ui-warn: mat.define-palette(mat.$red-palette);
+$hungry-horde-ui-frames: mat.define-palette(mat.$teal-palette, 600);
+
+// Create the theme object. A theme consists of configurations for individual
+// theming systems such as "color" or "typography".
+$hungry-horde-ui-theme: mat.define-dark-theme(
+  (
+    color: (
+      primary: $hungry-horde-ui-primary,
+      accent: $hungry-horde-ui-accent,
+      warn: $hungry-horde-ui-warn
+    ),
+    typography: mat.define-typography-config()
+  )
+);
+
+// Use https://github.dev/angular/components/blob/master/src/material/core/theming/_theming.scss for
+// getting the palette names for application UI elements
+
+// Include theme styles for core and each component used in your app.
+// Alternatively, you can import and @include the theme mixins for each component
+// that you are using.
+
+@include mat.core-theme($hungry-horde-ui-theme);
+@include mat.sidenav-theme($hungry-horde-ui-theme);
+@include mat.toolbar-theme($hungry-horde-ui-theme);
+@include mat.progress-spinner-theme($hungry-horde-ui-theme);
+@include mat.button-theme($hungry-horde-ui-theme);
+@include mat.icon-button-theme($hungry-horde-ui-theme);
+@include mat.icon-theme($hungry-horde-ui-theme);
+@include mat.snack-bar-theme($hungry-horde-ui-theme);
+@include styles.theme($hungry-horde-ui-theme);
+
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+
+  &.mat-typography {
+    font:
+      400 14px / 20px "Segoe UI",
+      Roboto,
+      Helvetica,
+      Arial,
+      sans-serif,
+      "Apple Color Emoji",
+      "Segoe UI Emoji",
+      "Segoe UI Symbol";
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/** Style upgrades **/
+a[mat-link] {
+  color: white;
+  text-decoration: none;
+
+  &:visited {
+    color: lightgrey;
+  }
+}
+
+/** FIXES **/
+.mat-content.mat-content-hide-toggle {
+  overflow: visible;
+}
