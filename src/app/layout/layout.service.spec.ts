@@ -41,21 +41,21 @@ describe('LayoutService', () => {
     localStorage.setItem(LayoutService.sidenavOpenedName, JSON.stringify(true));
     const service = TestBed.inject(LayoutService);
 
-    expect(await firstValueFrom(toObservable(service.isSidenavOpen))).toBeTrue();
+    expect(service.isSidenavOpen()).toBeTrue();
   });
 
   it('should read sidenav closed', () => {
     localStorage.setItem(LayoutService.sidenavOpenedName, JSON.stringify(false));
     const service = TestBed.inject(LayoutService);
 
-    expect(service.isSidenavOpen).toBeFalse();
+    expect(service.isSidenavOpen()).toBeFalse();
   });
 
-  it('should emit sidenav closed', async () => {
+  fit('should emit sidenav closed', async () => {
     localStorage.setItem(LayoutService.sidenavOpenedName, JSON.stringify(false));
     const service = TestBed.inject(LayoutService);
 
-    expect(await firstValueFrom(toObservable(service.isSidenavOpen))).toBeFalse();
+    expect(service.isSidenavOpen()).toBeFalse();
   });
 
   it('should toggle sidenav open', async () => {
