@@ -2,7 +2,7 @@ import { toObservable } from '@angular/core/rxjs-interop';
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
 
-import { LayoutService } from './layout.service';
+import { LayoutService, SIDENAV_OPEN_PROPERTY_NAME } from './layout.service';
 
 describe('LayoutService', () => {
   beforeEach(async () => {
@@ -17,49 +17,49 @@ describe('LayoutService', () => {
   });
 
   it('should default sidenav to closed', () => {
-    localStorage.removeItem(LayoutService.sidenavOpenedName);
+    localStorage.removeItem(SIDENAV_OPEN_PROPERTY_NAME);
     const service = TestBed.inject(LayoutService);
 
     expect(service.isSidenavOpen).toBeFalse();
   });
 
   it('should emit default sidenav closed', async () => {
-    localStorage.removeItem(LayoutService.sidenavOpenedName);
+    localStorage.removeItem(SIDENAV_OPEN_PROPERTY_NAME);
     const service = TestBed.inject(LayoutService);
 
     expect(await firstValueFrom(toObservable(service.isSidenavOpen))).toBeFalse();
   });
 
   it('should read sidenav open', () => {
-    localStorage.setItem(LayoutService.sidenavOpenedName, JSON.stringify(true));
+    localStorage.setItem(SIDENAV_OPEN_PROPERTY_NAME, JSON.stringify(true));
     const service = TestBed.inject(LayoutService);
 
     expect(service.isSidenavOpen).toBeTrue();
   });
 
   it('should emit sidenav open', async () => {
-    localStorage.setItem(LayoutService.sidenavOpenedName, JSON.stringify(true));
+    localStorage.setItem(SIDENAV_OPEN_PROPERTY_NAME, JSON.stringify(true));
     const service = TestBed.inject(LayoutService);
 
     expect(service.isSidenavOpen()).toBeTrue();
   });
 
   it('should read sidenav closed', () => {
-    localStorage.setItem(LayoutService.sidenavOpenedName, JSON.stringify(false));
+    localStorage.setItem(SIDENAV_OPEN_PROPERTY_NAME, JSON.stringify(false));
     const service = TestBed.inject(LayoutService);
 
     expect(service.isSidenavOpen()).toBeFalse();
   });
 
   fit('should emit sidenav closed', async () => {
-    localStorage.setItem(LayoutService.sidenavOpenedName, JSON.stringify(false));
+    localStorage.setItem(SIDENAV_OPEN_PROPERTY_NAME, JSON.stringify(false));
     const service = TestBed.inject(LayoutService);
 
     expect(service.isSidenavOpen()).toBeFalse();
   });
 
   it('should toggle sidenav open', async () => {
-    localStorage.setItem(LayoutService.sidenavOpenedName, JSON.stringify(false));
+    localStorage.setItem(SIDENAV_OPEN_PROPERTY_NAME, JSON.stringify(false));
     const service = TestBed.inject(LayoutService);
 
     expect(service.isSidenavOpen).toBeFalse();
@@ -69,11 +69,11 @@ describe('LayoutService', () => {
 
     expect(service.isSidenavOpen).toBeTrue();
     expect(await firstValueFrom(toObservable(service.isSidenavOpen))).toBeTrue();
-    expect(JSON.parse(localStorage.getItem(LayoutService.sidenavOpenedName) ?? 'false')).toBeTrue();
+    expect(JSON.parse(localStorage.getItem(SIDENAV_OPEN_PROPERTY_NAME) ?? 'false')).toBeTrue();
   });
 
   it('should toggle sidenav close', async () => {
-    localStorage.setItem(LayoutService.sidenavOpenedName, JSON.stringify(true));
+    localStorage.setItem(SIDENAV_OPEN_PROPERTY_NAME, JSON.stringify(true));
     const service = TestBed.inject(LayoutService);
 
     expect(service.isSidenavOpen).toBeTrue();
@@ -83,7 +83,7 @@ describe('LayoutService', () => {
 
     expect(service.isSidenavOpen).toBeFalse();
     expect(await firstValueFrom(toObservable(service.isSidenavOpen))).toBeFalse();
-    expect(JSON.parse(localStorage.getItem(LayoutService.sidenavOpenedName) ?? 'false')).toBeFalse();
+    expect(JSON.parse(localStorage.getItem(SIDENAV_OPEN_PROPERTY_NAME) ?? 'false')).toBeFalse();
   });
 
   it('should set sidenav open', async () => {
@@ -92,7 +92,7 @@ describe('LayoutService', () => {
 
     expect(service.isSidenavOpen).toBeTrue();
     expect(await firstValueFrom(toObservable(service.isSidenavOpen))).toBeTrue();
-    expect(JSON.parse(localStorage.getItem(LayoutService.sidenavOpenedName) ?? 'false')).toBeTrue();
+    expect(JSON.parse(localStorage.getItem(SIDENAV_OPEN_PROPERTY_NAME) ?? 'false')).toBeTrue();
   });
 
   it('should set sidenav close', async () => {
@@ -101,6 +101,6 @@ describe('LayoutService', () => {
 
     expect(service.isSidenavOpen).toBeFalse();
     expect(await firstValueFrom(toObservable(service.isSidenavOpen))).toBeFalse();
-    expect(JSON.parse(localStorage.getItem(LayoutService.sidenavOpenedName) ?? 'false')).toBeFalse();
+    expect(JSON.parse(localStorage.getItem(SIDENAV_OPEN_PROPERTY_NAME) ?? 'false')).toBeFalse();
   });
 });

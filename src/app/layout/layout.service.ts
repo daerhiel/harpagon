@@ -12,16 +12,27 @@ function getStorageItem<T>(propertyName: string, fallback: T): T {
   return fallback;
 }
 
+function setStorageItem<T>(propertyName: string, value: T): T {
+  try {
+    localStorage.setItem(propertyName, JSON.stringify(value));
+  } catch {
+    localStorage.removeItem(propertyName);
+  }
+  return value;
+}
+
+export const SIDENAV_OPEN_PROPERTY_NAME = 'layout.sidenav';
+
 @Injectable({
   providedIn: 'root'
 })
 export class LayoutService {
-  static readonly sidenavOpenedName: string = 'layout.sidenav';
-  readonly #isSidenavOpen = signal(getStorageItem(LayoutService.sidenavOpenedName, false));
+  readonly #isSidenavOpen = signal(getStorageItem(SIDENAV_OPEN_PROPERTY_NAME, false));
+
   readonly isSidenavOpen = this.#isSidenavOpen.asReadonly();
 
   toggleSidenav(isOpen?: boolean) {
     this.#isSidenavOpen.set(isOpen ?? !this.isSidenavOpen());
-    localStorage.setItem(LayoutService.sidenavOpenedName, JSON.stringify(this.isSidenavOpen()));
+    setStorageItem(SIDENAV_OPEN_PROPERTY_NAME, this.#isSidenavOpen());
   }
 }
