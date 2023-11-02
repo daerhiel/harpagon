@@ -1,4 +1,4 @@
-import { Component, NgZone } from '@angular/core';
+import { Component, NgZone, computed } from '@angular/core';
 import { ComponentFixture, TestBed, inject } from '@angular/core/testing';
 import { Router, Routes } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -40,64 +40,72 @@ describe('PortalComponent', () => {
   });
 
   it('should indicate loading parent route', inject([Router, NgZone], async (router: Router, ngZone: NgZone) => {
-    expect(component.loadCount()).toBe(0);
+    let counter = 0;
+    const transitions = computed(() => (component.isRouteLoading(), counter++));
+    expect(transitions()).toBe(0);
     expect(component.isRouteLoading()).toBeFalse();
 
     await ngZone.run(async () => {
       await router.navigate(['parent']);
     });
 
-    expect(component.loadCount()).toBe(1);
+    expect(transitions()).toBe(1);
     expect(component.isRouteLoading()).toBeFalse();
   }));
 
   it('should indicate loading nested child route', inject([Router, NgZone], async (router: Router, ngZone: NgZone) => {
-    expect(component.loadCount()).toBe(0);
+    let counter = 0;
+    const transitions = computed(() => (component.isRouteLoading(), counter++));
+    expect(transitions()).toBe(0);
     expect(component.isRouteLoading()).toBeFalse();
 
     await ngZone.run(async () => {
       await router.navigate(['parent/child']);
     });
 
-    expect(component.loadCount()).toBe(1);
+    expect(transitions()).toBe(1);
     expect(component.isRouteLoading()).toBeFalse();
   }));
 
   it('should indicate loading parent and then child route', inject([Router, NgZone], async (router: Router, ngZone: NgZone) => {
-    expect(component.loadCount()).toBe(0);
+    let counter = 0;
+    const transitions = computed(() => (component.isRouteLoading(), counter++));
+    expect(transitions()).toBe(0);
     expect(component.isRouteLoading()).toBeFalse();
 
     await ngZone.run(async () => {
       await router.navigate(['parent']);
     });
 
-    expect(component.loadCount()).toBe(1);
+    expect(transitions()).toBe(1);
     expect(component.isRouteLoading()).toBeFalse();
 
     await ngZone.run(async () => {
       await router.navigate(['parent/child']);
     });
 
-    expect(component.loadCount()).toBe(2);
+    expect(transitions()).toBe(2);
     expect(component.isRouteLoading()).toBeFalse();
   }));
 
   it('should not indicate loading when back from child to parent', inject([Router, NgZone], async (router: Router, ngZone: NgZone) => {
-    expect(component.loadCount()).toBe(0);
+    let counter = 0;
+    const transitions = computed(() => (component.isRouteLoading(), counter++));
+    expect(transitions()).toBe(0);
     expect(component.isRouteLoading()).toBeFalse();
 
     await ngZone.run(async () => {
       await router.navigate(['parent/child']);
     });
 
-    expect(component.loadCount()).toBe(1);
+    expect(transitions()).toBe(1);
     expect(component.isRouteLoading()).toBeFalse();
 
     await ngZone.run(async () => {
       await router.navigate(['parent']);
     });
 
-    expect(component.loadCount()).toBe(1);
+    expect(transitions()).toBe(1);
     expect(component.isRouteLoading()).toBeFalse();
   }));
 });

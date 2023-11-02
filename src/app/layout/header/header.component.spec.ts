@@ -14,10 +14,6 @@ import { LayoutService } from '../layout.service';
 import { HeaderComponent } from './header.component';
 import { firstValueFrom } from 'rxjs';
 
-@Component({ selector: 'test' })
-class TestComponent {
-}
-
 export class HeaderComponentHarness extends ComponentHarness {
   static hostSelector = 'app-header';
 
@@ -70,21 +66,19 @@ describe('HeaderComponent', () => {
 
   it('should should toggle on sidenav', inject([LayoutService], async (layout: LayoutService) => {
     layout.toggleSidenav(false);
-    await firstValueFrom(toObservable(layout.isSidenavOpen));
 
     const homeButton = await harness.getHomeButton();
     await homeButton.click();
 
-    expect(await firstValueFrom(toObservable(layout.isSidenavOpen))).toBeTrue();
+    expect(layout.isSidenavOpen()).toBeTrue();
   }));
 
   it('should should toggle off sidenav', inject([LayoutService], async (layout: LayoutService) => {
     layout.toggleSidenav(true);
-    await firstValueFrom(toObservable(layout.isSidenavOpen));
 
     const homeButton = await harness.getHomeButton();
     await homeButton.click();
 
-    expect(await firstValueFrom(toObservable(layout.isSidenavOpen))).toBeFalse();
+    expect(layout.isSidenavOpen()).toBeFalse();
   }));
 });

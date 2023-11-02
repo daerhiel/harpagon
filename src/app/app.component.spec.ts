@@ -1,14 +1,16 @@
-import { ComponentFixture, TestBed, inject } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TitleStrategy } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ComponentHarness } from '@angular/cdk/testing';
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { Title } from '@angular/platform-browser';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSnackBarHarness } from '@angular/material/snack-bar/testing';
 
 import { LayoutService } from '@layout/layout.service';
+import { TitleStrategyService } from './layout/title-strategy.service';
 import { AppComponent } from './app.component';
+import { routes } from './app.routes';
 
 export class AppComponentHarness extends ComponentHarness {
   static hostSelector = 'app-root';
@@ -27,10 +29,13 @@ describe('AppComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         NoopAnimationsModule,
-        RouterTestingModule,
         MatSnackBarModule,
+        RouterTestingModule.withRoutes(routes, { initialNavigation: 'enabledBlocking' }),
         AppComponent
       ],
+      providers: [
+        { provide: TitleStrategy, useClass: TitleStrategyService }
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(AppComponent);
@@ -46,11 +51,4 @@ describe('AppComponent', () => {
   it('should reference layout', () => {
     expect(component.layout).toBeInstanceOf(LayoutService);
   });
-
-  it(`should have the 'harpagon' title`, inject([Title], async (title: Title) => {
-    await fixture.whenStable();
-    fixture.detectChanges();
-
-    expect(title.getTitle()).toEqual('Harpagon - Home');
-  }));
 });

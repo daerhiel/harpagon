@@ -22,11 +22,9 @@ export class PortalComponent implements OnDestroy {
   readonly #subscriptions = new Subscriptions();
   readonly #router = inject(Router);
 
-  readonly #loadCount = signal(0);
   readonly #isRouteLoading = signal(false);
   #routeDepth: number = 0;
 
-  readonly loadCount = this.#loadCount.asReadonly();
   readonly isRouteLoading = this.#isRouteLoading.asReadonly();
 
   constructor() {
@@ -38,7 +36,6 @@ export class PortalComponent implements OnDestroy {
       } else if (event instanceof RouteConfigLoadEnd) {
         if (this.#routeDepth-- === 1) {
           this.#isRouteLoading.set(false);
-          this.#loadCount.update(x => ++x);
         }
       }
     })));
