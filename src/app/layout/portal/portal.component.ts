@@ -29,14 +29,17 @@ export class PortalComponent implements OnDestroy {
 
   constructor() {
     this.#subscriptions.subscribe(this.#router.events.pipe(tap(event => {
-      if (event instanceof RouteConfigLoadStart) {
-        if (++this.#routeDepth === 1) {
-          this.#isRouteLoading.set(true);
-        }
-      } else if (event instanceof RouteConfigLoadEnd) {
-        if (this.#routeDepth-- === 1) {
-          this.#isRouteLoading.set(false);
-        }
+      switch (true) {
+        case event instanceof RouteConfigLoadStart:
+          if (++this.#routeDepth === 1) {
+            this.#isRouteLoading.set(true);
+          }
+          break;
+        case event instanceof RouteConfigLoadEnd:
+          if (this.#routeDepth-- === 1) {
+            this.#isRouteLoading.set(false);
+          }
+          break;
       }
     })));
   }
