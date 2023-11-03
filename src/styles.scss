@@ -37,6 +37,7 @@ $hungry-horde-ui-theme: mat.define-dark-theme(
 @include mat.toolbar-theme($hungry-horde-ui-theme);
 @include mat.progress-spinner-theme($hungry-horde-ui-theme);
 @include mat.button-theme($hungry-horde-ui-theme);
+@include mat.menu-theme($hungry-horde-ui-theme);
 @include mat.icon-button-theme($hungry-horde-ui-theme);
 @include mat.icon-theme($hungry-horde-ui-theme);
 @include mat.snack-bar-theme($hungry-horde-ui-theme);
@@ -78,4 +79,8 @@ a[mat-link] {
 /** FIXES **/
 .mat-content.mat-content-hide-toggle {
   overflow: visible;
+}
+
+.mat-mdc-menu-panel {
+  max-height: 50vh;
 }

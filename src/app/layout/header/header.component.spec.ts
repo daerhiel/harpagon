@@ -1,6 +1,5 @@
-import { Component } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
 import { ComponentFixture, TestBed, inject } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ComponentHarness } from '@angular/cdk/testing';
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
@@ -12,7 +11,6 @@ import { MatIconHarness } from '@angular/material/icon/testing';
 import { TitleStrategyService } from '../title-strategy.service';
 import { LayoutService } from '../layout.service';
 import { HeaderComponent } from './header.component';
-import { firstValueFrom } from 'rxjs';
 
 export class HeaderComponentHarness extends ComponentHarness {
   static hostSelector = 'app-header';
@@ -33,6 +31,7 @@ describe('HeaderComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         NoopAnimationsModule,
+        HttpClientTestingModule,
         RouterTestingModule,
         HeaderComponent
       ]
