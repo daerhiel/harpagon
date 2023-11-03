@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TitleStrategy } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ComponentHarness } from '@angular/cdk/testing';
@@ -30,6 +31,7 @@ describe('AppComponent', () => {
       imports: [
         NoopAnimationsModule,
         MatSnackBarModule,
+        HttpClientTestingModule,
         RouterTestingModule.withRoutes(routes, { initialNavigation: 'enabledBlocking' }),
         AppComponent
       ],
