@@ -1,10 +1,10 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { filter, mergeMap } from 'rxjs';
 
 import { getStorageItem, setStorageItem } from '@app/services/settings';
 import { GamingToolsApiService } from './gaming-tools-api.service';
 import { GameServer } from './models/game-server';
-import { filter, mergeMap } from 'rxjs';
 
 export const GAME_SERVER_PROPERTY_NAME = 'game.server';
 

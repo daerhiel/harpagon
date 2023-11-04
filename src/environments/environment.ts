@@ -1,3 +1,4 @@
 export const environment = {
-  apiUrl: 'https://gaming.tools'
+  apiGamingToolsUrl: 'https://gaming.tools',
+  apiNwDbUrl: 'https://nwdb.info'
 };

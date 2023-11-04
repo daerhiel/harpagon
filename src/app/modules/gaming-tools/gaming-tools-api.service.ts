@@ -12,7 +12,7 @@ import { Commodity } from './models/commodity';
 })
 export class GamingToolsApiService {
   readonly #http: HttpClient = inject(HttpClient);
-  readonly #url: string = environment.apiUrl;
+  readonly #url: string = environment.apiGamingToolsUrl;
 
   getServers(): Observable<GameServer[]> {
     return this.#http.get<GameServer[]>(buildUrl(this.#url, 'prices', ['nwmp', 'servers']));
