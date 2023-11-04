@@ -7,5 +7,4 @@ import { NwDbApiService } from './nw-db-api.service';
 })
 export class NwDbService {
   readonly #api: NwDbApiService = inject(NwDbApiService);
-
 }

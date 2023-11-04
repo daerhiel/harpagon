@@ -21,7 +21,8 @@ $hungry-horde-ui-theme: mat.define-dark-theme(
       accent: $hungry-horde-ui-accent,
       warn: $hungry-horde-ui-warn
     ),
-    typography: mat.define-typography-config()
+    typography: mat.define-typography-config(),
+    density: -2
   )
 );
 
@@ -41,6 +42,9 @@ $hungry-horde-ui-theme: mat.define-dark-theme(
 @include mat.icon-button-theme($hungry-horde-ui-theme);
 @include mat.icon-theme($hungry-horde-ui-theme);
 @include mat.snack-bar-theme($hungry-horde-ui-theme);
+@include mat.form-field-theme($hungry-horde-ui-theme);
+@include mat.input-theme($hungry-horde-ui-theme);
+@include mat.autocomplete-theme($hungry-horde-ui-theme);
 @include styles.theme($hungry-horde-ui-theme);
 
 html,
@@ -66,6 +70,107 @@ body {
   }
 }
 
+/** Layouts **/
+
+.app-l-flex {
+  display: flex;
+}
+
+.app-l-inline-flex {
+  display: inline-flex;
+}
+
+.app-l-flex-spacer-1 {
+  flex-grow: 1;
+}
+
+.app-l-flex-column {
+  flex-direction: column;
+}
+
+.app-l-flex-row {
+  flex-direction: row;
+}
+
+.app-l-align-start {
+  align-items: flex-start;
+}
+
+.app-l-flex-gap-hr {
+  gap: 0.5rem;
+}
+
+.app-l-align-center {
+  align-items: center;
+}
+
+.app-l-justify-start {
+  justify-content: flex-start;
+}
+
+.app-l-justify-center {
+  justify-content: center;
+}
+
+/** Spacing **/
+
+$spacing: (
+  0: 0,
+  hr: 0.5rem,
+  1r: 1rem,
+  2r: 2rem
+);
+$directions: (
+  l: left,
+  t: top,
+  r: right,
+  b: bottom
+);
+
+@mixin spacing($prop, $short) {
+  @each $space-name, $space in $spacing {
+    .app-#{$short}-#{$space-name} {
+      #{$prop}: $space !important;
+    }
+    @each $dir-name, $dir in $directions {
+      .app-#{$short}#{$dir-name}-#{$space-name} {
+        #{$prop}-#{$dir}: $space !important;
+      }
+    }
+  }
+}
+
+@include spacing(padding, p);
+@include spacing(margin, m);
+
+/** Sizes **/
+
+$sizes: (
+  10: 10%,
+  20: 20%,
+  30: 30%,
+  33: 30.3%,
+  40: 40%,
+  50: 50%,
+  60: 60%,
+  66: 66.6%,
+  70: 70%,
+  80: 80%,
+  90: 90%,
+  100: 100%
+);
+
+@mixin sizes($prop) {
+  @each $size-name, $size in $sizes {
+    .app-#{$prop}-#{$size-name} {
+      #{$prop}: $size !important;
+    }
+  }
+}
+
+@include sizes(width);
+@include sizes(height);
+
 /** Style upgrades **/
 a[mat-link] {
   color: white;
@@ -84,3 +189,41 @@ a[mat-link] {
 .mat-mdc-menu-panel {
   max-height: 50vh;
 }
+
+/** NwDb Items **/
+
+:root {
+  --rarity-0: 200, 200, 200;
+  --rarity-1: 7, 192, 47;
+  --rarity-2: 0, 203, 233;
+  --rarity-3: 255, 22, 247;
+  --rarity-4: 247, 162, 45;
+  --rarity-5: 200, 200, 200;
+  --rarity-100: 233, 93, 93;
+  --color-rarity-0: rgb(var(--rarity-0));
+  --color-rarity-1: rgb(var(--rarity-1));
+  --color-rarity-2: rgb(var(--rarity-2));
+  --color-rarity-3: rgb(var(--rarity-3));
+  --color-rarity-4: rgb(var(--rarity-4));
+  --color-rarity-5: rgb(var(--rarity-5));
+  --color-rarity-100: rgb(var(--rarity-100));
+  --color-text-primary: #d4cfc4;
+  --color-background-primary: hsl(0, 0%, 12%);
+  --color-background-secondary: hsl(0, 0%, 7%);
+  --color-background-third: hsl(0, 0%, 10%);
+  --border-primary: none;
+  --border-radius-primary: 0.25rem;
+}
+
+$rarities: (1, 2, 3, 4, 5, 100);
+
+@mixin rarities() {
+  @each $rarity in $rarities {
+    .item-tier-#{$rarity} {
+      background: linear-gradient(360deg, rgba(var(--rarity-#{$rarity}), 0.5) 0, rgba(0, 0, 0, 0.5) 100%);
+      border: 1px solid var(--color-rarity-#{$rarity});
+    }
+  }
+}
+
+@include rarities();
