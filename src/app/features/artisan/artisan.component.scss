@@ -1,11 +1,15 @@
+img.mat-img {
+  display: inline-block;
+  fill: currentColor;
+  height: 30px;
+  width: 30px;
+  overflow: visible;
+}
+
 mat-icon {
   overflow: visible;
-  img.mat-img {
-    display: inline-block;
-    fill: currentColor;
-    height: 30px;
-    width: 30px;
-    overflow: visible;
-    margin: -3px;
-  }
+}
+
+mat-option mat-icon img.mat-img {
+  margin: -4px;
 }

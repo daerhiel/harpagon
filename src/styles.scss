@@ -22,7 +22,7 @@ $hungry-horde-ui-theme: mat.define-dark-theme(
       warn: $hungry-horde-ui-warn
     ),
     typography: mat.define-typography-config(),
-    density: -2
+    density: -1
   )
 );
 

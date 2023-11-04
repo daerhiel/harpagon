@@ -1,17 +1,20 @@
 <div class="app-l-flex app-l-align-center app-l-justify-center app-width-100 app-height-100">
-  <mat-form-field class="example-full-width">
-    <mat-label>Search item</mat-label>
-    <mat-icon matPrefix *ngIf="item.valueChanges | async | is:'{ value: 0 }' as value">
-      <img class="mat-img item-tier-{{value.rarity}}" [src]="value | nwIcon" loading="lazy">
-    </mat-icon>
-    <input matInput type="text" placeholder="Type in..." [matAutocomplete]="auto" [formControl]="item">
-    <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" [displayWith]="itemNameFn">
-      <mat-option *ngFor="let item of items()" [value]="item">
-        <mat-icon>
-          <img class="mat-img item-tier-{{item.rarity}}" [src]="item | nwIcon" loading="lazy">
-        </mat-icon>
-        {{item.name}}
-      </mat-option>
-    </mat-autocomplete>
-  </mat-form-field>
+  <div class="app-l-flex app-l-flex-column">
+    <mat-form-field class="example-full-width">
+      <mat-label>Search item</mat-label>
+      <input matInput type="text" placeholder="Type in..." [matAutocomplete]="auto" [formControl]="searchItem">
+      <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" [displayWith]="itemNameFn">
+        <mat-option *ngFor="let item of searchItems()" [value]="item">
+          <mat-icon>
+            <img [nwIcon]="item" class="mat-img" loading="lazy">
+          </mat-icon>
+          {{item.name}}
+        </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+    <div class="app-l-flex app-l-align-center" *ngIf="recipe() as recipe">
+      <img [nwIcon]="recipe" class="mat-img app-mr-1r" loading="lazy">
+      {{recipe.name}}
+    </div>
+  </div>
 </div>

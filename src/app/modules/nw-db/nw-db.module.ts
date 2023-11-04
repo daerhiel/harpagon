@@ -2,11 +2,12 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export * from './models/response';
-export * from './models/base-item';
-export * from './models/search-item';
+export * from './models/types';
+export * from './models/objects';
+export * from './models/search';
 export * from './nw-db-api.service';
 export * from './nw-db.service';
-export * from './nw-icon.pipe';
+export * from './nw-icon.directive';
 
 @NgModule({
   declarations: [],
