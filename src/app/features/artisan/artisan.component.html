@@ -12,9 +12,12 @@
         </mat-option>
       </mat-autocomplete>
     </mat-form-field>
-    <div class="app-l-flex app-l-align-center" *ngIf="recipe() as recipe">
+    <div class="app-l-flex app-l-align-center" *ngIf="artisan.recipe() as recipe">
       <img [nwIcon]="recipe" class="mat-img app-mr-1r" loading="lazy">
       {{recipe.name}}
+    </div>
+    <div *ngIf="artisan.product()">
+
     </div>
   </div>
 </div>

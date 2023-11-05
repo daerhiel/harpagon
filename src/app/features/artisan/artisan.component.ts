@@ -4,14 +4,12 @@ import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input'
 import { MatAutocompleteModule } from '@angular/material/autocomplete'
+import { MatIconModule } from '@angular/material/icon';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, filter, map, switchMap, tap } from 'rxjs';
 
-import { NwDbApiService, NwDbService, NwIconDirective, Recipe, SearchItem } from '@modules/nw-db/nw-db.module';
-import { getStorageItem, setStorageItem } from '@app/services/settings';
-import { MatIconModule } from '@angular/material/icon';
-
-const RECIPE_PROPERTY_NAME = 'artisan.recipe';
+import { NwDbApiService, NwIconDirective, SearchItem } from '@modules/nw-db/nw-db.module';
+import { ArtisanService } from '@app/modules/artisan/artisan.service';
 
 @Component({
   selector: 'app-artisan',
@@ -28,7 +26,6 @@ const RECIPE_PROPERTY_NAME = 'artisan.recipe';
   styleUrls: ['./artisan.component.scss']
 })
 export class ArtisanComponent {
-  readonly #nwDb: NwDbService = inject(NwDbService);
   readonly #nwDbApi: NwDbApiService = inject(NwDbApiService);
 
   protected readonly itemNameFn = (item: SearchItem) => item?.name;
@@ -43,8 +40,8 @@ export class ArtisanComponent {
     filter(item => typeof item !== 'string' && item != null), map(x => x as SearchItem),
     distinctUntilChanged(), tap(() => this.searchItem.reset()), debounceTime(300),
     switchMap(item => this.#nwDbApi.getRecipe(item.id)),
-    tap(recipe => (this.recipe.set(recipe), setStorageItem(RECIPE_PROPERTY_NAME, recipe)))
+    tap(recipe => this.artisan.load(recipe))
   ));
 
-  protected readonly recipe = signal<Recipe | null>(getStorageItem(RECIPE_PROPERTY_NAME, null));
+  protected readonly artisan: ArtisanService = inject(ArtisanService);
 }
