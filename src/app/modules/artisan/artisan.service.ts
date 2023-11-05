@@ -3,10 +3,14 @@ import { getStorageItem, setStorageItem } from '@app/services/settings';
 
 import { NwDbApiService, Recipe } from '@modules/nw-db/nw-db.module';
 import { Product } from './artisan.module';
-import { toObservable } from '@angular/core/rxjs-interop';
-import { expand, from, switchMap, tap } from 'rxjs';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { expand, filter, from, map, mergeMap, switchMap, tap, toArray } from 'rxjs';
 
 const RECIPE_PROPERTY_NAME = 'artisan.recipe';
+
+function combine<T, K>(sequence: T[], projection: (value: T) => K[]): K[] {
+  return sequence.reduce<K[]>((s, x) => s.concat(projection(x)), []);
+}
 
 @Injectable({
   providedIn: 'root'
@@ -14,25 +18,20 @@ const RECIPE_PROPERTY_NAME = 'artisan.recipe';
 export class ArtisanService {
   readonly #nwDbApi: NwDbApiService = inject(NwDbApiService);
   readonly #recipe = signal<Recipe | null>(getStorageItem(RECIPE_PROPERTY_NAME, null));
+  readonly #recipes: Record<string, Recipe> = {};
 
   readonly recipe = this.#recipe.asReadonly();
-  readonly product = computed(() => {
-    const recipe = this.#recipe();
-    return recipe ? new Product(recipe) : null;
-  });
 
-  readonly pipeline = toObservable(this.#recipe).pipe();
-  readonly getArtists = () => from(fetch(url)).pipe(
-      switchMap(response => response.json())
-  )
+  readonly #pipeline = toObservable(this.#recipe).pipe(
+    filter(recipe => !!recipe), map(recipe => [recipe!]),
+    expand(recipes => from(combine(recipes, x => x.ingredients.map(x => x.recipeId).filter(x => !!x).map(x => x.id))).pipe(
+      filter(id => !(id in this.#recipes)),
+      mergeMap(id => this.#nwDbApi.getRecipe(id), 5), toArray(),
+    ))
+  );
 
-  test = this.getArtists().pipe(
-   tap(response => rows = rows.concat(response.result)), // on success we concat with the new coming rows
-   expand(previousData => previousData.next
-              ? getArtists(previousData.next)
-              : EMPTY;
-   )
-  ).subscribe();
+  readonly product = toSignal(this.#pipeline.pipe(map(recipes => new Product(null!))));
+
   load(recipe: Recipe): void {
     this.#recipe.set(recipe);
     setStorageItem(RECIPE_PROPERTY_NAME, recipe)
