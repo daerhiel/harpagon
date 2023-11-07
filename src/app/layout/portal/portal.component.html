@@ -1,3 +1,5 @@
 <router-outlet>
-  <mat-spinner *ngIf="isRouteLoading()" color="warn"></mat-spinner>
+  @if (isRouteLoading()) {
+  <mat-spinner color="warn"></mat-spinner>
+  }
 </router-outlet>

@@ -10,8 +10,10 @@
     {{gaming.domain()?.name ?? '(Server)'}}
   </button>
   <mat-menu #menu="matMenu">
-    <button mat-menu-item *ngFor="let server of gaming.servers()" (click)="gaming.setServer(server)">
+    @for (server of gaming.servers(); track server.name) {
+    <button mat-menu-item (click)="gaming.setServer(server)">
       <span>{{server.name}}</span>
     </button>
+    }
   </mat-menu>
 </mat-toolbar>
