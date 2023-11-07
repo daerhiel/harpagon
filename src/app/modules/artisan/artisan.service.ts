@@ -1,11 +1,11 @@
-import { Injectable, inject, signal } from '@angular/core';
-import { getStorageItem, setStorageItem } from '@app/services/settings';
-
-import { NwDbApiService, Recipe } from '@modules/nw-db/nw-db.module';
-import { Product } from './artisan.module';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { EMPTY, expand, filter, from, last, map, mergeMap, of, switchMap, tap, toArray } from 'rxjs';
-import { Protocol } from './models/protocol';
+
+import { NwDbApiService, Recipe } from '@modules/nw-db/nw-db.module';
+import { getStorageItem, setStorageItem } from '@app/services/settings';
+import { ProtocolService } from './protocol.service';
+import { Product } from './artisan.module';
 
 const RECIPE_PROPERTY_NAME = 'artisan.recipe';
 
@@ -13,26 +13,14 @@ const RECIPE_PROPERTY_NAME = 'artisan.recipe';
   providedIn: 'root'
 })
 export class ArtisanService {
-  readonly #nwDbApi: NwDbApiService = inject(NwDbApiService);
-  readonly #recipe = signal<Recipe | null>(getStorageItem(RECIPE_PROPERTY_NAME, null));
-  readonly #protocol: Protocol = new Protocol;
+  readonly #protocol: ProtocolService = inject(ProtocolService);
 
+  readonly #recipe = signal<Recipe | null>(getStorageItem(RECIPE_PROPERTY_NAME, null));
   readonly recipe = this.#recipe.asReadonly();
 
-  readonly #pipeline = toObservable(this.#recipe).pipe(
-    filter(recipe => !!recipe),
-    switchMap(recipe => of(recipe!).pipe(
-      map(recipe => this.#protocol.cacheAndGet(recipe)),
-      expand(ids => ids.length > 0 ? from(ids).pipe(
-        mergeMap(id => this.#nwDbApi.getRecipe(id), 5), toArray(),
-        map(recipes => this.#protocol.cacheAndGet(...recipes))
-      ) : EMPTY),
-      last(), map(() => recipe!)
-    ))
-  );
-
+  readonly #pipeline = this.#protocol.getLoader(this.#recipe);
   readonly product = toSignal(this.#pipeline.pipe(
-    map(recipe => new Product(recipe, this.#protocol))
+    map(({ recipe, index }) => new Product(recipe, index))
   ));
 
   load(recipe: Recipe): void {

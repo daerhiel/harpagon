@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouteConfigLoadEnd, RouteConfigLoadStart, Router, RouterModule } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { tap } from 'rxjs';
 
 import { Subscriptions } from '@app/services/subscriptions';
-import { RouteConfigLoadEnd, RouteConfigLoadStart, Router, RouterModule } from '@angular/router';
-import { tap } from 'rxjs';
 
 @Component({
   selector: 'app-portal',

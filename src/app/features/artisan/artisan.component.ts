@@ -9,7 +9,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, filter, map, switchMap, tap } from 'rxjs';
 
 import { NwDbApiService, NwIconDirective, SearchItem } from '@modules/nw-db/nw-db.module';
-import { ArtisanService } from '@app/modules/artisan/artisan.service';
+import { ArtisanService } from '@modules/artisan/artisan.module';
 
 @Component({
   selector: 'app-artisan',
