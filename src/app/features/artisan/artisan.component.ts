@@ -1,6 +1,7 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatListModule } from '@angular/material/list';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input'
 import { MatAutocompleteModule } from '@angular/material/autocomplete'
@@ -17,6 +18,7 @@ import { ArtisanService } from '@modules/artisan/artisan.module';
   imports: [
     CommonModule,
     FormsModule, ReactiveFormsModule,
+    MatListModule,
     MatFormFieldModule,
     MatInputModule, MatAutocompleteModule,
     MatIconModule,

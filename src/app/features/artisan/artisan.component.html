@@ -19,8 +19,18 @@
       <img [nwIcon]="recipe" class="mat-img app-mr-1r" loading="lazy">{{recipe.name}}
     </div>
     }
-    @if (artisan.product()) {
-    <div></div>
+    @if (artisan.product(); as product) {
+    <mat-list>
+      <div mat-subheader>Materials</div>
+      @for (operation of product.operations; track operation.id) {
+        <mat-list-item>
+          <mat-icon matListItemIcon>
+            <img [nwIcon]="operation" class="mat-img" loading="lazy">
+          </mat-icon>
+          <div matListItemTitle>{{operation.name}}</div>
+        </mat-list-item>
+      }
+    </mat-list>
     }
   </div>
 </div>
