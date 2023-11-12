@@ -28,8 +28,10 @@ export class Operation extends Resource {
       }
     } else if (isRecipe(object)) {
       this._recipe = object;
-    } else {
+    } else if (object){
       throw new ReferenceError(`The object ref '${ref.type}' is not supported: ${ref.id}.`);
+    } else {
+      throw new ReferenceError(`The object ref '${ref.type}' is not found: ${ref.id}.`);
     }
 
     for (const ingredient of this._recipe.ingredients) {
@@ -37,6 +39,7 @@ export class Operation extends Resource {
         case 'category':
           for (const subIngredient of ingredient.subIngredients) {
             this.resources.push(Resource.fromIngredient(subIngredient, index));
+            break;
           }
           break;
         default:

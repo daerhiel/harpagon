@@ -26,6 +26,6 @@ export class ArtisanService {
 
   load(recipe: Recipe): void {
     this.#recipe.set(recipe);
-    setStorageItem(RECIPE_PROPERTY_NAME, recipe)
+    setStorageItem(RECIPE_PROPERTY_NAME, recipe);
   }
 }

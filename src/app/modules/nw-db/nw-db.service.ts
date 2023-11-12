@@ -3,7 +3,7 @@ import { EMPTY, Observable, expand, from, iif, last, map, mergeMap, of, toArray 
 
 import { getStorageItem, setStorageItem } from '@app/services/settings';
 import { NwDbApiService } from './nw-db-api.service';
-import { Ingredient, isRecipe } from './models/objects';
+import { Ingredient, isItem, isRecipe } from './models/objects';
 import { Object, ObjectRef, ObjectType } from './models/types';
 
 export type Index<T extends Object> = Partial<Record<ObjectType, Record<string, T>>>;
@@ -101,9 +101,7 @@ export class NwDbService {
       const get = (ref: ObjectRef): T | null => {
         const storage = ref && this._storage[ref.type];
         if (storage && ref.id in storage) {
-          if ((ref.type in index) && (ref.id in index[ref.type]!)) {
-            return index[ref.type]![ref.id] as T;
-          } else {
+          if (!(ref.type in index) || !(ref.id in index[ref.type]!)) {
             const object = storage[ref.id];
             (index[ref.type] ?? (index[ref.type] = {}))[ref.id] = object as T;
             return object as T;
@@ -114,13 +112,21 @@ export class NwDbService {
 
       const traverse = (ref: ObjectRef): void => {
         const object = get(ref);
-        if (isRecipe(object)) {
-          traverse(object.output);
+        if (isItem(object)) {
+          if (object.flagCanBeCrafted) {
+            traverse({ id: object.flagCanBeCrafted.id, type: 'recipe' });
+          }
+        } else if (isRecipe(object)) {
+          if (object.output) {
+            traverse(object.output);
+          }
           for (const ingredient of object.ingredients) {
             switch (ingredient.type) {
               case 'category':
-                for (const subIngredient of ingredient.subIngredients) {
-                  traverse(subIngredient);
+                if (object.category !== 'Material Conversion') {
+                  for (const subIngredient of ingredient.subIngredients) {
+                    traverse(subIngredient);
+                  }
                 }
                 break;
               default:

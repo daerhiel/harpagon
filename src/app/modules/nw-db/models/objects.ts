@@ -1,4 +1,4 @@
-import { Object, ObjectBase, Quantity, TradeSkill } from "./types";
+import { Object, ObjectBase, Quantity, RecipeCategory, TradeSkill } from "./types";
 
 export interface Perk {
   id: string;
@@ -52,7 +52,7 @@ export interface Recipe extends Object {
   tradeskill: TradeSkill;
   recipeLevel: number;
   CraftingFee: number;
-  category: string;
+  category: RecipeCategory;
   stations: string[];
   BaseGearScore: number;
   qtyBonus: number;

@@ -216,7 +216,7 @@ a[mat-link] {
   --border-radius-primary: 0.25rem;
 }
 
-$rarities: (1, 2, 3, 4, 5, 100);
+$rarities: (0, 1, 2, 3, 4, 5, 100);
 
 @mixin rarities() {
   @each $rarity in $rarities {

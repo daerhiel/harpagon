@@ -7,6 +7,8 @@ export type ItemType = 'Resource' | 'Weapon';
 
 export type TradeSkill = 'Armoring' | 'Engineering' | 'Weaponsmithing' | 'Leatherworking' | 'Smelting';
 
+export type RecipeCategory = 'Refined Resources' | 'Material Conversion';
+
 export interface IconItem {
   icon?: string;
 }

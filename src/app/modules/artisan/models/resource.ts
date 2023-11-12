@@ -39,13 +39,22 @@ export class Resource implements ObjectBase {
       } else {
         throw new ReferenceError(`The ${object.type} does not have an output: ${object.id}`);
       }
-    } else {
+    } else if (object) {
       throw new ReferenceError(`The object ref '${ref.type}' is not supported: ${ref.id}.`);
+    } else {
+      throw new ReferenceError(`The object ref '${ref.type}' is not found: ${ref.id}.`);
     }
   }
 
+  static isRecipeSupported(id: string, index: Index<Object>): boolean {
+    const storage = index['recipe'];
+    const recipe = storage && storage[id];
+    return isRecipe(recipe) && recipe.category !== "Material Conversion";
+  }
+
   static fromIngredient(ingredient: Ingredient, index: Index<Object>): Resource {
-    if (ingredient.recipeId) {
+    const recipeId = ingredient.recipeId;
+    if (recipeId && this.isRecipeSupported(recipeId.id, index )) {
       return new Operation(ingredient, index);
     } else {
       return new Resource(ingredient, index);
