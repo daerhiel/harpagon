@@ -1,7 +1,7 @@
 export type Tier = 1 | 2 | 3 | 4 | 5 | 100;
 export type Rarity = 1 | 2 | 3 | 4 | 5;
 
-export type ObjectType = 'item' | 'recipe' | 'quest' | 'category';
+export type ObjectType = 'item' | 'recipe' | 'quest' | 'currency' | 'category';
 
 export type ItemType = 'Resource' | 'Weapon';
 
@@ -46,10 +46,10 @@ export interface Object extends ObjectBase {
   type: ObjectType;
   itemType: ItemType;
   name: string;
-  icon: string;
-  tier: Tier;
-  rarity: Rarity;
-  gearScore: number;
+  icon?: string;
+  tier?: Tier;
+  rarity?: Rarity;
+  gearScore?: number;
   itemClass: string[];
   perks: [
     {

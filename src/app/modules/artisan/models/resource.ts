@@ -1,4 +1,4 @@
-import { Index, Ingredient, ItemType, Object, ObjectBase, ObjectRef, ObjectType, Rarity, Tier, isItem, isRecipe } from "@modules/nw-db/nw-db.module";
+import { Index, Ingredient, ItemType, Object, ObjectBase, ObjectRef, ObjectType, Rarity, Tier, isCurrency, isItem, isRecipe } from "@modules/nw-db/nw-db.module";
 import { Operation } from "./operation";
 
 export class Resource implements ObjectBase {
@@ -8,9 +8,9 @@ export class Resource implements ObjectBase {
   get type(): ObjectType { return this._item.type; }
   get itemType(): ItemType { return this._item.itemType; }
   get name(): string { return this._item.name; }
-  get icon(): string { return this._item.icon; }
-  get tier(): Tier { return this._item.tier; }
-  get rarity(): Rarity { return this._item.rarity; }
+  get icon(): string | undefined { return this._item.icon; }
+  get tier(): Tier | undefined { return this._item.tier; }
+  get rarity(): Rarity | undefined { return this._item.rarity; }
 
   constructor(ref: ObjectRef, index: Index<Object>) {
     if (!ref) {
@@ -22,7 +22,7 @@ export class Resource implements ObjectBase {
 
     const storage = index[ref.type];
     const object = storage && storage[ref.id];
-    if (isItem(object)) {
+    if (isItem(object) || isCurrency(object)) {
       this._item = object;
     } else if (isRecipe(object)) {
       const ref = object.output;

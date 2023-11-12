@@ -84,3 +84,7 @@ export function isRecipe(object: ObjectBase | null | undefined): object is Recip
 export function isItem(object: ObjectBase | null | undefined): object is Item {
   return !!object && object.type === 'item';
 }
+
+export function isCurrency(object: ObjectBase | null | undefined): object is Item {
+  return !!object && object.type === 'currency';
+}

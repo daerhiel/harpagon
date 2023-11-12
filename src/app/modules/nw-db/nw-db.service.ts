@@ -18,15 +18,15 @@ export interface Hierarchy<T extends Object> {
 })
 export class NwDbService {
   readonly #api: NwDbApiService = inject(NwDbApiService);
-  readonly _items: Record<string, Object> = {};
-  readonly #recipes: Record<string, Object> = {};
-  readonly #category: Record<string, Object> = {};
-  readonly #quest: Record<string, Object> = {};
-  private readonly _storage: Record<ObjectType, Record<string, Object>> = {
-    item: this._items,
-    recipe: this.#recipes,
-    category: this.#category,
-    quest: this.#quest
+  private readonly _storage: Index<Object> = {
+    currency: {
+      azoth_currency: {
+        id: 'azoth_currency',
+        type: 'currency',
+        name: 'Azoth',
+        icon: 'currency_azoth',
+      } as Object
+    }
   };
 
   constructor() {
@@ -40,7 +40,7 @@ export class NwDbService {
         case key && key.startsWith('object:'): {
           const object = getStorageItem<Object | null>(key, null);
           if (object) {
-            this._storage[object.type][object.id] = object;
+            (this._storage[object.type] ?? (this._storage[object.type] = {}))[object.id] = object;
           }
         } break;
       }
@@ -52,7 +52,7 @@ export class NwDbService {
 
     const set = (ref: ObjectRef): void => {
       const storage = ref && this._storage[ref.type];
-      if (storage && !(ref.id in storage) && !ids.some(x => x.id === ref.id && x.type === ref.type)) {
+      if ((!storage || !(ref.id in storage)) && !ids.some(x => x.id === ref.id && x.type === ref.type)) {
         ids.push(ref);
       }
     }
@@ -68,8 +68,8 @@ export class NwDbService {
     for (const object of objects) {
       if (object) {
         const storage = this._storage[object.type];
-        if (!(object.id in storage)) {
-          storage[object.id] = object;
+        if (!storage || !(object.id in storage)) {
+          (this._storage[object.type] ?? (this._storage[object.type] = {}))[object.id] = object;
           setStorageItem(`object:${object.type}/${object.id}`, object);
         }
 
