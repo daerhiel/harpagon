@@ -22,7 +22,7 @@
     @if (artisan.product(); as product) {
     <mat-list>
       <div mat-subheader>Materials</div>
-      @for (operation of product.operations; track operation.id) {
+      @for (operation of product.resources; track operation.id) {
         <mat-list-item>
           <mat-icon matListItemIcon>
             <img [nwIcon]="operation" class="mat-img" loading="lazy">

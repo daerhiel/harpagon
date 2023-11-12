@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, filter, map, switchMap, tap } from 'rxjs';
 
-import { NwDbApiService, NwIconDirective, SearchItem } from '@modules/nw-db/nw-db.module';
+import { NwDbApiService, NwIconDirective, SearchRef } from '@modules/nw-db/nw-db.module';
 import { ArtisanService } from '@modules/artisan/artisan.module';
 
 @Component({
@@ -30,8 +30,8 @@ import { ArtisanService } from '@modules/artisan/artisan.module';
 export class ArtisanComponent {
   readonly #nwDbApi: NwDbApiService = inject(NwDbApiService);
 
-  protected readonly itemNameFn = (item: SearchItem) => item?.name;
-  protected readonly searchItem = new FormControl<string | SearchItem | null>(null);
+  protected readonly itemNameFn = (item: SearchRef) => item?.name;
+  protected readonly searchItem = new FormControl<string | SearchRef | null>(null);
   protected readonly searchItems = toSignal(this.searchItem.valueChanges.pipe(
     filter(term => typeof term === 'string' && term.length > 2), map(x => x as string),
     distinctUntilChanged(), debounceTime(300),
@@ -39,7 +39,7 @@ export class ArtisanComponent {
   ));
 
   readonly #switch = toSignal(this.searchItem.valueChanges.pipe(
-    filter(item => typeof item !== 'string' && item != null), map(x => x as SearchItem),
+    filter(item => typeof item !== 'string' && item != null), map(x => x as SearchRef),
     distinctUntilChanged(), tap(() => this.searchItem.reset()), debounceTime(300),
     switchMap(item => this.#nwDbApi.getRecipe(item.id)),
     tap(recipe => this.artisan.load(recipe))

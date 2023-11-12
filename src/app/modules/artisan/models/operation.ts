@@ -1,29 +1,47 @@
-import { ItemType, ObjectRef, ObjectType, Rarity, Recipe, Tier } from "@modules/nw-db/nw-db.module";
+import { Index, Item, Object, ObjectRef, Recipe, isItem, isRecipe } from "@modules/nw-db/nw-db.module";
 
-export class Operation implements ObjectRef {
-  readonly operations: Operation[] = [];
+import { Resource } from "./resource";
 
-  get id(): string { return this._recipe.id; }
-  get type(): ObjectType { return this._recipe.type; }
-  get itemType(): ItemType { return this._recipe.itemType; }
-  get name(): string { return this._recipe.name; }
-  get icon(): string { return this._recipe.icon; }
-  get tier(): Tier { return this._recipe.tier; }
-  get rarity(): Rarity { return this._recipe.rarity; }
+export class Operation extends Resource {
+  private readonly _recipe: Recipe;
+  readonly resources: Resource[] = [];
 
-  constructor(private readonly _recipe: Recipe, index: Record<string, Recipe>) {
-    if (!_recipe) {
-      throw new ReferenceError(`The recipe is not specified.`);
+  constructor(ref: ObjectRef, index: Index<Object>) {
+    super(ref, index);
+
+    const storage = index[ref.type];
+    const object = storage && storage[ref.id];
+    if (isItem(object)) {
+      const ref = object.flagCanBeCrafted;
+      if (ref) {
+        const storage = index['recipe'];
+        const recipe = storage && storage[ref.id];
+        if (isRecipe(recipe)) {
+          this._recipe = recipe;
+        } else if (recipe) {
+          throw new ReferenceError(`The crafting ${'recipe'} is not supported: ${ref.id}.`);
+        } else {
+          throw new ReferenceError(`The crafting ${'recipe'} is not found: ${ref.id}.`);
+        }
+      } else {
+        throw new ReferenceError(`The ${object.type} cannot be crafted: ${object.id}`);
+      }
+    } else if (isRecipe(object)) {
+      this._recipe = object;
+    } else {
+      throw new ReferenceError(`The object ref '${ref.type}' is not supported: ${ref.id}.`);
     }
 
-    if (!index) {
-      throw new ReferenceError(`The index is not specified.`);
-    }
-
-    for (const ingredient of _recipe.ingredients) {
-      const ref = ingredient.recipeId;
-      if (ref && ref.id in index) {
-        this.operations.push(new Operation(index[ref.id], index));
+    for (const ingredient of this._recipe.ingredients) {
+      switch (ingredient.type) {
+        case 'category':
+          for (const subIngredient of ingredient.subIngredients) {
+            this.resources.push(Resource.fromIngredient(subIngredient, index));
+          }
+          break;
+        default:
+          this.resources.push(Resource.fromIngredient(ingredient, index));
+          break;
       }
     }
   }

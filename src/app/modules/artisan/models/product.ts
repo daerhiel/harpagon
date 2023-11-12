@@ -1,9 +1,9 @@
-import { Recipe } from "@modules/nw-db/nw-db.module";
+import { Index, Object, ObjectRef } from "@modules/nw-db/nw-db.module";
 
 import { Operation } from "./operation";
 
 export class Product extends Operation {
-  constructor(_recipe: Recipe, index: Record<string, Recipe>) {
-    super(_recipe, index);
+  constructor(ref: ObjectRef, index: Index<Object>) {
+    super(ref, index);
   }
 }

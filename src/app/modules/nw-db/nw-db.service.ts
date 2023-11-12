@@ -1,10 +1,152 @@
 import { Injectable, inject } from '@angular/core';
+import { EMPTY, Observable, expand, from, iif, last, map, mergeMap, of, toArray } from 'rxjs';
 
+import { getStorageItem, setStorageItem } from '@app/services/settings';
 import { NwDbApiService } from './nw-db-api.service';
+import { Ingredient, isRecipe } from './models/objects';
+import { Object, ObjectRef, ObjectType } from './models/types';
+
+export type Index<T extends Object> = Partial<Record<ObjectType, Record<string, T>>>;
+
+export interface Hierarchy<T extends Object> {
+  ref: ObjectRef | null;
+  index: Index<T>;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class NwDbService {
   readonly #api: NwDbApiService = inject(NwDbApiService);
+  readonly _items: Record<string, Object> = {};
+  readonly #recipes: Record<string, Object> = {};
+  readonly #category: Record<string, Object> = {};
+  readonly #quest: Record<string, Object> = {};
+  private readonly _storage: Record<ObjectType, Record<string, Object>> = {
+    item: this._items,
+    recipe: this.#recipes,
+    category: this.#category,
+    quest: this.#quest
+  };
+
+  constructor() {
+    this.loadHierarchy();
+  }
+
+  private loadHierarchy(): void {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i)!;
+      switch (true) {
+        case key && key.startsWith('object:'): {
+          const object = getStorageItem<Object | null>(key, null);
+          if (object) {
+            this._storage[object.type][object.id] = object;
+          }
+        } break;
+      }
+    }
+  }
+
+  private cacheAndGet<T extends Object>(...objects: (T | null)[]): ObjectRef[] {
+    const ids: ObjectRef[] = [];
+
+    const set = (ref: ObjectRef): void => {
+      const storage = ref && this._storage[ref.type];
+      if (storage && !(ref.id in storage) && !ids.some(x => x.id === ref.id && x.type === ref.type)) {
+        ids.push(ref);
+      }
+    }
+
+    const push = (ingredient: Ingredient): void => {
+      set({ id: ingredient.id, type: ingredient.type });
+      const ref = ingredient.recipeId;
+      if (ref) {
+        set({ id: ref.id, type: 'recipe' });
+      }
+    }
+
+    for (const object of objects) {
+      if (object) {
+        const storage = this._storage[object.type];
+        if (!(object.id in storage)) {
+          storage[object.id] = object;
+          setStorageItem(`object:${object.type}/${object.id}`, object);
+        }
+
+        if (isRecipe(object)) {
+          set(object.output);
+          for (const ingredient of object.ingredients) {
+            switch (ingredient.type) {
+              case 'category':
+                for (const subIngredient of ingredient.subIngredients) {
+                  push(subIngredient);
+                }
+                break;
+              default:
+                push(ingredient);
+                break;
+            }
+          }
+        }
+      }
+    }
+
+    return ids;
+  }
+
+  private buildIndex<T extends Object>(ref: ObjectRef | null): Index<T> {
+    const index: Index<T> = {};
+
+    if (ref) {
+      const get = (ref: ObjectRef): T | null => {
+        const storage = ref && this._storage[ref.type];
+        if (storage && ref.id in storage) {
+          if ((ref.type in index) && (ref.id in index[ref.type]!)) {
+            return index[ref.type]![ref.id] as T;
+          } else {
+            const object = storage[ref.id];
+            (index[ref.type] ?? (index[ref.type] = {}))[ref.id] = object as T;
+            return object as T;
+          }
+        }
+        return null;
+      }
+
+      const traverse = (ref: ObjectRef): void => {
+        const object = get(ref);
+        if (isRecipe(object)) {
+          traverse(object.output);
+          for (const ingredient of object.ingredients) {
+            switch (ingredient.type) {
+              case 'category':
+                for (const subIngredient of ingredient.subIngredients) {
+                  traverse(subIngredient);
+                }
+                break;
+              default:
+                traverse(ingredient);
+                break;
+            }
+          }
+        }
+      }
+
+      traverse(ref);
+    }
+
+    return index;
+  }
+
+  getHierarchy<T extends Object>(ref: ObjectRef | null): Observable<Hierarchy<T>> {
+    return of(ref).pipe(
+      mergeMap(ref => iif(() => !!ref, this.#api.getObject<T>(ref).pipe(
+        map(object => this.cacheAndGet(object)),
+        expand(ids => ids.length > 0 ? from(ids).pipe(
+          mergeMap(id => this.#api.getObject<T>(id), 5), toArray(),
+          map(objects => this.cacheAndGet(...objects))
+        ) : EMPTY), last(),
+        map(() => ({ ref, index: this.buildIndex<T>(ref) }))
+      ), of({ ref, index: {} })), 1)
+    );
+  }
 }

@@ -1,4 +1,4 @@
-import { ObjectBase, ItemType, ObjectType, TradeSkill, Quantity, ObjectRef } from "./types";
+import { Object, ObjectBase, Quantity, TradeSkill } from "./types";
 
 export interface Perk {
   id: string;
@@ -29,21 +29,26 @@ export interface PerkBucket {
   weightTotal: number;
 }
 
-export interface Ingredient {
-  id: string;
-  type: ObjectType;
-  itemType: ItemType;
-  name: string;
-  rarity: number;
-  icon: string;
+export interface Ingredient extends ObjectBase {
+  type: 'item';
   quantity: number;
-  recipeId: { id: string };
+  recipeId?: { id: string };
 }
 
-export interface Recipe extends ObjectBase {
+export interface Category {
+  type: 'category';
+  name: string;
+  icon: string;
+  subIngredients: Ingredient[];
+  primary: false;
+  quantity: number;
+}
+
+export interface Recipe extends Object {
+  type: 'recipe';
   description: string;
   perkBuckets: PerkBucket[];
-  ingredients: Ingredient[];
+  ingredients: (Ingredient | Category)[];
   tradeskill: TradeSkill;
   recipeLevel: number;
   CraftingFee: number;
@@ -59,9 +64,23 @@ export interface Recipe extends ObjectBase {
   isRefining: boolean;
   modCount: number;
   isOnGamingTools: boolean;
-  output: ObjectBase & Quantity;
-  recommendedItems: ObjectRef[];
+  output: Object & Quantity;
+  recommendedItems: ObjectBase[];
   recommendedItemsTypeString: string;
-  recommendedItemsSet: ObjectRef[];
+  recommendedItemsSet: ObjectBase[];
   recommendedItemsSetTypeString: string;
+}
+
+export interface Item extends Object {
+  type: 'item';
+  description: string;
+  flagCanBeCrafted: { id: string };
+}
+
+export function isRecipe(object: ObjectBase | null | undefined): object is Recipe {
+  return !!object && object.type === 'recipe' && 'ingredients' in object && 'output' in object;
+}
+
+export function isItem(object: ObjectBase | null | undefined): object is Item {
+  return !!object && object.type === 'item';
 }

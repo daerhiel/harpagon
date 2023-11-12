@@ -1,10 +1,9 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { EMPTY, expand, filter, from, last, map, mergeMap, of, switchMap, tap, toArray } from 'rxjs';
+import { map, of, switchMap } from 'rxjs';
 
-import { NwDbApiService, Recipe } from '@modules/nw-db/nw-db.module';
+import { NwDbService, Recipe } from '@modules/nw-db/nw-db.module';
 import { getStorageItem, setStorageItem } from '@app/services/settings';
-import { ProtocolService } from './protocol.service';
 import { Product } from './artisan.module';
 
 const RECIPE_PROPERTY_NAME = 'artisan.recipe';
@@ -13,14 +12,16 @@ const RECIPE_PROPERTY_NAME = 'artisan.recipe';
   providedIn: 'root'
 })
 export class ArtisanService {
-  readonly #protocol: ProtocolService = inject(ProtocolService);
+  readonly #nwDb: NwDbService = inject(NwDbService);
 
   readonly #recipe = signal<Recipe | null>(getStorageItem(RECIPE_PROPERTY_NAME, null));
   readonly recipe = this.#recipe.asReadonly();
 
-  readonly #pipeline = this.#protocol.getLoader(this.#recipe);
+  readonly #pipeline = toObservable(this.#recipe).pipe(
+    switchMap(recipe => this.#nwDb.getHierarchy(recipe))
+  );
   readonly product = toSignal(this.#pipeline.pipe(
-    map(({ recipe, index }) => new Product(recipe, index))
+    map(({ ref, index }) => ref ? new Product(ref, index) : null)
   ));
 
   load(recipe: Recipe): void {
