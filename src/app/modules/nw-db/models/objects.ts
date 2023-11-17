@@ -1,4 +1,4 @@
-import { IObject, IObjectBase, IQuantity, RecipeCategory, TradeSkill } from "./types";
+import { IObject, IEntity, IQuantity, RecipeCategory, TradeSkill } from "./types";
 
 export interface IPerk {
   id: string;
@@ -29,7 +29,7 @@ export interface IPerkBucket {
   weightTotal: number;
 }
 
-export interface IIngredient extends IObjectBase {
+export interface IIngredient extends IEntity {
   type: 'item';
   quantity: number;
   recipeId?: { id: string };
@@ -65,9 +65,9 @@ export interface IRecipe extends IObject {
   modCount: number;
   isOnGamingTools: boolean;
   output: IObject & IQuantity;
-  recommendedItems: IObjectBase[];
+  recommendedItems: IEntity[];
   recommendedItemsTypeString: string;
-  recommendedItemsSet: IObjectBase[];
+  recommendedItemsSet: IEntity[];
   recommendedItemsSetTypeString: string;
 }
 
@@ -77,14 +77,14 @@ export interface IItem extends IObject {
   flagCanBeCrafted: { id: string };
 }
 
-export function isRecipe(object: IObjectBase | null | undefined): object is IRecipe {
+export function isRecipe(object: IEntity | null | undefined): object is IRecipe {
   return !!object && object.type === 'recipe' && 'ingredients' in object && 'output' in object;
 }
 
-export function isItem(object: IObjectBase | null | undefined): object is IItem {
+export function isItem(object: IEntity | null | undefined): object is IItem {
   return !!object && object.type === 'item';
 }
 
-export function isCurrency(object: IObjectBase | null | undefined): object is IItem {
+export function isCurrency(object: IEntity | null | undefined): object is IItem {
   return !!object && object.type === 'currency';
 }

@@ -25,7 +25,7 @@ export interface ObjectRef {
   type: ObjectType;
 }
 
-export interface IObjectBase extends ObjectRef {
+export interface IEntity extends ObjectRef {
   itemType: ItemType;
   name: string;
   icon?: string;
@@ -33,7 +33,7 @@ export interface IObjectBase extends ObjectRef {
   rarity?: Rarity;
 }
 
-export interface SearchRef extends IObjectBase {
+export interface SearchRef extends IEntity {
   level?: number;
   gearScore?: number | null;
   recipeLevel: number;
@@ -41,7 +41,7 @@ export interface SearchRef extends IObjectBase {
   searchRank: number;
 }
 
-export interface IObject extends IObjectBase {
+export interface IObject extends IEntity {
   id: string;
   type: ObjectType;
   itemType: ItemType;

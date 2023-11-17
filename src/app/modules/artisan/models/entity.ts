@@ -1,7 +1,7 @@
-import { IIngredient, IObject, IObjectBase, Index, ItemType, ObjectRef, ObjectType, Rarity, Tier, isCurrency, isItem, isRecipe } from "@modules/nw-db/nw-db.module";
+import { IIngredient, IObject, IEntity, Index, ItemType, ObjectRef, ObjectType, Rarity, Tier, isCurrency, isItem, isRecipe } from "@modules/nw-db/nw-db.module";
 import { Operation } from "./operation";
 
-export class Object implements IObjectBase {
+export class Entity implements IEntity {
   private readonly _item: IObject;
 
   get id(): string { return this._item.id; }
@@ -52,12 +52,12 @@ export class Object implements IObjectBase {
     return isRecipe(recipe) && recipe.category !== "Material Conversion";
   }
 
-  static fromIngredient(ingredient: IIngredient, index: Index<IObject>): Object {
+  static fromIngredient(ingredient: IIngredient, index: Index<IObject>): Entity {
     const recipeId = ingredient.recipeId;
     if (recipeId && this.isRecipeSupported(recipeId.id, index)) {
       return new Operation(ingredient, index);
     } else {
-      return new Object(ingredient, index);
+      return new Entity(ingredient, index);
     }
   }
 }
