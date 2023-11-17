@@ -22,12 +22,13 @@
     @if (artisan.product(); as product) {
     <mat-list>
       <div mat-subheader>Materials</div>
-      @for (operation of product.resources; track operation.id) {
+      @for (ingredient of product.ingredients; track ingredient.id) {
         <mat-list-item>
           <mat-icon matListItemIcon>
-            <img [nwIcon]="operation" class="mat-img" loading="lazy">
+            <img [nwIcon]="ingredient" class="mat-img" loading="lazy">
           </mat-icon>
-          <div matListItemTitle>{{operation.name}}</div>
+          <div matListItemTitle>{{ingredient.name}}</div>
+          <div matListItemLine>{{ingredient.quantity}}x</div>
         </mat-list-item>
       }
     </mat-list>

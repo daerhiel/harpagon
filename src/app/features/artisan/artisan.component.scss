@@ -10,7 +10,10 @@ mat-icon {
   overflow: visible;
 }
 
-mat-list-item mat-icon img.mat-img,
+mat-list-item mat-icon img.mat-img {
+  margin: 4px 0;
+}
+
 mat-option mat-icon img.mat-img {
   margin: -4px 0;
 }

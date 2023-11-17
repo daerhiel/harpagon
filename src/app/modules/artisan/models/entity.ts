@@ -1,5 +1,5 @@
 import { IIngredient, IObject, IEntity, Index, ItemType, ObjectRef, ObjectType, Rarity, Tier, isCurrency, isItem, isRecipe } from "@modules/nw-db/nw-db.module";
-import { Operation } from "./operation";
+import { Composite } from "./composite";
 
 export class Entity implements IEntity {
   private readonly _item: IObject;
@@ -55,7 +55,7 @@ export class Entity implements IEntity {
   static fromIngredient(ingredient: IIngredient, index: Index<IObject>): Entity {
     const recipeId = ingredient.recipeId;
     if (recipeId && this.isRecipeSupported(recipeId.id, index)) {
-      return new Operation(ingredient, index);
+      return new Composite(ingredient, index);
     } else {
       return new Entity(ingredient, index);
     }
