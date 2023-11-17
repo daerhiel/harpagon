@@ -14,7 +14,7 @@
         }
       </mat-autocomplete>
     </mat-form-field>
-    @if (artisan.recipe(); as recipe) {
+    @if (artisan.entity(); as recipe) {
     <div class="app-l-flex app-l-align-center">
       <img [nwIcon]="recipe" class="mat-img app-mr-1r" loading="lazy">{{recipe.name}}
     </div>

@@ -47,6 +47,18 @@ export class NwDbService {
     }
   }
 
+  private refOrCached(ref: ObjectRef | null): ObjectRef[] {
+    const storage = ref && this._storage[ref.type];
+    const object = storage && storage[ref.id];
+    if (object) {
+      return this.cacheAndGet(object);
+    } else if (ref) {
+      return [ref];
+    } else {
+      return [];
+    }
+  }
+
   private cacheAndGet<T extends IObject>(...objects: (T | null)[]): ObjectRef[] {
     const ids: ObjectRef[] = [];
 
@@ -145,8 +157,7 @@ export class NwDbService {
 
   getHierarchy<T extends IObject>(ref: ObjectRef | null): Observable<Hierarchy<T>> {
     return of(ref).pipe(
-      mergeMap(ref => iif(() => !!ref, this.#api.getObject<T>(ref).pipe(
-        map(object => this.cacheAndGet(object)),
+      mergeMap(ref => iif(() => !!ref, of(this.refOrCached(ref)).pipe(
         expand(ids => ids.length > 0 ? from(ids).pipe(
           mergeMap(id => this.#api.getObject<T>(id), 5), toArray(),
           map(objects => this.cacheAndGet(...objects))
