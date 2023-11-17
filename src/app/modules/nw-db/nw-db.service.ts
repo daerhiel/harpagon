@@ -3,12 +3,12 @@ import { EMPTY, Observable, expand, from, iif, last, map, mergeMap, of, toArray 
 
 import { getStorageItem, setStorageItem } from '@app/services/settings';
 import { NwDbApiService } from './nw-db-api.service';
-import { Ingredient, isItem, isRecipe } from './models/objects';
-import { Object, ObjectRef, ObjectType } from './models/types';
+import { IIngredient, isItem, isRecipe } from './models/objects';
+import { IObject, ObjectRef, ObjectType } from './models/types';
 
-export type Index<T extends Object> = Partial<Record<ObjectType, Record<string, T>>>;
+export type Index<T extends IObject> = Partial<Record<ObjectType, Record<string, T>>>;
 
-export interface Hierarchy<T extends Object> {
+export interface Hierarchy<T extends IObject> {
   ref: ObjectRef | null;
   index: Index<T>;
 }
@@ -18,14 +18,14 @@ export interface Hierarchy<T extends Object> {
 })
 export class NwDbService {
   readonly #api: NwDbApiService = inject(NwDbApiService);
-  private readonly _storage: Index<Object> = {
+  private readonly _storage: Index<IObject> = {
     currency: {
       azoth_currency: {
         id: 'azoth_currency',
         type: 'currency',
         name: 'Azoth',
         icon: 'currency_azoth',
-      } as Object
+      } as IObject
     }
   };
 
@@ -38,7 +38,7 @@ export class NwDbService {
       const key = localStorage.key(i)!;
       switch (true) {
         case key && key.startsWith('object:'): {
-          const object = getStorageItem<Object | null>(key, null);
+          const object = getStorageItem<IObject | null>(key, null);
           if (object) {
             (this._storage[object.type] ?? (this._storage[object.type] = {}))[object.id] = object;
           }
@@ -47,7 +47,7 @@ export class NwDbService {
     }
   }
 
-  private cacheAndGet<T extends Object>(...objects: (T | null)[]): ObjectRef[] {
+  private cacheAndGet<T extends IObject>(...objects: (T | null)[]): ObjectRef[] {
     const ids: ObjectRef[] = [];
 
     const set = (ref: ObjectRef): void => {
@@ -57,7 +57,7 @@ export class NwDbService {
       }
     }
 
-    const push = (ingredient: Ingredient): void => {
+    const push = (ingredient: IIngredient): void => {
       set({ id: ingredient.id, type: ingredient.type });
       const ref = ingredient.recipeId;
       if (ref) {
@@ -94,7 +94,7 @@ export class NwDbService {
     return ids;
   }
 
-  private buildIndex<T extends Object>(ref: ObjectRef | null): Index<T> {
+  private buildIndex<T extends IObject>(ref: ObjectRef | null): Index<T> {
     const index: Index<T> = {};
 
     if (ref) {
@@ -143,7 +143,7 @@ export class NwDbService {
     return index;
   }
 
-  getHierarchy<T extends Object>(ref: ObjectRef | null): Observable<Hierarchy<T>> {
+  getHierarchy<T extends IObject>(ref: ObjectRef | null): Observable<Hierarchy<T>> {
     return of(ref).pipe(
       mergeMap(ref => iif(() => !!ref, this.#api.getObject<T>(ref).pipe(
         map(object => this.cacheAndGet(object)),

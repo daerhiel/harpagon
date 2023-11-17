@@ -1,6 +1,6 @@
-import { Object, ObjectBase, Quantity, RecipeCategory, TradeSkill } from "./types";
+import { IObject, IObjectBase, IQuantity, RecipeCategory, TradeSkill } from "./types";
 
-export interface Perk {
+export interface IPerk {
   id: string;
   type: "Generated";
   name: string;
@@ -12,8 +12,8 @@ export interface Perk {
   labelsString: string;
 }
 
-export interface PerkSlot {
-  perk: Perk;
+export interface IPerkSlot {
+  perk: IPerk;
   rollWeight: number;
   chanceMod: number;
   chance: number;
@@ -21,34 +21,34 @@ export interface PerkSlot {
   perkRollChance: number;
 }
 
-export interface PerkBucket {
+export interface IPerkBucket {
   id: string;
   type: "Generated";
   chance: number;
-  perks: PerkSlot[];
+  perks: IPerkSlot[];
   weightTotal: number;
 }
 
-export interface Ingredient extends ObjectBase {
+export interface IIngredient extends IObjectBase {
   type: 'item';
   quantity: number;
   recipeId?: { id: string };
 }
 
-export interface Category {
+export interface ICategory {
   type: 'category';
   name: string;
   icon: string;
-  subIngredients: Ingredient[];
+  subIngredients: IIngredient[];
   primary: false;
   quantity: number;
 }
 
-export interface Recipe extends Object {
+export interface IRecipe extends IObject {
   type: 'recipe';
   description: string;
-  perkBuckets: PerkBucket[];
-  ingredients: (Ingredient | Category)[];
+  perkBuckets: IPerkBucket[];
+  ingredients: (IIngredient | ICategory)[];
   tradeskill: TradeSkill;
   recipeLevel: number;
   CraftingFee: number;
@@ -64,27 +64,27 @@ export interface Recipe extends Object {
   isRefining: boolean;
   modCount: number;
   isOnGamingTools: boolean;
-  output: Object & Quantity;
-  recommendedItems: ObjectBase[];
+  output: IObject & IQuantity;
+  recommendedItems: IObjectBase[];
   recommendedItemsTypeString: string;
-  recommendedItemsSet: ObjectBase[];
+  recommendedItemsSet: IObjectBase[];
   recommendedItemsSetTypeString: string;
 }
 
-export interface Item extends Object {
+export interface IItem extends IObject {
   type: 'item';
   description: string;
   flagCanBeCrafted: { id: string };
 }
 
-export function isRecipe(object: ObjectBase | null | undefined): object is Recipe {
+export function isRecipe(object: IObjectBase | null | undefined): object is IRecipe {
   return !!object && object.type === 'recipe' && 'ingredients' in object && 'output' in object;
 }
 
-export function isItem(object: ObjectBase | null | undefined): object is Item {
+export function isItem(object: IObjectBase | null | undefined): object is IItem {
   return !!object && object.type === 'item';
 }
 
-export function isCurrency(object: ObjectBase | null | undefined): object is Item {
+export function isCurrency(object: IObjectBase | null | undefined): object is IItem {
   return !!object && object.type === 'currency';
 }

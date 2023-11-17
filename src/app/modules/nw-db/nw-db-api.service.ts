@@ -5,8 +5,8 @@ import { Observable, map, of } from 'rxjs';
 import { environment } from '@environments/environment';
 import { buildUrl } from '@app/services/utilities';
 import { Response } from './models/response';
-import { Recipe } from './models/objects';
-import { Object, ObjectRef, SearchRef } from './models/types';
+import { IRecipe } from './models/objects';
+import { IObject, ObjectRef, SearchRef } from './models/types';
 
 @Injectable({
   providedIn: 'root'
@@ -19,11 +19,11 @@ export class NwDbApiService {
     return this.#http.get<Response<SearchRef[]>>(buildUrl(this.#url, 'db', ['search', term])).pipe(map(x => x.data));
   }
 
-  getObject<T extends Object>(ref: ObjectRef | null): Observable<T | null> {
+  getObject<T extends IObject>(ref: ObjectRef | null): Observable<T | null> {
     return ref ? this.#http.get<Response<T>>(buildUrl(this.#url, 'db', [ref.type, `${ref.id}.json`])).pipe(map(x => x.data)) : of(null);
   }
 
-  getRecipe(id: string): Observable<Recipe> {
-    return this.#http.get<Response<Recipe>>(buildUrl(this.#url, 'db', ['recipe', `${id}.json`])).pipe(map(x => x.data));
+  getRecipe(id: string): Observable<IRecipe> {
+    return this.#http.get<Response<IRecipe>>(buildUrl(this.#url, 'db', ['recipe', `${id}.json`])).pipe(map(x => x.data));
   }
 }

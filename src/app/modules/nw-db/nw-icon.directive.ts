@@ -1,6 +1,6 @@
 import { Directive, ElementRef, HostListener, Input } from '@angular/core';
 
-import { ObjectBase } from './nw-db.module';
+import { IObjectBase } from './nw-db.module';
 
 @Directive({
   selector: 'img[nwIcon]',
@@ -11,7 +11,7 @@ export class NwIconDirective {
   readonly #cdn = 'https://cdn.nwdb.info/db/images/live/v39';
 
   @Input()
-  set nwIcon(value: ObjectBase | null | undefined) {
+  set nwIcon(value: IObjectBase | null | undefined) {
     const element = this._ref.nativeElement;
     if (element && value) {
       let icon = value.icon ?? this.#default;

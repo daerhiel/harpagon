@@ -13,7 +13,7 @@ export interface IconItem {
   icon?: string;
 }
 
-export interface Quantity {
+export interface IQuantity {
   id: string;
   type: ObjectType;
   itemType: ItemType;
@@ -25,7 +25,7 @@ export interface ObjectRef {
   type: ObjectType;
 }
 
-export interface ObjectBase extends ObjectRef {
+export interface IObjectBase extends ObjectRef {
   itemType: ItemType;
   name: string;
   icon?: string;
@@ -33,7 +33,7 @@ export interface ObjectBase extends ObjectRef {
   rarity?: Rarity;
 }
 
-export interface SearchRef extends ObjectBase {
+export interface SearchRef extends IObjectBase {
   level?: number;
   gearScore?: number | null;
   recipeLevel: number;
@@ -41,7 +41,7 @@ export interface SearchRef extends ObjectBase {
   searchRank: number;
 }
 
-export interface Object extends ObjectBase {
+export interface IObject extends IObjectBase {
   id: string;
   type: ObjectType;
   itemType: ItemType;

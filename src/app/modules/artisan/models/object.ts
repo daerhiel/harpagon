@@ -1,8 +1,8 @@
-import { Index, Ingredient, ItemType, Object, ObjectBase, ObjectRef, ObjectType, Rarity, Tier, isCurrency, isItem, isRecipe } from "@modules/nw-db/nw-db.module";
+import { IIngredient, IObject, IObjectBase, Index, ItemType, ObjectRef, ObjectType, Rarity, Tier, isCurrency, isItem, isRecipe } from "@modules/nw-db/nw-db.module";
 import { Operation } from "./operation";
 
-export class Resource implements ObjectBase {
-  private readonly _item: Object;
+export class Object implements IObjectBase {
+  private readonly _item: IObject;
 
   get id(): string { return this._item.id; }
   get type(): ObjectType { return this._item.type; }
@@ -12,7 +12,7 @@ export class Resource implements ObjectBase {
   get tier(): Tier | undefined { return this._item.tier; }
   get rarity(): Rarity | undefined { return this._item.rarity; }
 
-  constructor(ref: ObjectRef, index: Index<Object>) {
+  constructor(ref: ObjectRef, index: Index<IObject>) {
     if (!ref) {
       throw new ReferenceError(`The object ref is not specified.`);
     }
@@ -46,18 +46,18 @@ export class Resource implements ObjectBase {
     }
   }
 
-  static isRecipeSupported(id: string, index: Index<Object>): boolean {
+  static isRecipeSupported(id: string, index: Index<IObject>): boolean {
     const storage = index['recipe'];
     const recipe = storage && storage[id];
     return isRecipe(recipe) && recipe.category !== "Material Conversion";
   }
 
-  static fromIngredient(ingredient: Ingredient, index: Index<Object>): Resource {
+  static fromIngredient(ingredient: IIngredient, index: Index<IObject>): Object {
     const recipeId = ingredient.recipeId;
-    if (recipeId && this.isRecipeSupported(recipeId.id, index )) {
+    if (recipeId && this.isRecipeSupported(recipeId.id, index)) {
       return new Operation(ingredient, index);
     } else {
-      return new Resource(ingredient, index);
+      return new Object(ingredient, index);
     }
   }
 }

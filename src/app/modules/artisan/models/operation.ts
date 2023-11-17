@@ -1,12 +1,12 @@
-import { Index, Item, Object, ObjectRef, Recipe, isItem, isRecipe } from "@modules/nw-db/nw-db.module";
+import { Index, IObject, ObjectRef, IRecipe, isItem, isRecipe } from "@modules/nw-db/nw-db.module";
 
-import { Resource } from "./resource";
+import { Object } from "./object";
 
-export class Operation extends Resource {
-  private readonly _recipe: Recipe;
-  readonly resources: Resource[] = [];
+export class Operation extends Object {
+  private readonly _recipe: IRecipe;
+  readonly resources: Object[] = [];
 
-  constructor(ref: ObjectRef, index: Index<Object>) {
+  constructor(ref: ObjectRef, index: Index<IObject>) {
     super(ref, index);
 
     const storage = index[ref.type];
@@ -38,12 +38,12 @@ export class Operation extends Resource {
       switch (ingredient.type) {
         case 'category':
           for (const subIngredient of ingredient.subIngredients) {
-            this.resources.push(Resource.fromIngredient(subIngredient, index));
+            this.resources.push(Object.fromIngredient(subIngredient, index));
             break;
           }
           break;
         default:
-          this.resources.push(Resource.fromIngredient(ingredient, index));
+          this.resources.push(Object.fromIngredient(ingredient, index));
           break;
       }
     }

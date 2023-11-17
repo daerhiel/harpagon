@@ -25,7 +25,8 @@ import { FooterComponent } from '@layout/footer/footer.component';
 export class AppComponent {
   readonly layout: LayoutService = inject(LayoutService)
 
-  title = TitleStrategyService.title;
+  readonly title = TitleStrategyService.title;
 
-  @ViewChild('sidenav') sidenav?: MatSidenav;
+  @ViewChild('sidenav')
+  readonly sidenav?: MatSidenav;
 }
