@@ -1,6 +1,6 @@
-import { IObject, IRecipe, Index, ObjectRef, isItem, isRecipe } from "@modules/nw-db/nw-db.module";
-import { GamingToolsService } from "@modules/gaming-tools/gaming-tools.module";
+import { computed } from "@angular/core";
 
+import { IObject, IRecipe, Index, ObjectRef, isItem, isRecipe } from "@modules/nw-db/nw-db.module";
 import { Entity } from "./entity";
 import { Ingredient } from "./ingredient";
 
@@ -8,7 +8,9 @@ export class Composite extends Entity {
   private readonly _recipe: IRecipe;
   readonly ingredients: Ingredient[] = [];
 
-  constructor(private readonly _gaming: GamingToolsService, ref: ObjectRef, index: Index<IObject>) {
+  readonly cost = computed(() => this.ingredients.reduce((s, x) => s + x.cost(), 0));
+
+  constructor(ref: ObjectRef, index: Index<IObject>) {
     super(ref, index);
 
     const storage = index[ref.type];
@@ -40,12 +42,12 @@ export class Composite extends Entity {
       switch (ingredient.type) {
         case 'category':
           for (const subIngredient of ingredient.subIngredients) {
-            this.ingredients.push(new Ingredient(this._gaming, subIngredient, index));
+            this.ingredients.push(new Ingredient(subIngredient, index));
             break;
           }
           break;
         default:
-          this.ingredients.push(new Ingredient(this._gaming, ingredient, index));
+          this.ingredients.push(new Ingredient(ingredient, index));
           break;
       }
     }

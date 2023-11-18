@@ -4,7 +4,7 @@ import { GamingToolsService } from "@modules/gaming-tools/gaming-tools.service";
 import { Composite } from "./composite";
 
 export class Product extends Composite {
-  constructor(gaming: GamingToolsService, ref: ObjectRef, index: Index<IObject>) {
-    super(gaming, ref, index);
+  constructor(ref: ObjectRef, index: Index<IObject>) {
+    super(ref, index);
   }
 }

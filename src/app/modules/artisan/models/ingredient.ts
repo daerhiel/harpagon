@@ -1,7 +1,6 @@
 import { computed } from "@angular/core";
 
 import { IEntity, IIngredient, IObject, Index, ItemType, ObjectType, Rarity, Tier } from "@app/modules/nw-db/nw-db.module";
-import { GamingToolsService } from "@modules/gaming-tools/gaming-tools.module";
 import { Entity } from "./entity";
 
 export class Ingredient implements IEntity {
@@ -16,10 +15,10 @@ export class Ingredient implements IEntity {
   get rarity(): Rarity | undefined { return this._entity.rarity; }
   get quantity(): number { return this._ingredient.quantity; }
 
-  readonly price = computed(() => this._gaming.commodities()?.[this.id]);
-  readonly cost = computed(() => this.price()! * this.quantity);
+  readonly price = computed(() => this._entity.price());
+  readonly cost = computed(() => this._entity.price()! * this.quantity);
 
-  constructor(private readonly _gaming: GamingToolsService, private readonly _ingredient: IIngredient, index: Index<IObject>) {
-    this._entity = Entity.fromIngredient(this._gaming, this._ingredient, index);
+  constructor(private readonly _ingredient: IIngredient, index: Index<IObject>) {
+    this._entity = Entity.fromIngredient(this._ingredient, index);
   }
 }

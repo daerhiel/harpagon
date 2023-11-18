@@ -1,9 +1,13 @@
+import { computed } from "@angular/core";
+
 import { IIngredient, IObject, IEntity, Index, ItemType, ObjectRef, ObjectType, Rarity, Tier, isCurrency, isItem, isRecipe } from "@modules/nw-db/nw-db.module";
 import { GamingToolsService } from "@modules/gaming-tools/gaming-tools.module";
-
+import { __injector } from "../artisan.service";
 import { Composite } from "./composite";
 
 export class Entity implements IEntity {
+  protected readonly _gaming: GamingToolsService = __injector.get(GamingToolsService);
+
   private readonly _item: IObject;
 
   get id(): string { return this._item.id; }
@@ -13,6 +17,8 @@ export class Entity implements IEntity {
   get icon(): string | undefined { return this._item.icon; }
   get tier(): Tier | undefined { return this._item.tier; }
   get rarity(): Rarity | undefined { return this._item.rarity; }
+
+  readonly price = computed(() => this._gaming.commodities()?.[this.id]);
 
   constructor(ref: ObjectRef, index: Index<IObject>) {
     if (!ref) {
@@ -54,10 +60,10 @@ export class Entity implements IEntity {
     return isRecipe(recipe) && recipe.category !== "Material Conversion";
   }
 
-  static fromIngredient(gaming: GamingToolsService, ingredient: IIngredient, index: Index<IObject>): Entity {
+  static fromIngredient(ingredient: IIngredient, index: Index<IObject>): Entity {
     const recipeId = ingredient.recipeId;
     if (recipeId && this.isRecipeSupported(recipeId.id, index)) {
-      return new Composite(gaming, ingredient, index);
+      return new Composite(ingredient, index);
     } else {
       return new Entity(ingredient, index);
     }
