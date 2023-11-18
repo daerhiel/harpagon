@@ -10,8 +10,16 @@ mat-icon {
   overflow: visible;
 }
 
-mat-list-item mat-icon img.mat-img {
-  margin: 4px 0;
+table[mat-table] {
+  mat-icon {
+    width: 32px;
+    height: 32px;
+    margin: 6px 0;
+  }
+
+  b {
+    font-weight: var(--mat-table-header-headline-weight, 500);
+  }
 }
 
 mat-option mat-icon img.mat-img {

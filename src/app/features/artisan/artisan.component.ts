@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatListModule } from '@angular/material/list';
+import { MatTableModule } from '@angular/material/table';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input'
 import { MatAutocompleteModule } from '@angular/material/autocomplete'
@@ -18,7 +18,7 @@ import { ArtisanService } from '@modules/artisan/artisan.module';
   imports: [
     CommonModule,
     FormsModule, ReactiveFormsModule,
-    MatListModule,
+    MatTableModule,
     MatFormFieldModule,
     MatInputModule, MatAutocompleteModule,
     MatIconModule,
@@ -29,6 +29,7 @@ import { ArtisanService } from '@modules/artisan/artisan.module';
 })
 export class ArtisanComponent {
   readonly #nwDbApi: NwDbApiService = inject(NwDbApiService);
+  protected readonly artisan: ArtisanService = inject(ArtisanService);
 
   protected readonly itemNameFn = (item: SearchRef) => item?.name;
   protected readonly searchItem = new FormControl<string | SearchRef | null>(null);
@@ -45,5 +46,5 @@ export class ArtisanComponent {
     tap(recipe => this.artisan.load(recipe))
   ));
 
-  protected readonly artisan: ArtisanService = inject(ArtisanService);
+  protected columns: string[] = ['icon', 'name', 'formula', 'cost'];
 }

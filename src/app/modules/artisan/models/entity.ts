@@ -1,4 +1,6 @@
 import { IIngredient, IObject, IEntity, Index, ItemType, ObjectRef, ObjectType, Rarity, Tier, isCurrency, isItem, isRecipe } from "@modules/nw-db/nw-db.module";
+import { GamingToolsService } from "@modules/gaming-tools/gaming-tools.module";
+
 import { Composite } from "./composite";
 
 export class Entity implements IEntity {
@@ -52,10 +54,10 @@ export class Entity implements IEntity {
     return isRecipe(recipe) && recipe.category !== "Material Conversion";
   }
 
-  static fromIngredient(ingredient: IIngredient, index: Index<IObject>): Entity {
+  static fromIngredient(gaming: GamingToolsService, ingredient: IIngredient, index: Index<IObject>): Entity {
     const recipeId = ingredient.recipeId;
     if (recipeId && this.isRecipeSupported(recipeId.id, index)) {
-      return new Composite(ingredient, index);
+      return new Composite(gaming, ingredient, index);
     } else {
       return new Entity(ingredient, index);
     }
