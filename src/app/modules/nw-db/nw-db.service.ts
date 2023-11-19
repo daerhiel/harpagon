@@ -69,11 +69,34 @@ export class NwDbService {
       }
     }
 
-    const push = (ingredient: IIngredient): void => {
+    const push = (ingredient: IIngredient): IObject | null => {
       set({ id: ingredient.id, type: ingredient.type });
       const ref = ingredient.recipeId;
       if (ref) {
         set({ id: ref.id, type: 'recipe' });
+        return this._storage['recipe']?.[ref.id] ?? null;
+      }
+      return null;
+    }
+
+    const traverse = (object: IObject | null): void => {
+      if (isRecipe(object)) {
+        const output = object.output;
+        set({ id: output.id, type: output.type });
+        for (const ingredient of object.ingredients) {
+          switch (ingredient.type) {
+            case 'category':
+              if (object.category !== 'Material Conversion') {
+                for (const subIngredient of ingredient.subIngredients) {
+                  traverse(push(subIngredient));
+                }
+              }
+              break;
+            default:
+              traverse(push(ingredient));
+              break;
+          }
+        }
       }
     }
 
@@ -85,21 +108,7 @@ export class NwDbService {
           setStorageItem(`object:${object.type}/${object.id}`, object);
         }
 
-        if (isRecipe(object)) {
-          set({ id: object.output.id, type: object.output.type });
-          for (const ingredient of object.ingredients) {
-            switch (ingredient.type) {
-              case 'category':
-                for (const subIngredient of ingredient.subIngredients) {
-                  push(subIngredient);
-                }
-                break;
-              default:
-                push(ingredient);
-                break;
-            }
-          }
-        }
+        traverse(object);
       }
     }
 
