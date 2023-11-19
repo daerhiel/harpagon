@@ -86,7 +86,7 @@ export class NwDbService {
         }
 
         if (isRecipe(object)) {
-          set(object.output);
+          set({ id: object.output.id, type: object.output.type });
           for (const ingredient of object.ingredients) {
             switch (ingredient.type) {
               case 'category':
