@@ -7,19 +7,19 @@ import { IEntity } from './nw-db.module';
   standalone: true
 })
 export class NwIconDirective {
-  readonly #default = 'https://nwdb.info/images/db/soon.png';
+  readonly #default = 'https://nwdb.info/images/db';
   readonly #cdn = 'https://cdn.nwdb.info/db/images/live/v39';
 
   @Input()
   set nwIcon(value: IEntity | null | undefined) {
     const element = this._ref.nativeElement;
     if (element && value) {
-      let icon = value.icon ?? this.#default;
+      let icon = value.icon ?? `${this.#default}/soon.png`;
       const match = /^lyshineui\/images\/(.*)\.png$/.exec(icon);
       if (match?.[1]) {
         icon = match[1].toLocaleLowerCase();
       }
-      element.src = `${this.#cdn}/${icon}.png`;
+      element.src = `${/^\w+$/i.test(icon) ? this.#default : this.#cdn}/${icon}.png`;
       if (value.rarity != null) {
         element.classList.forEach(name => {
           if (name.startsWith('item-tier-')) {
@@ -38,7 +38,7 @@ export class NwIconDirective {
   onError(event: Event): void {
     const element = this._ref.nativeElement;
     if (element && !element.nonce) {
-      element.src = this.#default;
+      element.src = `${this.#default}/soon.png`;
       element.nonce = Math.random().toFixed(20);
     }
   }

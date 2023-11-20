@@ -25,6 +25,7 @@ export class NwDbService {
         type: 'currency',
         name: 'Azoth',
         icon: 'currency_azoth',
+        rarity: 2
       } as IObject
     }
   };

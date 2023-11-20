@@ -1,5 +1,5 @@
 export type Tier = 1 | 2 | 3 | 4 | 5 | 100;
-export type Rarity = 1 | 2 | 3 | 4 | 5;
+export type Rarity = 0 | 1 | 2 | 3 | 4 | 5;
 
 export type ObjectType = 'item' | 'recipe' | 'quest' | 'currency' | 'category';
 
