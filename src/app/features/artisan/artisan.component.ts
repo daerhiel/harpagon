@@ -42,7 +42,6 @@ export class ArtisanComponent {
   readonly #switch = toSignal(this.searchItem.valueChanges.pipe(
     filter(item => typeof item !== 'string' && item != null), map(x => x as SearchRef),
     distinctUntilChanged(), tap(() => this.searchItem.reset()), debounceTime(300),
-    switchMap(item => this.#nwDbApi.getRecipe(item.id)),
     tap(recipe => this.artisan.load(recipe))
   ));
 
