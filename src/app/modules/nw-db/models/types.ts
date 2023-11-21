@@ -40,22 +40,3 @@ export interface SearchRef extends IEntity {
   recipeSkill: TradeSkill;
   searchRank: number;
 }
-
-export interface IObject extends IEntity {
-  id: string;
-  type: ObjectType;
-  itemType: ItemType;
-  name: string;
-  icon?: string;
-  tier?: Tier;
-  rarity?: Rarity;
-  gearScore?: number;
-  itemClass: string[];
-  perks: [
-    {
-      id: "perkid_stat_roundshield",
-      icon: "icons/misc/icon_attribute_arrow",
-      type: "Generated"
-    }
-  ]
-}

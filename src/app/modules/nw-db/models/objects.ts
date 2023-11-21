@@ -1,4 +1,4 @@
-import { IObject, IEntity, IQuantity, RecipeCategory, TradeSkill } from "./types";
+import { IEntity, IQuantity, RecipeCategory, TradeSkill, ObjectType, ItemType, Tier, Rarity } from "./types";
 
 export interface IPerk {
   id: string;
@@ -44,6 +44,12 @@ export interface ICategory {
   quantity: number;
 }
 
+export interface IObject extends IEntity {
+  gearScore?: number | null;
+  itemClass: string[];
+  perks: IPerk[],
+}
+
 export interface IRecipe extends IObject {
   type: 'recipe';
   description: string;
@@ -73,8 +79,39 @@ export interface IRecipe extends IObject {
 
 export interface IItem extends IObject {
   type: 'item';
+  typeName: string;
   description: string;
+  iconHiRes: string;
+  perkBuckets: IPerkBucket[];
+  gearScoreMin: number | null;
+  gearScoreMax: number | null;
+  weight: number;
+  maxStack: number;
+  level: number;
+  bindOnPickup: number;
+  bindOnEquip: number;
+  durability: number;
+  namedItem: number;
+  refinedAt: string,
+  statusEffects: any[];
   flagCanBeCrafted: { id: string };
+  flagCraftModMissingPerk: boolean;
+  canReplaceGem: number;
+  TradingCategory: string;
+  idOriginal: string;
+  lootTableIds: string[];
+  recommendedItems: IEntity[];
+  recommendedItemsTypeString: string;
+  drops_salvage_from: IEntity[];
+  drops_lootcontainer_from: IEntity[];
+  gatherablesWithItem: any[],
+  salvageOutput: any[];
+  upgradeRecipes: any[];
+  craftingRecipesOutput: IObject[];
+  craftingRecipesInput: IObject[];
+  IngredientCategories: string[];
+  questRewards: any[];
+  questTurnins: any[];
 }
 
 export function isRecipe(object: IEntity | null | undefined): object is IRecipe {

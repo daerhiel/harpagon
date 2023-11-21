@@ -16,7 +16,13 @@ export class Ingredient implements IEntity {
   get quantity(): number { return this._ingredient.quantity; }
 
   readonly price = computed(() => this._entity.price());
-  readonly cost = computed(() => this._entity.price()! * this.quantity);
+  readonly cost = computed(() => {
+    const price = this._entity.price();
+    if (price != null) {
+      return price * this.quantity;
+    }
+    return null;
+  });
 
   constructor(private readonly _ingredient: IIngredient, index: Index<IObject>) {
     this._entity = Entity.fromIngredient(this._ingredient, index);

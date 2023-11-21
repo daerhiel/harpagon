@@ -8,7 +8,13 @@ export class Composite extends Entity {
   private readonly _recipe: IRecipe;
   readonly ingredients: Ingredient[] = [];
 
-  readonly cost = computed(() => this.ingredients.reduce((s, x) => s + x.cost(), 0));
+  readonly cost = computed(() => this.ingredients.reduce((s, x) => {
+    const cost = x.cost();
+    if (cost != null) {
+      s += cost;
+    }
+    return s;
+  }, 0));
 
   constructor(ref: ObjectRef, index: Index<IObject>) {
     super(ref, index);
@@ -32,7 +38,7 @@ export class Composite extends Entity {
       }
     } else if (isRecipe(object)) {
       this._recipe = object;
-    } else if (object){
+    } else if (object) {
       throw new ReferenceError(`The object ref '${ref.type}' is not supported: ${ref.id}.`);
     } else {
       throw new ReferenceError(`The object ref '${ref.type}' is not found: ${ref.id}.`);

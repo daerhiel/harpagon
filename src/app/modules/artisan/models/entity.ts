@@ -18,7 +18,7 @@ export class Entity implements IEntity {
   get tier(): Tier | undefined { return this._item.tier; }
   get rarity(): Rarity | undefined { return this._item.rarity; }
 
-  readonly price = computed(() => this._gaming.commodities()?.[this.id]);
+  readonly price = computed(() => this._gaming.commodities()?.[this.id] ?? null);
 
   constructor(ref: ObjectRef, index: Index<IObject>) {
     if (!ref) {

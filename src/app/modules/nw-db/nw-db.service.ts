@@ -3,8 +3,8 @@ import { EMPTY, Observable, expand, from, iif, last, map, mergeMap, of, toArray 
 
 import { getStorageItem, setStorageItem } from '@app/services/settings';
 import { NwDbApiService } from './nw-db-api.service';
-import { IIngredient, isItem, isRecipe } from './models/objects';
-import { IObject, ObjectRef, ObjectType } from './models/types';
+import { IIngredient, IObject, isItem, isRecipe } from './models/objects';
+import { ObjectRef, ObjectType } from './models/types';
 
 export type Index<T extends IObject> = Partial<Record<ObjectType, Record<string, T>>>;
 
