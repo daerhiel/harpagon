@@ -5,7 +5,7 @@ export type ObjectType = 'item' | 'recipe' | 'quest' | 'currency' | 'category';
 
 export type ItemType = 'Resource' | 'Weapon';
 
-export type TradeSkill = 'Armoring' | 'Engineering' | 'Weaponsmithing' | 'Leatherworking' | 'Smelting';
+export type TradeSkill = 'Armoring' | 'Engineering' | 'Weaponsmithing' | 'Weaving' | 'Leatherworking' | 'Smelting' | 'Stonecutting' | 'Woodworking';
 
 export type RecipeCategory = 'Refined Resources' | 'Material Conversion';
 
