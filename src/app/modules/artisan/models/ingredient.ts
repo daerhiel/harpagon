@@ -1,7 +1,8 @@
 import { computed } from "@angular/core";
 
 import { IEntity, IIngredient, IObject, Index, ItemType, ObjectType, Rarity, Tier } from "@app/modules/nw-db/nw-db.module";
-import { Entity } from "./entity";
+import { Entity, coalesce } from "./entity";
+import { Composite } from "./composite";
 
 export class Ingredient implements IEntity {
   private readonly _entity: Entity;
@@ -14,15 +15,11 @@ export class Ingredient implements IEntity {
   get tier(): Tier | undefined { return this._entity.tier; }
   get rarity(): Rarity | undefined { return this._entity.rarity; }
   get quantity(): number { return this._ingredient.quantity; }
+  get bonus(): number | null { return this._ingredient.qtyBonus ?? null; }
 
   readonly price = computed(() => this._entity.price());
-  readonly cost = computed(() => {
-    const price = this._entity.price();
-    if (price != null) {
-      return price * this.quantity;
-    }
-    return null;
-  });
+  readonly total = computed(() => coalesce(this._entity.price(), null) * this.quantity);
+  readonly extra = computed(() => this._entity instanceof Composite ? this._entity.bonus() : null);
 
   constructor(private readonly _ingredient: IIngredient, index: Index<IObject>) {
     this._entity = Entity.fromIngredient(this._ingredient, index);

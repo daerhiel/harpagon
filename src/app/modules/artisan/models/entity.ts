@@ -5,6 +5,12 @@ import { GamingToolsService } from "@modules/gaming-tools/gaming-tools.module";
 import { __injector } from "../artisan.service";
 import { Composite } from "./composite";
 
+export function coalesce(value: number | null, fallback: number): number;
+export function coalesce(value: number | null, fallback: null): number;
+export function coalesce(value: number | null, fallback: number | null): number | null {
+  return value != null && !isNaN(value) ? value : fallback;
+}
+
 export class Entity implements IEntity {
   protected readonly _gaming: GamingToolsService = __injector.get(GamingToolsService);
 

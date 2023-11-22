@@ -29,7 +29,6 @@ import { ArtisanService } from '@modules/artisan/artisan.module';
 })
 export class ArtisanComponent {
   readonly #nwDbApi: NwDbApiService = inject(NwDbApiService);
-  protected readonly artisan: ArtisanService = inject(ArtisanService);
 
   protected readonly itemNameFn = (item: SearchRef) => item?.name;
   protected readonly searchItem = new FormControl<string | SearchRef | null>(null);
@@ -39,11 +38,12 @@ export class ArtisanComponent {
     switchMap(term => this.#nwDbApi.search(term).pipe(map(x => x.filter(v => v.type === 'recipe'))))
   ));
 
-  readonly #switch = toSignal(this.searchItem.valueChanges.pipe(
+  protected readonly artisan: ArtisanService = inject(ArtisanService);
+  protected readonly switch = toSignal(this.searchItem.valueChanges.pipe(
     filter(item => typeof item !== 'string' && item != null), map(x => x as SearchRef),
     distinctUntilChanged(), tap(() => this.searchItem.reset()), debounceTime(300),
     tap(recipe => this.artisan.load(recipe))
   ));
 
-  protected columns: string[] = ['icon', 'name', 'formula', 'cost'];
+  protected columns: string[] = ['icon', 'name', 'formula', 'total', 'extra'];
 }

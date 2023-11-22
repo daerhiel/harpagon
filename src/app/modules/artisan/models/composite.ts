@@ -1,20 +1,21 @@
 import { computed } from "@angular/core";
 
 import { IObject, IRecipe, Index, ObjectRef, isItem, isRecipe } from "@modules/nw-db/nw-db.module";
-import { Entity } from "./entity";
+import { Entity, coalesce } from "./entity";
 import { Ingredient } from "./ingredient";
 
 export class Composite extends Entity {
   private readonly _recipe: IRecipe;
+  private readonly _tradeSkill = 250;
+  private readonly _gearPieces = 5;
+
   readonly ingredients: Ingredient[] = [];
 
-  readonly cost = computed(() => this.ingredients.reduce((s, x) => {
-    const cost = x.cost();
-    if (cost != null) {
-      s += cost;
-    }
-    return s;
-  }, 0));
+  readonly input = computed(() => this.ingredients.reduce((s, x) => s + coalesce(x.total(), 0), 0));
+  readonly bonus = computed(() => {
+    const bonus = this.ingredients.reduce((s, x) => s + coalesce(x.bonus, 0), 0);
+    return Math.max(this._tradeSkill / 1000 + this._gearPieces * 0.02 + this._recipe.qtyBonus + bonus, 0);
+  });
 
   constructor(ref: ObjectRef, index: Index<IObject>) {
     super(ref, index);

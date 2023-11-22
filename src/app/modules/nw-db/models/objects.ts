@@ -31,6 +31,7 @@ export interface IPerkBucket {
 
 export interface IIngredient extends IEntity {
   type: 'item';
+  qtyBonus?: number;
   quantity: number;
   recipeId?: { id: string };
 }
