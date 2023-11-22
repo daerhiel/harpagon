@@ -18,9 +18,9 @@
     <div class="app-l-flex app-l-flex-gap-hr app-l-align-center app-width-100">
       <img [nwIcon]="product" class="mat-img app-mr-1r" loading="lazy">
       <div class="app-l-flex-spacer-1">{{product.name}}</div>
-      <div>{{product.bonus() | number:'1.2-3'}}</div>
-      <div>{{product.price() | number:'1.2-3'}}</div>
-      <div>{{product.input() | number:'1.2-3'}}</div>
+      @if (product.bonus(); as bonus) { <div>Bonus: <b>{{bonus | number:'1.2-3'}}</b></div> }
+      @if (product.price(); as price) { <div>Price: <b>{{price | number:'1.2-3'}}</b></div> }
+      @if (product.input(); as input) { <div>Craft: <b>{{input | number:'1.2-3'}}</b></div> }
     </div>
     <table mat-table class="mat-elevation-z1 app-mt-1r" [dataSource]="product.ingredients">
       <ng-container matColumnDef="icon">
