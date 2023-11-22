@@ -5,6 +5,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input'
 import { MatAutocompleteModule } from '@angular/material/autocomplete'
+import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, filter, map, switchMap, tap } from 'rxjs';
@@ -21,6 +22,7 @@ import { ArtisanService } from '@modules/artisan/artisan.module';
     MatTableModule,
     MatFormFieldModule,
     MatInputModule, MatAutocompleteModule,
+    MatButtonModule,
     MatIconModule,
     NwIconDirective
   ],

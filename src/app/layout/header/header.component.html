@@ -6,7 +6,7 @@
   <div class="app-l-flex app-l-flex-column app-l-align-start app-l-flex-gap-hr app-p-1r">
   </div>
   <span class="mat-spacer"></span>
-  <button id="domain" mat-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu" [disabled]="!gaming.servers()?.length">
+  <button id="domain" mat-button [matMenuTriggerFor]="menu" aria-label="Server selector" [disabled]="!gaming.servers()?.length">
     {{gaming.domain()?.name ?? '(Server)'}}
   </button>
   <mat-menu #menu="matMenu">

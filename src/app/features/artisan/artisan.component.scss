@@ -1,3 +1,7 @@
+.recipe-selector {
+  width: 50vw;
+}
+
 img.mat-img {
   display: inline-block;
   fill: currentColor;
@@ -19,6 +23,11 @@ table[mat-table] {
 
   b {
     font-weight: var(--mat-table-header-headline-weight, 500);
+  }
+  button {
+    margin: 0 -8px;
+    font-weight: inherit;
+    letter-spacing: inherit;
   }
 }
 
