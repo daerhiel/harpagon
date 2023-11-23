@@ -1,6 +1,6 @@
 <div class="app-l-flex app-l-align-center app-l-justify-center app-width-100 app-height-100">
-  <div class="app-l-flex app-l-flex-column">
-    <mat-form-field class="recipe-selector">
+  <div class="app-l-flex app-l-flex-column recipe-selector">
+    <mat-form-field>
       <mat-label>Search item</mat-label>
       <input matInput type="text" placeholder="Type in..." [matAutocomplete]="auto" [formControl]="searchItem">
       <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" [displayWith]="itemNameFn">
@@ -14,6 +14,7 @@
         }
       </mat-autocomplete>
     </mat-form-field>
+    @if (!artisan.loading()) {
     @if (artisan.product(); as product) {
     <div class="app-l-flex app-l-flex-gap-hr app-l-align-center app-width-100">
       <img [nwIcon]="product" class="mat-img app-mr-1r" loading="lazy">
@@ -39,8 +40,7 @@
           <button id="domain" mat-button aria-label="Switch to item" (click)="searchItem.setValue(ingredient.ref)">
             {{ingredient.name}}
           </button>
-          }
-          @else {
+          } @else {
           {{ingredient.name}}
           }
         </td>
@@ -70,6 +70,9 @@
       <tr mat-header-row *matHeaderRowDef="columns"></tr>
       <tr mat-row *matRowDef="let row; columns: columns;"></tr>
     </table>
+    }
+    } @else {
+    <mat-progress-bar mode="query"></mat-progress-bar>
     }
   </div>
 </div>

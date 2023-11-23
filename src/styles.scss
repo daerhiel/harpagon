@@ -37,6 +37,7 @@ $hungry-horde-ui-theme: mat.define-dark-theme(
 @include mat.sidenav-theme($hungry-horde-ui-theme);
 @include mat.toolbar-theme($hungry-horde-ui-theme);
 @include mat.table-theme($hungry-horde-ui-theme);
+@include mat.progress-bar-theme($hungry-horde-ui-theme);
 @include mat.progress-spinner-theme($hungry-horde-ui-theme);
 @include mat.button-theme($hungry-horde-ui-theme);
 @include mat.menu-theme($hungry-horde-ui-theme);

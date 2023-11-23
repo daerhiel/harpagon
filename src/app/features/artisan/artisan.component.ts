@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input'
@@ -19,6 +20,7 @@ import { ArtisanService } from '@modules/artisan/artisan.module';
   imports: [
     CommonModule,
     FormsModule, ReactiveFormsModule,
+    MatProgressBarModule,
     MatTableModule,
     MatFormFieldModule,
     MatInputModule, MatAutocompleteModule,
@@ -43,8 +45,9 @@ export class ArtisanComponent {
   protected readonly artisan: ArtisanService = inject(ArtisanService);
   protected readonly switch = toSignal(this.searchItem.valueChanges.pipe(
     filter(item => typeof item !== 'string' && item != null), map(x => x as SearchRef),
-    distinctUntilChanged(), tap(() => this.searchItem.reset()), debounceTime(300),
-    tap(recipe => this.artisan.load(recipe))
+    distinctUntilChanged(),
+    tap(entity => this.artisan.load(entity)), debounceTime(100),
+    tap(() => this.searchItem.reset())
   ));
 
   protected columns: string[] = ['icon', 'name', 'formula', 'total', 'extra'];
