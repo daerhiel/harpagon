@@ -2,33 +2,8 @@
   width: 50vw;
 }
 
-img.mat-img {
-  display: inline-block;
-  fill: currentColor;
-  height: 30px;
-  width: 30px;
-  overflow: visible;
-}
-
 mat-icon {
   overflow: visible;
-}
-
-table[mat-table] {
-  mat-icon {
-    width: 32px;
-    height: 32px;
-    margin: 6px 0;
-  }
-
-  b {
-    font-weight: var(--mat-table-header-headline-weight, 500);
-  }
-  button {
-    margin: 0 -8px;
-    font-weight: inherit;
-    letter-spacing: inherit;
-  }
 }
 
 mat-option mat-icon img.mat-img {

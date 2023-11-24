@@ -1,6 +1,6 @@
 import { computed } from "@angular/core";
 
-import { IEntity, IIngredient, IObject, Index, ItemType, ObjectRef, ObjectType, Rarity, Tier } from "@app/modules/nw-db/nw-db.module";
+import { IEntity, IIngredient, IObject, Index, ItemType, ObjectRef, ObjectType, Rarity, Tier } from "@modules/nw-db/nw-db.module";
 import { Entity, coalesce } from "./entity";
 import { Composite } from "./composite";
 

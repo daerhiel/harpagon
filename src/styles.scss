@@ -36,6 +36,7 @@ $hungry-horde-ui-theme: mat.define-dark-theme(
 @include mat.core-theme($hungry-horde-ui-theme);
 @include mat.sidenav-theme($hungry-horde-ui-theme);
 @include mat.toolbar-theme($hungry-horde-ui-theme);
+@include mat.card-theme($hungry-horde-ui-theme);
 @include mat.table-theme($hungry-horde-ui-theme);
 @include mat.progress-bar-theme($hungry-horde-ui-theme);
 @include mat.progress-spinner-theme($hungry-horde-ui-theme);
@@ -190,6 +191,16 @@ a[mat-link] {
 
 .mat-mdc-menu-panel {
   max-height: 50vh;
+}
+
+/** Global App styles **/
+
+img.mat-img {
+  display: inline-block;
+  fill: currentColor;
+  height: 30px;
+  width: 30px;
+  overflow: visible;
 }
 
 /** NwDb Items **/

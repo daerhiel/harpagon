@@ -24,46 +24,10 @@
       @if (product.input(); as input) { <div>Craft: <b>{{input | number:'1.2-3'}}</b></div> }
     </div>
     <table mat-table class="mat-elevation-z1 app-mt-1r" [dataSource]="product.ingredients">
-      <ng-container matColumnDef="icon">
-        <th mat-header-cell *matHeaderCellDef> No. </th>
+      <ng-container matColumnDef="ingredient">
+        <th mat-header-cell *matHeaderCellDef> Card </th>
         <td mat-cell *matCellDef="let ingredient">
-          <mat-icon matListItemIcon>
-            <img [nwIcon]="ingredient" class="mat-img" loading="lazy">
-          </mat-icon>
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef> Name </th>
-        <td mat-cell *matCellDef="let ingredient">
-          @if (ingredient.canBeCrafted) {
-          <button id="domain" mat-button aria-label="Switch to item" (click)="searchItem.setValue(ingredient.ref)">
-            {{ingredient.name}}
-          </button>
-          } @else {
-          {{ingredient.name}}
-          }
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="formula">
-        <th mat-header-cell *matHeaderCellDef> Sheet </th>
-        <td mat-cell *matCellDef="let ingredient">
-          <b>{{ingredient.quantity}}</b> x <b>{{ingredient.price() | number:'1.2-3'}}</b>
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="total">
-        <th mat-header-cell *matHeaderCellDef> Total </th>
-        <td mat-cell *matCellDef="let ingredient">
-          <b>{{ingredient.total() | number:'1.2-3'}}</b>
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="extra">
-        <th mat-header-cell *matHeaderCellDef> Extra </th>
-        <td mat-cell *matCellDef="let ingredient">
-          <b>{{ingredient.extra() | number:'1.2-3'}}</b>
+          <ingredient [data]="ingredient" (navigate)="searchItem.setValue($event)"></ingredient>
         </td>
       </ng-container>
 

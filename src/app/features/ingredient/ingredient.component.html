@@ -1,0 +1,26 @@
+@if (data; as data) {
+<mat-card>
+  <mat-card-header>
+    <mat-card-title-group>
+      <mat-card-title>
+        @if (data.canBeCrafted) {
+        <button id="domain" mat-button aria-label="Switch to item" (click)="navigate.emit(data.ref)">
+          {{data.name}}
+        </button>
+        } @else {
+        {{data.name}}
+        }
+      </mat-card-title>
+      <mat-card-subtitle>
+        <b>{{data.quantity}}</b> x <b>{{data.price() | number:'1.2-3'}}</b> = <b>{{data.total() | number:'1.2-3'}}</b>
+      </mat-card-subtitle>
+      <mat-icon>
+        <img [nwIcon]="data" class="mat-img" loading="lazy">
+      </mat-icon>
+    </mat-card-title-group>
+  </mat-card-header>
+  <mat-card-content>
+
+  </mat-card-content>
+</mat-card>
+}
