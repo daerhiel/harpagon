@@ -22,8 +22,8 @@ export class Composite extends Entity {
     return null;
   });
 
-  constructor(protected readonly _materials: Materials, ref: ObjectRef, index: Index<IObject>) {
-    super(ref, index);
+  constructor(materials: Materials, ref: ObjectRef, index: Index<IObject>) {
+    super(materials, ref, index);
 
     const storage = index[ref.type];
     const object = storage && storage[ref.id];
@@ -54,12 +54,12 @@ export class Composite extends Entity {
       switch (ingredient.type) {
         case 'category':
           for (const subIngredient of ingredient.subIngredients) {
-            this.ingredients.push(_materials.create(subIngredient, index));
+            this.ingredients.push(this._materials.create(subIngredient, index));
             break;
           }
           break;
         default:
-          this.ingredients.push(_materials.create(ingredient, index));
+          this.ingredients.push(this._materials.create(ingredient, index));
           break;
       }
     }

@@ -20,7 +20,6 @@ export class Ingredient implements IEntity {
 
   readonly price = computed(() => this._entity.price());
   readonly total = computed(() => coalesce(this._entity.price(), null) * this.quantity);
-  readonly extra = computed(() => this._entity instanceof Composite ? this._entity.bonus() : null);
 
   constructor(private readonly _ingredient: IIngredient, private readonly _entity: Entity) {
     if (!_ingredient) {

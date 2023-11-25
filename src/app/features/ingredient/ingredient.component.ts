@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
 import { NwIconDirective, ObjectRef } from '@modules/nw-db/nw-db.module';
-import { Ingredient } from '@modules/artisan/models/ingredient';
+import { Ingredient } from '@modules/artisan/artisan.module';
 
 @Component({
   selector: 'ingredient',

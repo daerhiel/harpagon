@@ -5,6 +5,7 @@ export * from './models/entity';
 export * from './models/composite';
 export * from './models/ingredient';
 export * from './models/materials';
+export * from './models/stage';
 export * from './models/product';
 export * from './artisan.service';
 

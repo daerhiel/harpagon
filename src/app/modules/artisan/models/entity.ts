@@ -1,9 +1,9 @@
 import { computed } from "@angular/core";
 
-import { IIngredient, IObject, IEntity, Index, ItemType, ObjectRef, ObjectType, Rarity, Tier, isCurrency, isItem, isRecipe } from "@modules/nw-db/nw-db.module";
+import { IObject, IEntity, Index, ItemType, ObjectRef, ObjectType, Rarity, Tier, isCurrency, isItem, isRecipe } from "@modules/nw-db/nw-db.module";
 import { GamingToolsService } from "@modules/gaming-tools/gaming-tools.module";
 import { __injector } from "../artisan.service";
-import { Composite } from "./composite";
+import { Materials } from "./materials";
 
 export function coalesce(value: number | null, fallback: number): number;
 export function coalesce(value: number | null, fallback: null): number;
@@ -26,7 +26,10 @@ export class Entity implements IEntity {
 
   readonly price = computed(() => this._gaming.commodities()?.[this.id] ?? null);
 
-  constructor(ref: ObjectRef, index: Index<IObject>) {
+  constructor(protected readonly _materials: Materials, ref: ObjectRef, index: Index<IObject>) {
+    if (!_materials) {
+      throw new ReferenceError(`The material index is not specified.`);
+    }
     if (!ref) {
       throw new ReferenceError(`The object ref is not specified.`);
     }
@@ -58,6 +61,8 @@ export class Entity implements IEntity {
     } else {
       throw new ReferenceError(`The object ref '${ref.type}' is not found: ${ref.id}.`);
     }
+
+    this._materials.add(this);
   }
 
   static isRecipeSupported(id: string, index: Index<IObject>): boolean {
