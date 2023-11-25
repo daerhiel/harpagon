@@ -3,6 +3,7 @@ import { computed } from "@angular/core";
 import { IObject, IRecipe, Index, ObjectRef, TradeSkill, isItem, isRecipe } from "@modules/nw-db/nw-db.module";
 import { Entity, coalesce } from "./entity";
 import { Ingredient } from "./ingredient";
+import { Materials } from "./materials";
 
 export class Composite extends Entity {
   private readonly _recipe: IRecipe;
@@ -21,7 +22,7 @@ export class Composite extends Entity {
     return null;
   });
 
-  constructor(ref: ObjectRef, index: Index<IObject>) {
+  constructor(protected readonly _materials: Materials, ref: ObjectRef, index: Index<IObject>) {
     super(ref, index);
 
     const storage = index[ref.type];
@@ -53,12 +54,12 @@ export class Composite extends Entity {
       switch (ingredient.type) {
         case 'category':
           for (const subIngredient of ingredient.subIngredients) {
-            this.ingredients.push(new Ingredient(subIngredient, index));
+            this.ingredients.push(_materials.create(subIngredient, index));
             break;
           }
           break;
         default:
-          this.ingredients.push(new Ingredient(ingredient, index));
+          this.ingredients.push(_materials.create(ingredient, index));
           break;
       }
     }

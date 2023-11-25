@@ -65,13 +65,4 @@ export class Entity implements IEntity {
     const recipe = storage && storage[id];
     return isRecipe(recipe) && recipe.category !== "Material Conversion";
   }
-
-  static fromIngredient(ingredient: IIngredient, index: Index<IObject>): Entity {
-    const recipeId = ingredient.recipeId;
-    if (recipeId && this.isRecipeSupported(recipeId.id, index)) {
-      return new Composite(ingredient, index);
-    } else {
-      return new Entity(ingredient, index);
-    }
-  }
 }

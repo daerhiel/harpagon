@@ -5,8 +5,6 @@ import { Entity, coalesce } from "./entity";
 import { Composite } from "./composite";
 
 export class Ingredient implements IEntity {
-  private readonly _entity: Entity;
-
   get id(): string { return this._entity.id; }
   get type(): ObjectType { return this._entity.type; }
   get itemType(): ItemType { return this._entity.itemType; }
@@ -24,7 +22,12 @@ export class Ingredient implements IEntity {
   readonly total = computed(() => coalesce(this._entity.price(), null) * this.quantity);
   readonly extra = computed(() => this._entity instanceof Composite ? this._entity.bonus() : null);
 
-  constructor(private readonly _ingredient: IIngredient, index: Index<IObject>) {
-    this._entity = Entity.fromIngredient(this._ingredient, index);
+  constructor(private readonly _ingredient: IIngredient, private readonly _entity: Entity) {
+    if (!_ingredient) {
+      throw new ReferenceError(`The ingredient is not specified.`);
+    }
+    if (!_entity) {
+      throw new ReferenceError(`The object entity is not specified.`);
+    }
   }
 }
