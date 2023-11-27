@@ -4,12 +4,15 @@ import { IObject, IRecipe, Index, ObjectRef, TradeSkill, isItem, isRecipe } from
 import { Entity, coalesce } from "./entity";
 import { Ingredient } from "./ingredient";
 import { Materials } from "./materials";
+import { Stage } from "./stage";
 
 export class Composite extends Entity {
   private readonly _recipe: IRecipe;
   private readonly _tradeSkills: TradeSkill[] = ['Weaving', 'Leatherworking', 'Smelting', 'Stonecutting', 'Woodworking'];
   private readonly _tradeSkill = 250;
   private readonly _gearPieces = 5;
+
+  override get canBeCrafted(): boolean { return false; }
 
   readonly ingredients: Ingredient[] = [];
 
@@ -54,14 +57,22 @@ export class Composite extends Entity {
       switch (ingredient.type) {
         case 'category':
           for (const subIngredient of ingredient.subIngredients) {
-            this.ingredients.push(this._materials.create(subIngredient, index));
+            this.ingredients.push(this.materials.createAndLink(subIngredient, index));
             break;
           }
           break;
         default:
-          this.ingredients.push(this._materials.create(ingredient, index));
+          this.ingredients.push(this.materials.createAndLink(ingredient, index));
           break;
       }
+    }
+  }
+
+  override snap(stage: Stage): void {
+    super.snap(stage)
+
+    for (const ingredient of this.ingredients) {
+      ingredient.snap(stage);
     }
   }
 }

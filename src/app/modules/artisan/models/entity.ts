@@ -4,6 +4,7 @@ import { IObject, IEntity, Index, ItemType, ObjectRef, ObjectType, Rarity, Tier,
 import { GamingToolsService } from "@modules/gaming-tools/gaming-tools.module";
 import { __injector } from "../artisan.service";
 import { Materials } from "./materials";
+import { Stage } from "./stage";
 
 export function coalesce(value: number | null, fallback: number): number;
 export function coalesce(value: number | null, fallback: null): number;
@@ -24,10 +25,13 @@ export class Entity implements IEntity {
   get tier(): Tier | undefined { return this._item.tier; }
   get rarity(): Rarity | undefined { return this._item.rarity; }
 
+  get canBeCrafted(): boolean { return false; }
+  get ref(): ObjectRef { return { id: this.id, type: this.type }; }
+
   readonly price = computed(() => this._gaming.commodities()?.[this.id] ?? null);
 
-  constructor(protected readonly _materials: Materials, ref: ObjectRef, index: Index<IObject>) {
-    if (!_materials) {
+  constructor(readonly materials: Materials, ref: ObjectRef, index: Index<IObject>) {
+    if (!materials) {
       throw new ReferenceError(`The material index is not specified.`);
     }
     if (!ref) {
@@ -62,7 +66,15 @@ export class Entity implements IEntity {
       throw new ReferenceError(`The object ref '${ref.type}' is not found: ${ref.id}.`);
     }
 
-    this._materials.add(this);
+    this.materials.add(this);
+  }
+
+  snap(stage: Stage) {
+    if (!stage) {
+      throw new ReferenceError(`The stage is not specified.`);
+    }
+
+    stage.push(this);
   }
 
   static isRecipeSupported(id: string, index: Index<IObject>): boolean {

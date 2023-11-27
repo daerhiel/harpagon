@@ -5,25 +5,29 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
 import { NwIconDirective, ObjectRef } from '@modules/nw-db/nw-db.module';
-import { Ingredient } from '@modules/artisan/artisan.module';
+import { Composite, Entity } from '@modules/artisan/artisan.module';
+import { InstancePipe } from '@app/services/instance.pipe';
 
 @Component({
-  selector: 'ingredient',
+  selector: 'entity',
   standalone: true,
   imports: [
     CommonModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    NwIconDirective
-  ],
-  templateUrl: './ingredient.component.html',
-  styleUrl: './ingredient.component.scss',
+    NwIconDirective,
+    InstancePipe
+ ],
+  templateUrl: './entity.component.html',
+  styleUrl: './entity.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class IngredientComponent {
+export class EntityComponent {
   @Input()
-  data: Ingredient | null = null;
+  data: Entity | null = null;
+
+  protected readonly Composite = Composite;
 
   @Output()
   readonly navigate = new EventEmitter<ObjectRef>();

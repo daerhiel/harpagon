@@ -6,7 +6,9 @@ import { Stage } from "./stage";
 
 export class Materials {
   private readonly _index: Record<string, Entity> = {};
-  readonly stages: Record<number, Stage> = {};
+
+  readonly stages: Record<string, Stage> = {};
+  readonly product: Stage = new Stage(this, 'product');
 
   get(id: string): Entity | undefined {
     if (!id) {
@@ -29,7 +31,11 @@ export class Materials {
     }
   }
 
-  create(ingredient: IIngredient, index: Index<IObject>): Ingredient {
+  getStage(entity: Entity): Stage | undefined {
+    return Object.keys(this.stages).map(x => this.stages[x]).find(x => x.has(entity));
+  }
+
+  createAndLink(ingredient: IIngredient, index: Index<IObject>): Ingredient {
     if (!ingredient) {
       throw new ReferenceError(`The ingredient is not specified.`);
     }

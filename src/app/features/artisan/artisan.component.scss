@@ -1,5 +1,6 @@
 .recipe-selector {
-  width: 50vw;
+  min-width: 50vw;
+  overflow: auto;
 }
 
 mat-icon {

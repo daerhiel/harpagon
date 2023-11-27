@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -6,13 +6,13 @@ import { MatTableModule } from '@angular/material/table';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input'
 import { MatAutocompleteModule } from '@angular/material/autocomplete'
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, filter, map, switchMap, tap } from 'rxjs';
 
 import { NwDbApiService, NwIconDirective, ObjectRef, SearchRef } from '@modules/nw-db/nw-db.module';
 import { ArtisanService } from '@modules/artisan/artisan.module';
+import { EntityComponent } from '../entity/entity.component';
 import { IngredientComponent } from '../ingredient/ingredient.component';
 
 @Component({
@@ -27,10 +27,12 @@ import { IngredientComponent } from '../ingredient/ingredient.component';
     MatInputModule, MatAutocompleteModule,
     MatIconModule,
     NwIconDirective,
+    EntityComponent,
     IngredientComponent
   ],
   templateUrl: './artisan.component.html',
-  styleUrls: ['./artisan.component.scss']
+  styleUrls: ['./artisan.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ArtisanComponent {
   readonly #nwDbApi: NwDbApiService = inject(NwDbApiService);
@@ -50,6 +52,4 @@ export class ArtisanComponent {
     tap(entity => this.artisan.load(entity)), debounceTime(100),
     tap(() => this.searchItem.reset())
   ));
-
-  protected columns: string[] = ['ingredient'];
 }

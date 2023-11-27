@@ -2,7 +2,7 @@ import { computed } from "@angular/core";
 
 import { IEntity, IIngredient, IObject, Index, ItemType, ObjectRef, ObjectType, Rarity, Tier } from "@modules/nw-db/nw-db.module";
 import { Entity, coalesce } from "./entity";
-import { Composite } from "./composite";
+import { Stage } from "./stage";
 
 export class Ingredient implements IEntity {
   get id(): string { return this._entity.id; }
@@ -15,8 +15,8 @@ export class Ingredient implements IEntity {
   get quantity(): number { return this._ingredient.quantity; }
   get bonus(): number | null { return this._ingredient.qtyBonus ?? null; }
 
-  get canBeCrafted(): boolean { return this._entity instanceof Composite; }
-  get ref(): ObjectRef { return { id: this._entity.id, type: this._entity.type }; }
+  get canBeCrafted(): boolean { return this._entity.canBeCrafted; }
+  get ref(): ObjectRef { return this._entity.ref; }
 
   readonly price = computed(() => this._entity.price());
   readonly total = computed(() => coalesce(this._entity.price(), null) * this.quantity);
@@ -28,5 +28,14 @@ export class Ingredient implements IEntity {
     if (!_entity) {
       throw new ReferenceError(`The object entity is not specified.`);
     }
+  }
+
+  snap(stage: Stage) {
+    if (!stage) {
+      throw new ReferenceError(`The stage is not specified.`);
+    }
+
+    const entity = this._entity;
+    this._entity.snap(entity.materials.getStage(entity) ?? stage.getNext());
   }
 }
