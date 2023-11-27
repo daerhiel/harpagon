@@ -80,6 +80,6 @@ export class Entity implements IEntity {
   static isRecipeSupported(id: string, index: Index<IObject>): boolean {
     const storage = index['recipe'];
     const recipe = storage && storage[id];
-    return isRecipe(recipe) && recipe.category !== "Material Conversion";
+    return isRecipe(recipe) && recipe.category !== "Material Conversion" && recipe.tradeskill as string !== "";
   }
 }
