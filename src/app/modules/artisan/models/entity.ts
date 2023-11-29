@@ -30,19 +30,7 @@ export class Entity implements IEntity {
   get isOwned(): boolean { return this.#owners().length > 0; }
 
   readonly price = computed(() => this.#gaming.commodities()?.[this.id] ?? null);
-  readonly input = computed(() => this.#gaming.commodities()?.[this.id] ?? null);
-  // readonly stage = computed<Stage | null>(() => {
-  //   let stage: Stage | null = null;
-  //   for (const owner of this.#owners()) {
-  //     if (owner.expand()) {
-  //       const current = this.materials.getStage(owner);
-  //       if (!stage || stage.before(current)) {
-  //         stage = current;
-  //       }
-  //     }
-  //   }
-  //   return stage?.getNext() ?? this.materials['product'];
-  // });
+  readonly value = computed(() => this.#gaming.commodities()?.[this.id] ?? null);
 
   constructor(readonly materials: Materials, ref: ObjectRef, index: Index<IObject>) {
     if (!materials) {

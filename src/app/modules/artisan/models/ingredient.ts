@@ -23,8 +23,7 @@ export class Ingredient implements IEntity {
   get canBeCrafted(): boolean { return this.#entity.canBeCrafted; }
   get ref(): ObjectRef { return this.#entity.ref; }
 
-  readonly price = computed(() => this.#parent.expand() ? this.#entity.input() : this.#entity.price());
-  readonly total = computed(() => coalesce(this.price(), null) * this.quantity);
+  readonly total = computed(() => coalesce(this.#entity.value(), null) * this.quantity);
 
   constructor(parent: Composite, ingredient: IIngredient, entity: Entity) {
     if (!parent) {

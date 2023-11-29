@@ -16,7 +16,7 @@ export class Composite extends Entity {
   readonly ingredients: Ingredient[] = [];
 
   readonly expand = signal(false);
-  override readonly input = computed(() => this.ingredients.reduce((s, x) => s + coalesce(x.total(), 0), 0));
+  readonly input = computed(() => this.ingredients.reduce((s, x) => s + coalesce(x.total(), 0), 0));
   readonly bonus = computed(() => {
     if (this._tradeSkills.includes(this.#recipe.tradeskill)) {
       const bonus = this.ingredients.reduce((s, x) => s + coalesce(x.bonus, 0), 0);
@@ -24,6 +24,7 @@ export class Composite extends Entity {
     }
     return null;
   });
+  override readonly value = computed(() => this.expand() ? this.input() : this.price());
 
   constructor(materials: Materials, ref: ObjectRef, index: Index<IObject>) {
     super(materials, ref, index);
