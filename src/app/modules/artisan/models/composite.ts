@@ -4,7 +4,6 @@ import { IObject, IRecipe, Index, ObjectRef, TradeSkill, isItem, isRecipe } from
 import { Entity, coalesce } from "./entity";
 import { Ingredient } from "./ingredient";
 import { Materials } from "./materials";
-import { Stage } from "./stage";
 
 export class Composite extends Entity {
   readonly #recipe: IRecipe;
@@ -65,16 +64,6 @@ export class Composite extends Entity {
         default:
           this.ingredients.push(this.materials.createAndLink(this, ingredient, index));
           break;
-      }
-    }
-  }
-
-  override snap(stage: Stage): void {
-    super.snap(stage)
-
-    if (this.expand()) {
-      for (const ingredient of this.ingredients) {
-        ingredient.snap(stage);
       }
     }
   }

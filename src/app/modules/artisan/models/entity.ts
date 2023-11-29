@@ -1,10 +1,10 @@
-import { computed } from "@angular/core";
+import { computed, signal } from "@angular/core";
 
 import { IObject, IEntity, Index, ItemType, ObjectRef, ObjectType, Rarity, Tier, isCurrency, isItem, isRecipe } from "@modules/nw-db/nw-db.module";
 import { GamingToolsService } from "@modules/gaming-tools/gaming-tools.module";
 import { __injector } from "../artisan.service";
+import { Composite } from "./composite";
 import { Materials } from "./materials";
-import { Stage } from "./stage";
 
 export function coalesce(value: number | null, fallback: number): number;
 export function coalesce(value: number | null, fallback: null): number;
@@ -13,8 +13,8 @@ export function coalesce(value: number | null, fallback: number | null): number 
 }
 
 export class Entity implements IEntity {
-  protected readonly _gaming: GamingToolsService = __injector.get(GamingToolsService);
-
+  readonly #gaming: GamingToolsService = __injector.get(GamingToolsService);
+  readonly #owners = signal<Composite[]>([]);
   readonly #item: IObject;
 
   get id(): string { return this.#item.id; }
@@ -27,9 +27,22 @@ export class Entity implements IEntity {
 
   get canBeCrafted(): boolean { return false; }
   get ref(): ObjectRef { return { id: this.id, type: this.type }; }
+  get isOwned(): boolean { return this.#owners().length > 0; }
 
-  readonly price = computed(() => this._gaming.commodities()?.[this.id] ?? null);
-  readonly input = computed(() => this._gaming.commodities()?.[this.id] ?? null);
+  readonly price = computed(() => this.#gaming.commodities()?.[this.id] ?? null);
+  readonly input = computed(() => this.#gaming.commodities()?.[this.id] ?? null);
+  // readonly stage = computed<Stage | null>(() => {
+  //   let stage: Stage | null = null;
+  //   for (const owner of this.#owners()) {
+  //     if (owner.expand()) {
+  //       const current = this.materials.getStage(owner);
+  //       if (!stage || stage.before(current)) {
+  //         stage = current;
+  //       }
+  //     }
+  //   }
+  //   return stage?.getNext() ?? this.materials['product'];
+  // });
 
   constructor(readonly materials: Materials, ref: ObjectRef, index: Index<IObject>) {
     if (!materials) {
@@ -70,12 +83,13 @@ export class Entity implements IEntity {
     this.materials.add(this);
   }
 
-  snap(stage: Stage) {
-    if (!stage) {
-      throw new ReferenceError(`The stage is not specified.`);
-    }
-
-    stage.push(this);
+  bind(owner: Composite) {
+    this.#owners.update(owners => {
+      if (owner) {
+        owners.push(owner);
+      }
+      return owners;
+    });
   }
 
   static isRecipeSupported(id: string, index: Index<IObject>): boolean {

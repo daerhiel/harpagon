@@ -7,6 +7,5 @@ export class Product extends Composite {
   constructor(ref: ObjectRef, index: Index<IObject>) {
     super(new Materials(), ref, index);
     this.expand.set(true);
-    this.snap(this.materials.getStage(this) ?? this.materials.stages['product']);
   }
 }

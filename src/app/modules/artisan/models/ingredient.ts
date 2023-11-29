@@ -3,7 +3,6 @@ import { computed } from "@angular/core";
 import { IEntity, IIngredient, IObject, Index, ItemType, ObjectRef, ObjectType, Rarity, Tier } from "@modules/nw-db/nw-db.module";
 import { Entity, coalesce } from "./entity";
 import { Composite } from "./composite";
-import { Stage } from "./stage";
 
 export class Ingredient implements IEntity {
   readonly #parent: Composite;
@@ -20,6 +19,7 @@ export class Ingredient implements IEntity {
   get quantity(): number { return this.#ingredient.quantity; }
   get bonus(): number | null { return this.#ingredient.qtyBonus ?? null; }
 
+  get entity(): Entity { return this.#entity; }
   get canBeCrafted(): boolean { return this.#entity.canBeCrafted; }
   get ref(): ObjectRef { return this.#entity.ref; }
 
@@ -40,14 +40,5 @@ export class Ingredient implements IEntity {
     this.#parent = parent;
     this.#ingredient = ingredient;
     this.#entity = entity;
-  }
-
-  snap(stage: Stage) {
-    if (!stage) {
-      throw new ReferenceError(`The stage is not specified.`);
-    }
-
-    const entity = this.#entity;
-    this.#entity.snap(entity.materials.getStage(entity) ?? stage.getNext());
   }
 }

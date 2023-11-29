@@ -16,18 +16,10 @@
     </mat-form-field>
     @if (!artisan.loading()) {
     @if (artisan.product(); as product) {
-    <div class="app-l-flex app-l-flex-gap-hr app-l-align-center app-mb-1r app-width-100">
-      <img [nwIcon]="product" class="mat-img app-mr-1r" loading="lazy">
-      <div class="app-l-flex-spacer-1">{{product.name}}</div>
-      @if (product.bonus(); as bonus) { <div>Bonus: <b>{{bonus | number:'1.2-3'}}</b></div> }
-      @if (product.price(); as price) { <div>Price: <b>{{price | number:'1.2-3'}}</b></div> }
-      @if (product.input(); as input) { <div>Craft: <b>{{input | number:'1.2-3'}}</b></div> }
-    </div>
     <div class="app-l-flex app-l-flex-row app-l-flex-gap-2r">
-      @for (stage of product.materials.stages | keyvalue; track stage.key) {
+      @for (stage of product.materials.stages() | keyvalue; track stage.key) {
       <div class="app-l-flex app-l-flex-column app-l-flex-gap-1r">
-        <div>{{stage.key}}</div>
-        @for (entity of stage.value.objects(); track entity) {
+        @for (entity of stage.value; track entity.id) {
           <entity [data]="entity"></entity>
         }
       </div>
