@@ -23,9 +23,9 @@
       @if (product.price(); as price) { <div>Price: <b>{{price | number:'1.2-3'}}</b></div> }
       @if (product.input(); as input) { <div>Craft: <b>{{input | number:'1.2-3'}}</b></div> }
     </div>
-    <div class="app-l-flex app-l-flex-row app-l-flex-gap-hr">
+    <div class="app-l-flex app-l-flex-row app-l-flex-gap-2r">
       @for (stage of product.materials.stages | keyvalue; track stage.key) {
-      <div class="app-l-flex app-l-flex-column app-l-flex-gap-hr">
+      <div class="app-l-flex app-l-flex-column app-l-flex-gap-1r">
         <div>{{stage.key}}</div>
         @for (entity of stage.value.objects(); track entity) {
           <entity [data]="entity"></entity>

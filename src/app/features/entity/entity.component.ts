@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from 
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatIconModule } from '@angular/material/icon';
 
 import { NwIconDirective, ObjectRef } from '@modules/nw-db/nw-db.module';
@@ -15,6 +16,7 @@ import { InstancePipe } from '@app/services/instance.pipe';
     CommonModule,
     MatCardModule,
     MatButtonModule,
+    MatSlideToggleModule,
     MatIconModule,
     NwIconDirective,
     InstancePipe

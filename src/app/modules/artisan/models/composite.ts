@@ -1,4 +1,4 @@
-import { computed } from "@angular/core";
+import { computed, signal } from "@angular/core";
 
 import { IObject, IRecipe, Index, ObjectRef, TradeSkill, isItem, isRecipe } from "@modules/nw-db/nw-db.module";
 import { Entity, coalesce } from "./entity";
@@ -7,7 +7,7 @@ import { Materials } from "./materials";
 import { Stage } from "./stage";
 
 export class Composite extends Entity {
-  private readonly _recipe: IRecipe;
+  readonly #recipe: IRecipe;
   private readonly _tradeSkills: TradeSkill[] = ['Weaving', 'Leatherworking', 'Smelting', 'Stonecutting', 'Woodworking'];
   private readonly _tradeSkill = 250;
   private readonly _gearPieces = 5;
@@ -16,11 +16,12 @@ export class Composite extends Entity {
 
   readonly ingredients: Ingredient[] = [];
 
-  readonly input = computed(() => this.ingredients.reduce((s, x) => s + coalesce(x.total(), 0), 0));
+  readonly expand = signal(false);
+  override readonly input = computed(() => this.ingredients.reduce((s, x) => s + coalesce(x.total(), 0), 0));
   readonly bonus = computed(() => {
-    if (this._tradeSkills.includes(this._recipe.tradeskill)) {
+    if (this._tradeSkills.includes(this.#recipe.tradeskill)) {
       const bonus = this.ingredients.reduce((s, x) => s + coalesce(x.bonus, 0), 0);
-      return Math.max(this._tradeSkill / 1000 + this._gearPieces * 0.02 + this._recipe.qtyBonus + bonus, 0);
+      return Math.max(this._tradeSkill / 1000 + this._gearPieces * 0.02 + this.#recipe.qtyBonus + bonus, 0);
     }
     return null;
   });
@@ -36,7 +37,7 @@ export class Composite extends Entity {
         const storage = index['recipe'];
         const recipe = storage && storage[ref.id];
         if (isRecipe(recipe)) {
-          this._recipe = recipe;
+          this.#recipe = recipe;
         } else if (recipe) {
           throw new ReferenceError(`The crafting ${'recipe'} is not supported: ${ref.id}.`);
         } else {
@@ -46,23 +47,23 @@ export class Composite extends Entity {
         throw new ReferenceError(`The ${object.type} cannot be crafted: ${object.id}`);
       }
     } else if (isRecipe(object)) {
-      this._recipe = object;
+      this.#recipe = object;
     } else if (object) {
       throw new ReferenceError(`The object ref '${ref.type}' is not supported: ${ref.id}.`);
     } else {
       throw new ReferenceError(`The object ref '${ref.type}' is not found: ${ref.id}.`);
     }
 
-    for (const ingredient of this._recipe.ingredients) {
+    for (const ingredient of this.#recipe.ingredients) {
       switch (ingredient.type) {
         case 'category':
           for (const subIngredient of ingredient.subIngredients) {
-            this.ingredients.push(this.materials.createAndLink(subIngredient, index));
+            this.ingredients.push(this.materials.createAndLink(this, subIngredient, index));
             break;
           }
           break;
         default:
-          this.ingredients.push(this.materials.createAndLink(ingredient, index));
+          this.ingredients.push(this.materials.createAndLink(this, ingredient, index));
           break;
       }
     }
@@ -71,8 +72,10 @@ export class Composite extends Entity {
   override snap(stage: Stage): void {
     super.snap(stage)
 
-    for (const ingredient of this.ingredients) {
-      ingredient.snap(stage);
+    if (this.expand()) {
+      for (const ingredient of this.ingredients) {
+        ingredient.snap(stage);
+      }
     }
   }
 }

@@ -41,6 +41,7 @@ $hungry-horde-ui-theme: mat.define-dark-theme(
 @include mat.progress-bar-theme($hungry-horde-ui-theme);
 @include mat.progress-spinner-theme($hungry-horde-ui-theme);
 @include mat.button-theme($hungry-horde-ui-theme);
+@include mat.slide-toggle-theme($hungry-horde-ui-theme);
 @include mat.menu-theme($hungry-horde-ui-theme);
 @include mat.icon-button-theme($hungry-horde-ui-theme);
 @include mat.icon-theme($hungry-horde-ui-theme);
@@ -99,10 +100,6 @@ body {
   align-items: flex-start;
 }
 
-.app-l-flex-gap-hr {
-  gap: 0.5rem;
-}
-
 .app-l-align-center {
   align-items: center;
 }
@@ -143,6 +140,15 @@ $directions: (
   }
 }
 
+@mixin flex-gap() {
+  @each $space-name, $space in $spacing {
+    .app-l-flex-gap-#{$space-name} {
+      gap: $space !important;
+    }
+  }
+}
+
+@include flex-gap();
 @include spacing(padding, p);
 @include spacing(margin, m);
 

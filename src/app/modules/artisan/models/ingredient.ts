@@ -2,32 +2,44 @@ import { computed } from "@angular/core";
 
 import { IEntity, IIngredient, IObject, Index, ItemType, ObjectRef, ObjectType, Rarity, Tier } from "@modules/nw-db/nw-db.module";
 import { Entity, coalesce } from "./entity";
+import { Composite } from "./composite";
 import { Stage } from "./stage";
 
 export class Ingredient implements IEntity {
-  get id(): string { return this._entity.id; }
-  get type(): ObjectType { return this._entity.type; }
-  get itemType(): ItemType { return this._entity.itemType; }
-  get name(): string { return this._entity.name; }
-  get icon(): string | undefined { return this._entity.icon; }
-  get tier(): Tier | undefined { return this._entity.tier; }
-  get rarity(): Rarity | undefined { return this._entity.rarity; }
-  get quantity(): number { return this._ingredient.quantity; }
-  get bonus(): number | null { return this._ingredient.qtyBonus ?? null; }
+  readonly #parent: Composite;
+  readonly #ingredient: IIngredient;
+  readonly #entity: Entity;
 
-  get canBeCrafted(): boolean { return this._entity.canBeCrafted; }
-  get ref(): ObjectRef { return this._entity.ref; }
+  get id(): string { return this.#entity.id; }
+  get type(): ObjectType { return this.#entity.type; }
+  get itemType(): ItemType { return this.#entity.itemType; }
+  get name(): string { return this.#entity.name; }
+  get icon(): string | undefined { return this.#entity.icon; }
+  get tier(): Tier | undefined { return this.#entity.tier; }
+  get rarity(): Rarity | undefined { return this.#entity.rarity; }
+  get quantity(): number { return this.#ingredient.quantity; }
+  get bonus(): number | null { return this.#ingredient.qtyBonus ?? null; }
 
-  readonly price = computed(() => this._entity.price());
-  readonly total = computed(() => coalesce(this._entity.price(), null) * this.quantity);
+  get canBeCrafted(): boolean { return this.#entity.canBeCrafted; }
+  get ref(): ObjectRef { return this.#entity.ref; }
 
-  constructor(private readonly _ingredient: IIngredient, private readonly _entity: Entity) {
-    if (!_ingredient) {
+  readonly price = computed(() => this.#parent.expand() ? this.#entity.input() : this.#entity.price());
+  readonly total = computed(() => coalesce(this.price(), null) * this.quantity);
+
+  constructor(parent: Composite, ingredient: IIngredient, entity: Entity) {
+    if (!parent) {
+      throw new ReferenceError(`The parent object entity is not specified.`);
+    }
+    if (!ingredient) {
       throw new ReferenceError(`The ingredient is not specified.`);
     }
-    if (!_entity) {
+    if (!entity) {
       throw new ReferenceError(`The object entity is not specified.`);
     }
+
+    this.#parent = parent;
+    this.#ingredient = ingredient;
+    this.#entity = entity;
   }
 
   snap(stage: Stage) {
@@ -35,7 +47,7 @@ export class Ingredient implements IEntity {
       throw new ReferenceError(`The stage is not specified.`);
     }
 
-    const entity = this._entity;
-    this._entity.snap(entity.materials.getStage(entity) ?? stage.getNext());
+    const entity = this.#entity;
+    this.#entity.snap(entity.materials.getStage(entity) ?? stage.getNext());
   }
 }

@@ -24,5 +24,11 @@
   <mat-card-content>
 
   </mat-card-content>
+  <mat-card-actions>
+    <div class="app-l-flex-spacer-1"></div>
+    @if (data | instance:Composite) {
+    <mat-slide-toggle color="primary" [checked]="data.expand()" (change)="data.expand.set($event.checked)"></mat-slide-toggle>
+    }
+  </mat-card-actions>
 </mat-card>
 }

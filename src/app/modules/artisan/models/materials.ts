@@ -5,7 +5,7 @@ import { Ingredient } from "./ingredient";
 import { Stage } from "./stage";
 
 export class Materials {
-  private readonly _index: Record<string, Entity> = {};
+  readonly #index: Record<string, Entity> = {};
 
   readonly stages: Record<string, Stage> = {};
   readonly product: Stage = new Stage(this, 'product');
@@ -15,7 +15,7 @@ export class Materials {
       throw new ReferenceError(`The object id is not specified.`);
     }
 
-    return this._index[id];
+    return this.#index[id];
   }
 
   add(entity: Entity): void {
@@ -24,9 +24,9 @@ export class Materials {
     }
 
     const id = entity.id;
-    if (!this._index[id]) {
-      this._index[id] = entity;
-    } else if (this._index[id] !== entity) {
+    if (!this.#index[id]) {
+      this.#index[id] = entity;
+    } else if (this.#index[id] !== entity) {
       throw new ReferenceError(`The object is already indexed: ${id}.`);
     }
   }
@@ -35,7 +35,10 @@ export class Materials {
     return Object.keys(this.stages).map(x => this.stages[x]).find(x => x.has(entity));
   }
 
-  createAndLink(ingredient: IIngredient, index: Index<IObject>): Ingredient {
+  createAndLink(parent: Composite, ingredient: IIngredient, index: Index<IObject>): Ingredient {
+    if (!parent) {
+      throw new ReferenceError(`The parent object entity is not specified.`);
+    }
     if (!ingredient) {
       throw new ReferenceError(`The ingredient is not specified.`);
     }
@@ -43,7 +46,7 @@ export class Materials {
       throw new ReferenceError(`The object index is not specified.`);
     }
 
-    let entity = this._index[ingredient.id];
+    let entity = this.#index[ingredient.id];
     if (!entity) {
       const recipeId = ingredient.recipeId;
       if (recipeId && Entity.isRecipeSupported(recipeId.id, index)) {
@@ -53,6 +56,6 @@ export class Materials {
       }
     }
 
-    return new Ingredient(ingredient, entity);
+    return new Ingredient(parent, ingredient, entity);
   }
 }

@@ -15,20 +15,21 @@ export function coalesce(value: number | null, fallback: number | null): number 
 export class Entity implements IEntity {
   protected readonly _gaming: GamingToolsService = __injector.get(GamingToolsService);
 
-  private readonly _item: IObject;
+  readonly #item: IObject;
 
-  get id(): string { return this._item.id; }
-  get type(): ObjectType { return this._item.type; }
-  get itemType(): ItemType { return this._item.itemType; }
-  get name(): string { return this._item.name; }
-  get icon(): string | undefined { return this._item.icon; }
-  get tier(): Tier | undefined { return this._item.tier; }
-  get rarity(): Rarity | undefined { return this._item.rarity; }
+  get id(): string { return this.#item.id; }
+  get type(): ObjectType { return this.#item.type; }
+  get itemType(): ItemType { return this.#item.itemType; }
+  get name(): string { return this.#item.name; }
+  get icon(): string | undefined { return this.#item.icon; }
+  get tier(): Tier | undefined { return this.#item.tier; }
+  get rarity(): Rarity | undefined { return this.#item.rarity; }
 
   get canBeCrafted(): boolean { return false; }
   get ref(): ObjectRef { return { id: this.id, type: this.type }; }
 
   readonly price = computed(() => this._gaming.commodities()?.[this.id] ?? null);
+  readonly input = computed(() => this._gaming.commodities()?.[this.id] ?? null);
 
   constructor(readonly materials: Materials, ref: ObjectRef, index: Index<IObject>) {
     if (!materials) {
@@ -44,14 +45,14 @@ export class Entity implements IEntity {
     const storage = index[ref.type];
     const object = storage && storage[ref.id];
     if (isItem(object) || isCurrency(object)) {
-      this._item = object;
+      this.#item = object;
     } else if (isRecipe(object)) {
       const ref = object.output;
       if (ref) {
         const storage = index[ref.type];
         const item = storage && storage[ref.id];
         if (isItem(item)) {
-          this._item = item;;
+          this.#item = item;;
         } else if (item) {
           throw new ReferenceError(`The '${ref.type}' output is not supported: ${ref.id}.`);
         } else {
