@@ -16,11 +16,11 @@
     </mat-form-field>
     @if (!artisan.loading()) {
     @if (artisan.product(); as product) {
-    <div class="app-l-flex app-l-flex-row app-l-flex-gap-2r">
+    <div #container class="app-l-flex app-l-flex-row app-l-flex-gap-6r">
       @for (stage of product.materials.stages() | keyvalue; track stage.key) {
       <div class="app-l-flex app-l-flex-column app-l-flex-gap-1r">
         @for (entity of stage.value; track entity.id) {
-          <entity [data]="entity"></entity>
+          <entity ingredient [id]="entity.id" [data]="entity"></entity>
         }
       </div>
       }

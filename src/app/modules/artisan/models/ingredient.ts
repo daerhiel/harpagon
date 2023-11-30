@@ -9,6 +9,10 @@ export class Ingredient implements IEntity {
   readonly #ingredient: IIngredient;
   readonly #entity: Entity;
 
+  get parentId(): string { return this.#parent.id; }
+  get index(): number { return this.#parent.ingredients.indexOf(this); }
+  get range(): number { return this.#parent.ingredients.length; }
+
   get id(): string { return this.#entity.id; }
   get type(): ObjectType { return this.#entity.type; }
   get itemType(): ItemType { return this.#entity.itemType; }
