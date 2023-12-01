@@ -38,13 +38,6 @@ type LinePoint = {
 type PathPoint = MovePoint | LinePoint;
 type PointSlot = 'top' | 'left' | 'bottom' | 'right';
 
-type OffsetNode = {
-  from: 'source' | 'target';
-  type: 'left' | 'right' | 'up' | 'down';
-  offset: number;
-}
-type PathNode = OffsetNode;
-
 interface Connectome {
   elements: Record<string, HTMLElement>;
   connectors: Ingredient[];
@@ -54,9 +47,7 @@ export class Connector {
   private elements: SVGGeometryElement[] = [];
 
   constructor(private readonly _canvas: SVGElement, source: HTMLElement, target: HTMLElement, index: number = 0, range: number = 1) {
-    const sourceRect = source.getBoundingClientRect();
-    const targetRect = target.getBoundingClientRect();
-    this.appendElement(...this.getPathPoints(sourceRect, targetRect, this.areElementsInRectLine(source, target) ? 0 : 20, index, range));
+    this.appendElement(...this.getPathPoints(source, target, 20));
   }
 
   private getPoint(rect: DOMRect, slot: PointSlot, index: number = 0, range: number = 1): Point {
@@ -82,9 +73,24 @@ export class Connector {
     return { x: x - offset.x, y: y - offset.y };
   }
 
-  private getPathPoints(source: DOMRect, target: DOMRect, offset: number = 0, index: number = 0, range: number = 1): PathPoint[] {
-    const sourcePoint = this.getPoint(source, 'right', index, range);
-    const targetPoint = this.getPoint(target, 'left');
+  private getSlot(element: Element): { index: number, range: number } {
+    const children = element.parentElement?.children;
+    let index = 0;
+    for (let i = 0; i < (children?.length ?? 0); i++) {
+      if (children?.item(i) === element) {
+        index = i;
+      }
+    }
+    return { index, range: children?.length ?? 1 };
+  }
+
+  private getPathPoints(source: Element, target: Element, offset: number = 0): PathPoint[] {
+    const sourceRect = source.getBoundingClientRect();
+    const targetRect = target.getBoundingClientRect();
+    const { index: sourceIndex, range: sourceRange } = this.getSlot(source);
+    const { index: targetIndex, range: targetRange } = this.getSlot(target);
+    const sourcePoint = this.getPoint(sourceRect, 'right', targetIndex, targetRange);
+    const targetPoint = this.getPoint(targetRect, 'left', sourceIndex, sourceRange);
     let point: Point | null = null;
     if (offset > 0) {
       targetPoint.x -= 2 * offset;
@@ -117,10 +123,6 @@ export class Connector {
 
     this.elements.push(element);
     this._canvas.appendChild(element);
-  }
-
-  private areElementsInRectLine(source: Element, target: Element): boolean {
-    return source.getBoundingClientRect().y === target.getBoundingClientRect().y;
   }
 
   remove(): void {
@@ -188,6 +190,7 @@ export class ArtisanComponent {
 
   protected readonly connectify = effect(() => {
     const { elements, connectors } = this.connectome();
+    const materials = this.artisan.product()?.materials;
     for (const id in this.connectors) {
       if (this.connectors[id]) {
         this.connectors[id].remove();
@@ -199,7 +202,7 @@ export class ArtisanComponent {
       const source = elements[connector.parentId];
       const target = elements[connector.id];
       if (source && target && !this.connectors[id]) {
-        this.connectors[id] = new Connector(this.#canvas, source, target, connector.index, connector.range);
+        this.connectors[id] = new Connector(this.#canvas, source, target);
       }
     }
   });
