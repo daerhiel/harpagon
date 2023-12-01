@@ -56,11 +56,14 @@ export class Connector {
     }
 
     const offset = this._canvas.getBoundingClientRect();
-    const grid = 10;
+    const area = .6;
     let x: number, y: number;
     switch (slot) {
       case 'top':
-      case 'bottom': x = rect.left + (rect.width - (range - 1) * grid) / 2 + index * grid; break;
+      case 'bottom':
+        const grid = rect.width * area / range;
+        x = rect.left + (rect.width - (range - 1) * grid) / 2 + index * grid;
+        break;
       case 'left': x = rect.left; break;
       case 'right': x = rect.right; break;
     }
@@ -68,7 +71,10 @@ export class Connector {
       case 'top': y = rect.top; break;
       case 'bottom': y = rect.bottom; break;
       case 'left':
-      case 'right': y = rect.top + (rect.height - (range - 1) * grid) / 2 + index * grid; break;
+      case 'right':
+        const grid = rect.height * area / range;
+        y = rect.top + (rect.height - (range - 1) * grid) / 2 + index * grid;
+        break;
     }
     return { x: x - offset.x, y: y - offset.y };
   }
