@@ -1,10 +1,12 @@
 import { Injectable, inject } from '@angular/core';
-import { EMPTY, Observable, expand, from, iif, last, map, mergeMap, of, toArray } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { EMPTY, Observable, catchError, expand, from, iif, last, map, mergeMap, of, toArray } from 'rxjs';
 
+import { BroadcastService } from '@app/services/broadcast.service';
 import { getStorageItem, setStorageItem } from '@app/services/settings';
 import { NwDbApiService } from './nw-db-api.service';
 import { IIngredient, IObject, isItem, isRecipe } from './models/objects';
-import { ObjectRef, ObjectType } from './models/types';
+import { ObjectRef, ObjectType, SearchRef } from './models/types';
 
 export type Index<T extends IObject> = Partial<Record<ObjectType, Record<string, T>>>;
 
@@ -17,8 +19,9 @@ export interface Hierarchy<T extends IObject> {
   providedIn: 'root'
 })
 export class NwDbService {
+  readonly #broadcast: BroadcastService = inject(BroadcastService);
   readonly #api: NwDbApiService = inject(NwDbApiService);
-  private readonly _storage: Index<IObject> = {
+  readonly #storage: Index<IObject> = {
     currency: {
       azoth_currency: {
         id: 'azoth_currency',
@@ -34,6 +37,13 @@ export class NwDbService {
     this.loadHierarchy();
   }
 
+  private handleError<T>(fallback: T): (e: HttpErrorResponse) => Observable<T> {
+    return (e: HttpErrorResponse): Observable<T> => {
+      this.#broadcast.exception(e);
+      return of(fallback);
+    }
+  }
+
   private loadHierarchy(): void {
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i)!;
@@ -41,7 +51,7 @@ export class NwDbService {
         case key && key.startsWith('object:'): {
           const object = getStorageItem<IObject | null>(key, null);
           if (object) {
-            (this._storage[object.type] ?? (this._storage[object.type] = {}))[object.id] = object;
+            (this.#storage[object.type] ?? (this.#storage[object.type] = {}))[object.id] = object;
           }
         } break;
       }
@@ -49,7 +59,7 @@ export class NwDbService {
   }
 
   private refOrCached(ref: ObjectRef | null): ObjectRef[] {
-    const storage = ref && this._storage[ref.type];
+    const storage = ref && this.#storage[ref.type];
     const object = storage && storage[ref.id];
     if (object) {
       return this.cacheAndGet(object);
@@ -64,7 +74,7 @@ export class NwDbService {
     const ids: ObjectRef[] = [];
 
     const set = (ref: ObjectRef): void => {
-      const storage = ref && this._storage[ref.type];
+      const storage = ref && this.#storage[ref.type];
       if ((!storage || !(ref.id in storage)) && !ids.some(x => x.id === ref.id && x.type === ref.type)) {
         ids.push(ref);
       }
@@ -75,7 +85,7 @@ export class NwDbService {
       const ref = ingredient.recipeId;
       if (ref) {
         set({ id: ref.id, type: 'recipe' });
-        return this._storage['recipe']?.[ref.id] ?? null;
+        return this.#storage['recipe']?.[ref.id] ?? null;
       }
       return null;
     }
@@ -103,9 +113,9 @@ export class NwDbService {
 
     for (const object of objects) {
       if (object) {
-        const storage = this._storage[object.type];
+        const storage = this.#storage[object.type];
         if (!storage || !(object.id in storage)) {
-          (this._storage[object.type] ?? (this._storage[object.type] = {}))[object.id] = object;
+          (this.#storage[object.type] ?? (this.#storage[object.type] = {}))[object.id] = object;
           setStorageItem(`object:${object.type}/${object.id}`, object);
         }
 
@@ -121,7 +131,7 @@ export class NwDbService {
 
     if (ref) {
       const get = (ref: ObjectRef): T | null => {
-        const storage = ref && this._storage[ref.type];
+        const storage = ref && this.#storage[ref.type];
         if (storage && ref.id in storage) {
           if (!(ref.type in index) || !(ref.id in index[ref.type]!)) {
             const object = storage[ref.id];
@@ -165,11 +175,15 @@ export class NwDbService {
     return index;
   }
 
+  search(term: string): Observable<SearchRef[]> {
+    return this.#api.search(term).pipe(catchError(this.handleError([])));
+  }
+
   getHierarchy<T extends IObject>(ref: ObjectRef | null): Observable<Hierarchy<T>> {
     return of(ref).pipe(
       mergeMap(ref => iif(() => !!ref, of(this.refOrCached(ref)).pipe(
         expand(ids => ids.length > 0 ? from(ids).pipe(
-          mergeMap(id => this.#api.getObject<T>(id), 5), toArray(),
+          mergeMap(id => this.#api.getObject<T>(id).pipe(catchError(this.handleError(null))), 5), toArray(),
           map(objects => this.cacheAndGet(...objects))
         ) : EMPTY), last(),
         map(() => ({ ref, index: this.buildIndex<T>(ref) }))

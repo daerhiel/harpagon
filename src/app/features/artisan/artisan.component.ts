@@ -10,7 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, filter, map, switchMap, tap } from 'rxjs';
 
-import { NwDbApiService, NwIconDirective, ObjectRef, SearchRef } from '@modules/nw-db/nw-db.module';
+import { NwDbService, NwIconDirective, ObjectRef, SearchRef } from '@modules/nw-db/nw-db.module';
 import { ArtisanService, Composite, Ingredient } from '@modules/artisan/artisan.module';
 import { EntityComponent } from '../entity/entity.component';
 import { IngredientComponent } from '../ingredient/ingredient.component';
@@ -159,15 +159,15 @@ export class Connector {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ArtisanComponent {
-  readonly #nwDbApi: NwDbApiService = inject(NwDbApiService);
-  private readonly connectors: Record<string, Connector> = {};
+  readonly #nwDb: NwDbService = inject(NwDbService);
+  readonly #connectors: Record<string, Connector> = {};
 
   protected readonly itemNameFn = (item: SearchRef) => item?.name;
   protected readonly searchItem = new FormControl<string | ObjectRef | null>(null);
   protected readonly searchItems = toSignal(this.searchItem.valueChanges.pipe(
     filter(term => typeof term === 'string' && term.length > 2), map(x => x as string),
     distinctUntilChanged(), debounceTime(300),
-    switchMap(term => this.#nwDbApi.search(term).pipe(map(x => x.filter(v => v.type === 'recipe'))))
+    switchMap(term => this.#nwDb.search(term).pipe(map(x => x.filter(v => v.type === 'recipe'))))
   ));
 
   protected readonly artisan: ArtisanService = inject(ArtisanService);
@@ -197,18 +197,18 @@ export class ArtisanComponent {
   protected readonly connectify = effect(() => {
     const { elements, connectors } = this.connectome();
     const materials = this.artisan.product()?.materials;
-    for (const id in this.connectors) {
-      if (this.connectors[id]) {
-        this.connectors[id].remove();
-        delete this.connectors[id];
+    for (const id in this.#connectors) {
+      if (this.#connectors[id]) {
+        this.#connectors[id].remove();
+        delete this.#connectors[id];
       }
     }
     for (const connector of connectors) {
       const id = `${connector.parentId}=>${connector.id}`;
       const source = elements[connector.parentId];
       const target = elements[connector.id];
-      if (source && target && !this.connectors[id]) {
-        this.connectors[id] = new Connector(this.#canvas, source, target);
+      if (source && target && !this.#connectors[id]) {
+        this.#connectors[id] = new Connector(this.#canvas, source, target);
       }
     }
   });
