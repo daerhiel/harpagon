@@ -123,8 +123,9 @@ export class Connector {
     }).join(' '));
 
     element.setAttribute('fill', 'transparent');
-    element.setAttribute('stroke', 'gray');
+    element.setAttribute('stroke', 'var(--color-connector)');
     element.setAttribute('stroke-width', '2');
+    element.setAttribute('marker-start', 'url(#circle)');
     element.setAttribute('marker-end', 'url(#circle)');
 
     this.elements.push(element);
@@ -216,7 +217,7 @@ export class ArtisanComponent {
   #canvas!: SVGElement;
   @ViewChild('container')
   protected set container(value: ElementRef<HTMLDivElement>) {
-    if (!this.#canvas) {
+    if (!this.#canvas && value) {
       const connectors: HTMLElement = value.nativeElement;
       connectors.style.position = 'relative';
 
@@ -228,15 +229,15 @@ export class ArtisanComponent {
       const defs = canvas.appendChild(document.createElementNS(SVG_NS, 'defs'))
       const circle = defs.appendChild(document.createElementNS(SVG_NS, 'marker'))
       circle.id = 'circle';
-      circle.setAttribute('viewBox', '0 0 5 5');
+      circle.setAttribute('viewBox', '-2.5 -2.5 5 5');
       circle.setAttribute('markerUnits', 'strokeWidth');
       circle.setAttribute('markerWidth', '5');
       circle.setAttribute('markerHeight', '5');
       const path = circle.appendChild(document.createElementNS(SVG_NS, 'circle'))
-      path.setAttribute('stroke', 'white');
-      path.setAttribute('r', '3');
-      path.setAttribute('cx', '0');
-      path.setAttribute('cy', '0');
+      path.setAttribute('stroke', 'var(--color-text-primary)');
+      path.setAttribute('stroke-width', '0.7');
+      path.setAttribute('fill', 'var(--color-connector)');
+      path.setAttribute('r', '1.5');
 
       this.#canvas = connectors.insertAdjacentElement('afterbegin', canvas) as SVGElement;
     }

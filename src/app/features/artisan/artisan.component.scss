@@ -1,6 +1,10 @@
-.recipe-selector {
-  min-width: 50vw;
-  overflow: auto;
+:host {
+  --color-connector: gray;
+
+  .recipe-selector {
+    min-width: 50vw;
+    overflow: auto;
+  }
 }
 
 mat-icon {
