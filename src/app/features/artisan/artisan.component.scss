@@ -1,0 +1,25 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+
+  --color-connector: gray;
+
+  .recipe-selector {
+    min-width: 50vw;
+    overflow: auto;
+  }
+}
+
+mat-icon {
+  overflow: visible;
+}
+
+mat-option mat-icon img.mat-img {
+  margin: -4px 0;
+}

@@ -1,0 +1,19 @@
+<mat-toolbar color="primary" role="banner">
+  <button mat-icon-button id="menu" aria-label="Application menu" (click)="layout.toggleSidenav()">
+    <mat-icon>menu</mat-icon>
+  </button>
+  <a id="title" mat-button [routerLink]="['']">{{title}}</a>
+  <div class="app-l-flex app-l-flex-column app-l-align-start app-l-flex-gap-hr app-p-1r">
+  </div>
+  <span class="mat-spacer"></span>
+  <button id="domain" mat-button [matMenuTriggerFor]="menu" aria-label="Server selector" [disabled]="!gaming.servers()?.length">
+    {{gaming.domain()?.name ?? '(Server)'}}
+  </button>
+  <mat-menu #menu="matMenu">
+    @for (server of gaming.servers(); track server.name) {
+    <button mat-menu-item (click)="gaming.setServer(server)">
+      <span>{{server.name}}</span>
+    </button>
+    }
+  </mat-menu>
+</mat-toolbar>
