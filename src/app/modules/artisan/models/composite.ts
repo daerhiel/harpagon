@@ -1,9 +1,14 @@
 import { computed, signal } from "@angular/core";
 
 import { IObject, IRecipe, Index, ObjectRef, TradeSkill, isItem, isRecipe } from "@modules/nw-db/nw-db.module";
-import { Entity, coalesce } from "./entity";
+import { Entity, EntityState, coalesce } from "./entity";
 import { Ingredient } from "./ingredient";
 import { Materials } from "./materials";
+
+export interface CompositeState extends EntityState {
+  expand: boolean;
+  ingredients: Record<string, EntityState>;
+}
 
 export class Composite extends Entity {
   readonly #recipe: IRecipe;
@@ -65,6 +70,34 @@ export class Composite extends Entity {
         default:
           this.ingredients.push(this.materials.createAndLink(this, ingredient, index));
           break;
+      }
+    }
+  }
+
+  override getState(): CompositeState {
+    const ingredients: Record<string, EntityState> = {};
+
+    for (const ingredient of this.ingredients) {
+      ingredients[ingredient.id] = ingredient.entity.getState();
+    }
+
+    return {
+      ...super.getState(),
+      expand: this.expand(),
+      ingredients
+    };
+  }
+
+  override setState(state: CompositeState) {
+    super.setState(state);
+    this.expand.set(state.expand);
+
+    if (state) {
+      for (const id in state.ingredients) {
+        const ingredient = this.ingredients.find(x => x.id === id);
+        if (ingredient) {
+          ingredient.entity.setState(state.ingredients[id]);
+        }
       }
     }
   }
