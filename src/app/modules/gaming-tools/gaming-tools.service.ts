@@ -48,7 +48,6 @@ export class GamingToolsService {
         const magnitude = count / config.count - 1;
         const iteration = count % config.count
         const delay = !iteration ? config.span * (1 + magnitude * .2) : config.delay;
-        console.log(delay);
         return timer(delay);
       },
       resetOnSuccess: true

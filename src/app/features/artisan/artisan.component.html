@@ -17,7 +17,7 @@
   @if (artisan.product(); as product) {
   <div #container class="app-l-flex app-l-flex-row app-l-flex-gap-6r">
     @for (stage of product.materials.stages() | keyvalue; track stage.key) {
-    <div class="app-l-flex app-l-flex-column app-l-flex-gap-1r">
+    <div class="app-l-flex app-l-flex-column app-l-justify-around app-l-flex-gap-1r">
       @for (entity of stage.value; track entity.id) {
       <entity component [id]="entity.id" [data]="entity"></entity>
       }
