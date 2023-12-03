@@ -12,6 +12,9 @@ export function coalesce(value: number | null, fallback: number | null): number 
   return value != null && !isNaN(value) ? value : fallback;
 }
 
+export interface EntityState {
+}
+
 export class Entity implements IEntity {
   readonly #gaming: GamingToolsService = __injector.get(GamingToolsService);
   readonly #owners = signal<Composite[]>([]);
@@ -78,6 +81,16 @@ export class Entity implements IEntity {
       }
       return owners;
     });
+  }
+
+  getState(): EntityState {
+    return {
+    };
+  }
+
+  setState(state: EntityState) {
+    if (state) {
+    }
   }
 
   static isRecipeSupported(id: string, index: Index<IObject>): boolean {
