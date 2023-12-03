@@ -1,8 +1,8 @@
-import { IngredientDirective } from './ingredient.directive';
+import { ComponentDirective } from './component.directive';
 
 describe('IngredientDirective', () => {
   it('should create an instance', () => {
-    const directive = new IngredientDirective();
+    const directive = new ComponentDirective();
     expect(directive).toBeTruthy();
   });
 });

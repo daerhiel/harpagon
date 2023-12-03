@@ -19,7 +19,7 @@
     @for (stage of product.materials.stages() | keyvalue; track stage.key) {
     <div class="app-l-flex app-l-flex-column app-l-flex-gap-1r">
       @for (entity of stage.value; track entity.id) {
-      <entity ingredient [id]="entity.id" [data]="entity"></entity>
+      <entity component [id]="entity.id" [data]="entity"></entity>
       }
     </div>
     }

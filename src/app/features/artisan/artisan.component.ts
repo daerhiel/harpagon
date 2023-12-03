@@ -14,7 +14,7 @@ import { NwDbService, NwIconDirective, ObjectRef, SearchRef } from '@modules/nw-
 import { ArtisanService, Composite, Ingredient } from '@modules/artisan/artisan.module';
 import { EntityComponent } from '../entity/entity.component';
 import { IngredientComponent } from '../ingredient/ingredient.component';
-import { IngredientDirective } from './ingredient.directive';
+import { ComponentDirective } from './component.directive';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
@@ -38,16 +38,18 @@ type LinePoint = {
 type PathPoint = MovePoint | LinePoint;
 type PointSlot = 'top' | 'left' | 'bottom' | 'right';
 
+type ConnectorSide = 'source' | 'target';
+
 interface Connectome {
-  elements: Record<string, HTMLElement>;
+  components: Record<string, ComponentDirective>;
   connectors: Ingredient[];
 }
 
 export class Connector {
   private elements: SVGGeometryElement[] = [];
 
-  constructor(private readonly _canvas: SVGElement, source: HTMLElement, target: HTMLElement, index: number = 0, range: number = 1) {
-    this.appendElement(...this.getPathPoints(source, target, 20));
+  constructor(private readonly _canvas: SVGElement, source: ComponentDirective, target: ComponentDirective, connectors: Ingredient[]) {
+    this.appendElement(...this.getPathPoints(source, target, connectors, 20));
   }
 
   private getPoint(rect: DOMRect, slot: PointSlot, index: number = 0, range: number = 1): Point {
@@ -56,13 +58,13 @@ export class Connector {
     }
 
     const offset = this._canvas.getBoundingClientRect();
-    const area = .6;
+    const area = .6, spacing = 20;
     let x: number, y: number;
     switch (slot) {
       case 'top':
       case 'bottom':
-        const grid = rect.width * area / range;
-        x = rect.left + (rect.width - (range - 1) * grid) / 2 + index * grid;
+        const step = Math.max(rect.width * area / range, spacing);
+        x = rect.left + (rect.width - (range - 1) * step) / 2 + index * step;
         break;
       case 'left': x = rect.left; break;
       case 'right': x = rect.right; break;
@@ -72,29 +74,37 @@ export class Connector {
       case 'bottom': y = rect.bottom; break;
       case 'left':
       case 'right':
-        const grid = rect.height * area / range;
-        y = rect.top + (rect.height - (range - 1) * grid) / 2 + index * grid;
+        const step = Math.max(rect.height * area / range, spacing);
+        y = rect.top + (rect.height - (range - 1) * step) / 2 + index * step;
         break;
     }
     return { x: x - offset.x, y: y - offset.y };
   }
 
-  private getSlot(element: Element): { index: number, range: number } {
-    const children = element.parentElement?.children;
-    let index = 0;
-    for (let i = 0; i < (children?.length ?? 0); i++) {
-      if (children?.item(i) === element) {
-        index = i;
+  private getSlot(source: ComponentDirective, target: ComponentDirective, connectors: Ingredient[], side: ConnectorSide): { index: number, range: number } {
+    const project = (connector: Ingredient, invert: boolean) => {
+      switch (side) {
+        case 'source': return invert ? connector.parent : connector.entity;
+        case 'target': return invert ? connector.entity : connector.parent;
       }
     }
-    return { index, range: children?.length ?? 1 };
+    const request = (invert: boolean) => {
+      switch (side) {
+        case 'source': return (invert ? target : source).host.data!;
+        case 'target': return (invert ? source : target).host.data!;
+      }
+    }
+    const entity = request(false);
+    const related = connectors.filter(x => project(x, true) === entity).map(x => project(x, false));
+    const index = related.indexOf(request(true));
+    return { index: index > 0 ? index : 0, range: related.length };
   }
 
-  private getPathPoints(source: Element, target: Element, offset: number = 0): PathPoint[] {
-    const sourceRect = source.getBoundingClientRect();
-    const targetRect = target.getBoundingClientRect();
-    const { index: sourceIndex, range: sourceRange } = this.getSlot(source);
-    const { index: targetIndex, range: targetRange } = this.getSlot(target);
+  private getPathPoints(source: ComponentDirective, target: ComponentDirective, connectors: Ingredient[], offset: number = 0): PathPoint[] {
+    const sourceRect = source.element.getBoundingClientRect();
+    const targetRect = target.element.getBoundingClientRect();
+    const { index: sourceIndex, range: sourceRange } = this.getSlot(source, target, connectors, 'target');
+    const { index: targetIndex, range: targetRange } = this.getSlot(source, target, connectors, 'source');
     const sourcePoint = this.getPoint(sourceRect, 'right', targetIndex, targetRange);
     const targetPoint = this.getPoint(targetRect, 'left', sourceIndex, sourceRange);
     let point: Point | null = null;
@@ -153,7 +163,7 @@ export class Connector {
     NwIconDirective,
     EntityComponent,
     IngredientComponent,
-    IngredientDirective
+    ComponentDirective
   ],
   templateUrl: './artisan.component.html',
   styleUrls: ['./artisan.component.scss'],
@@ -179,16 +189,18 @@ export class ArtisanComponent {
     tap(() => this.searchItem.reset())
   ));
 
-  protected readonly connectome = signal<Connectome>({ elements: {}, connectors: [] });
-  @ViewChildren(IngredientDirective)
-  protected set components(value: QueryList<IngredientDirective>) {
-    const connectome: Connectome = { elements: {}, connectors: [] };
-    value.forEach(connector => {
-      connectome.elements[connector.element.id] = connector.element;
-      const entity = connector.host.data;
-      if (entity instanceof Composite && entity.expand()) {
-        for (const ingredient of entity.ingredients) {
-          connectome.connectors.push(ingredient);
+  protected readonly connectome = signal<Connectome>({ components: {}, connectors: [] });
+  @ViewChildren(ComponentDirective)
+  protected set components(value: QueryList<ComponentDirective>) {
+    const connectome: Connectome = { components: {}, connectors: [] };
+    value.forEach(component => {
+      if (component.id) {
+        connectome.components[component.id] = component;
+        const entity = component.host.data;
+        if (entity instanceof Composite) {
+          for (const ingredient of entity.ingredients) {
+            connectome.connectors.push(ingredient);
+          }
         }
       }
     });
@@ -196,20 +208,21 @@ export class ArtisanComponent {
   }
 
   protected readonly connectify = effect(() => {
-    const { elements, connectors } = this.connectome();
-    const materials = this.artisan.product()?.materials;
     for (const id in this.#connectors) {
       if (this.#connectors[id]) {
         this.#connectors[id].remove();
         delete this.#connectors[id];
       }
     }
+    const { components, connectors } = this.connectome();
     for (const connector of connectors) {
-      const id = `${connector.parentId}=>${connector.id}`;
-      const source = elements[connector.parentId];
-      const target = elements[connector.id];
-      if (source && target && !this.#connectors[id]) {
-        this.#connectors[id] = new Connector(this.#canvas, source, target);
+      if (connector.parent.expand()) {
+        const id = `${connector.parent.id}=>${connector.id}`;
+        const source = components[connector.parent.id];
+        const target = components[connector.id];
+        if (source && target && !this.#connectors[id]) {
+          this.#connectors[id] = new Connector(this.#canvas, source, target, connectors);
+        }
       }
     }
   });
@@ -234,6 +247,7 @@ export class ArtisanComponent {
       circle.setAttribute('markerUnits', 'strokeWidth');
       circle.setAttribute('markerWidth', '5');
       circle.setAttribute('markerHeight', '5');
+
       const path = circle.appendChild(document.createElementNS(SVG_NS, 'circle'))
       path.setAttribute('stroke', 'var(--color-text-primary)');
       path.setAttribute('stroke-width', '0.7');

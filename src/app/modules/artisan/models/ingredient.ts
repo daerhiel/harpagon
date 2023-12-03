@@ -19,7 +19,7 @@ export class Ingredient implements IEntity {
   get quantity(): number { return this.#ingredient.quantity; }
   get bonus(): number | null { return this.#ingredient.qtyBonus ?? null; }
 
-  get parentId(): string { return this.#parent.id; }
+  get parent(): Composite { return this.#parent; }
   get entity(): Entity { return this.#entity; }
   get canBeCrafted(): boolean { return this.#entity.canBeCrafted; }
   get ref(): ObjectRef { return this.#entity.ref; }
