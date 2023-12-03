@@ -13,19 +13,21 @@
   </mat-autocomplete>
 </mat-form-field>
 <div class="recipe-selector app-mb-1r app-mt-1r app-width-100 app-height-100">
-  @if (!artisan.loading()) {
-  @if (artisan.product(); as product) {
-  <div #container class="app-l-flex app-l-flex-row app-l-flex-gap-6r">
-    @for (stage of product.materials.stages() | keyvalue; track stage.key) {
-    <div class="app-l-flex app-l-flex-column app-l-justify-around app-l-flex-gap-1r">
-      @for (entity of stage.value; track entity.id) {
-      <entity component [id]="entity.id" [data]="entity"></entity>
+  <div #container>
+    @if (!artisan.loading()) {
+    @if (artisan.product(); as product) {
+    <div class="app-l-flex app-l-flex-row app-l-flex-gap-6r">
+      @for (stage of product.materials.stages() | keyvalue; track stage.key) {
+      <div class="app-l-flex app-l-flex-column app-l-justify-around app-l-flex-gap-1r">
+        @for (entity of stage.value; track entity.id) {
+        <entity component [id]="entity.id" [data]="entity"></entity>
+        }
+      </div>
       }
     </div>
     }
+    } @else {
+    <mat-progress-bar mode="query"></mat-progress-bar>
+    }
   </div>
-  }
-  } @else {
-  <mat-progress-bar mode="query"></mat-progress-bar>
-  }
 </div>
