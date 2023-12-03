@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ViewChild, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
@@ -26,7 +26,7 @@ import { FooterComponent } from '@layout/footer/footer.component';
   styleUrls: ['./app.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AppComponent {
+export class AppComponent implements OnDestroy {
   readonly #subscriptions: Subscriptions = new Subscriptions();
   readonly #broadcast: BroadcastService = inject(BroadcastService);
   readonly #snackBar: MatSnackBar = inject(MatSnackBar);
@@ -44,5 +44,9 @@ export class AppComponent {
         panelClass: MessageType[message.type].toLocaleLowerCase()
       });
     })));
+  }
+
+  ngOnDestroy(): void {
+    this.#subscriptions.unsubscribe();
   }
 }
