@@ -225,6 +225,7 @@ export class ArtisanComponent {
       canvas.style.height = '100%';
       canvas.style.width = '100%';
       canvas.style.position = 'absolute';
+      canvas.style.overflow = 'visible';
 
       const defs = canvas.appendChild(document.createElementNS(SVG_NS, 'defs'))
       const circle = defs.appendChild(document.createElementNS(SVG_NS, 'marker'))

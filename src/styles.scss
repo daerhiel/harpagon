@@ -194,6 +194,31 @@ a[mat-link] {
   }
 }
 
+/** Scrollbars **/
+:root {
+  --scrollbar-thickness: 10px;
+}
+
+* {
+  &::-webkit-scrollbar {
+    width: var(--scrollbar-thickness);
+    height: var(--scrollbar-thickness);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(128, 128, 128, 0.5);
+    border-radius: calc(var(--scrollbar-thickness) / 2);
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(64, 64, 64, 0);
+  }
+
+  &::-webkit-scrollbar-corner {
+    background: rgba(64, 64, 64, 0);
+  }
+}
+
 /** FIXES **/
 .mat-content.mat-content-hide-toggle {
   overflow: visible;
