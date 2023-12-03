@@ -27,3 +27,6 @@ jobs:
         npm install -g @angular/cli
         npm install
         ng build
+
+    - name: Upload Pages
+      uses: actions/upload-pages-artifact@v2
