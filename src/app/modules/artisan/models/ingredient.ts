@@ -24,7 +24,20 @@ export class Ingredient implements IEntity {
   get canBeCrafted(): boolean { return this.#entity.canBeCrafted; }
   get ref(): ObjectRef { return this.#entity.ref; }
 
+  readonly value = computed(() => coalesce(this.#entity.value(), null));
   readonly total = computed(() => coalesce(this.#entity.value(), null) * this.quantity);
+  readonly futureClass = computed(() => {
+    if (this.#entity instanceof Composite) {
+      return this.#entity.isEffective() ? 'mat-accent' : 'mat-warn';
+    }
+    return null;
+  });
+  readonly currentClass = computed(() => {
+    if (this.#parent.expand() && this.#entity instanceof Composite) {
+      return this.#entity.isEffective() ? 'mat-accent' : 'mat-warn';
+    }
+    return null;
+  });
 
   constructor(parent: Composite, ingredient: IIngredient, entity: Entity) {
     if (!parent) {

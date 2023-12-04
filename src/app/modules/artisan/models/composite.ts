@@ -30,6 +30,10 @@ export class Composite extends Entity {
     return null;
   });
   override readonly value = computed(() => this.expand() ? this.input() : this.price());
+  readonly isEffective = computed(() => {
+    const result = (this.price() ?? 0) < this.input();
+    return this.expand() ? !result : result;
+  });
 
   constructor(materials: Materials, ref: ObjectRef, index: Index<IObject>) {
     super(materials, ref, index);
