@@ -1,16 +1,73 @@
 :host {
   display: block;
 
-  mat-card-title {
-    white-space: nowrap;
-    padding-right: 1rem;
+  mat-card-header {
+    padding-top: 8px;
+    --icon-size: 40px;
+
+    mat-card-title-group {
+      flex-direction: row-reverse;
+      justify-content: flex-end;
+      text-wrap: nowrap;
+
+      mat-card-title {
+        white-space: nowrap;
+      }
+
+      mat-icon {
+        margin: 10px 0;
+        overflow: visible;
+        width: calc(var(--icon-size) + 2px);
+        height: calc(var(--icon-size) + 2px);
+        margin-right: 16px;
+
+        img.mat-img {
+          height: var(--icon-size);
+          width: var(--icon-size);
+        }
+      }
+    }
   }
 
-  mat-icon {
-    overflow: visible;
-    width: 32px;
-    height: 32px;
-    margin: 6px 0;
+  table[mat-table] {
+    min-width: auto;
+    --ingredient-name-color: rgba(255, 255, 255, 0.4);
+    --formula-component-color: rgba(255, 255, 255, 0.7);
+
+    tr.mat-mdc-row {
+      height: auto;
+
+      td.mat-mdc-cell {
+        padding: 0;
+        font-size: calc(var(--mat-table-row-item-label-text-size) * 0.85);
+      }
+
+      td.mat-column-header {
+        border-bottom-width: 0;
+        color: var(--ingredient-name-color);
+      }
+
+      td.mat-column-quantity {
+        color: var(--formula-component-color);
+      }
+
+      td.mat-column-action,
+      td.mat-column-sign {
+        padding: 0 4px;
+        color: var(--mat-table-row-item-outline-color);
+      }
+
+      td.mat-column-price,
+      td.mat-column-total {
+        text-align: right;
+        color: var(--formula-component-color);
+
+        &.mat-warn,
+        &.mat-accent {
+          color: var(--mdc-slider-handle-color);
+        }
+      }
+    }
   }
 
   button {

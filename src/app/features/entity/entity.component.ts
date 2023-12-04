@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
+import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatIconModule } from '@angular/material/icon';
@@ -15,21 +16,23 @@ import { InstancePipe } from '@app/services/instance.pipe';
   imports: [
     CommonModule,
     MatCardModule,
+    MatTableModule,
     MatButtonModule,
     MatSlideToggleModule,
     MatIconModule,
     NwIconDirective,
     InstancePipe
- ],
+  ],
   templateUrl: './entity.component.html',
   styleUrl: './entity.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EntityComponent {
+  protected readonly columns = ["quantity", "action", "price", "sign", "total"];
+  protected readonly Composite = Composite;
+
   @Input()
   data: Entity | null = null;
-
-  protected readonly Composite = Composite;
 
   @Output()
   readonly navigate = new EventEmitter<ObjectRef>();

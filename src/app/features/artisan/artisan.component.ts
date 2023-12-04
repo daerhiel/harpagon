@@ -13,7 +13,6 @@ import { debounceTime, distinctUntilChanged, filter, map, switchMap, tap } from 
 import { NwDbService, NwIconDirective, ObjectRef, SearchRef } from '@modules/nw-db/nw-db.module';
 import { ArtisanService, Composite, Ingredient } from '@modules/artisan/artisan.module';
 import { EntityComponent } from '../entity/entity.component';
-import { IngredientComponent } from '../ingredient/ingredient.component';
 import { ComponentDirective } from './component.directive';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -162,7 +161,6 @@ export class Connector {
     MatIconModule,
     NwIconDirective,
     EntityComponent,
-    IngredientComponent,
     ComponentDirective
   ],
   templateUrl: './artisan.component.html',

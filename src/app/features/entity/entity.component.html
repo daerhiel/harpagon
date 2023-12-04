@@ -12,7 +12,6 @@
         }
       </mat-card-title>
       <mat-card-subtitle>
-        <!-- <b>{{data.quantity}}</b> x <b>{{data.price() | number:'1.2-3'}}</b> = <b>{{data.total() | number:'1.2-3'}}</b> -->
         @if (data | instance:Composite) {<b>{{ data.price() | number:'1.2-3'}}</b> / <b>{{data.input() | number:'1.2-3'}}</b> }
         @else { <b>{{ data.price() | number:'1.2-3'}}</b> }
       </mat-card-subtitle>
@@ -22,7 +21,40 @@
     </mat-card-title-group>
   </mat-card-header>
   <mat-card-content>
+    <div class="app-l-flex app-l-flex-row">
+      <div class="app-l-flex-spacer-1"></div>
+      @if (data | instance:Composite) {
+      <table mat-table class="mat-elevation-z0" [dataSource]="data.ingredients" multiTemplateDataRows>
+        <ng-container matColumnDef="header">
+          <td mat-cell *matCellDef="let ingredient" [attr.colspan]="columns.length"> {{ingredient.name}} </td>
+        </ng-container>
+        <ng-container matColumnDef="quantity">
+          <th mat-header-cell *matHeaderCellDef> Quantity </th>
+          <td mat-cell *matCellDef="let ingredient"> <b>{{ingredient.quantity}}</b> </td>
+        </ng-container>
+        <ng-container matColumnDef="action">
+          <th mat-header-cell *matHeaderCellDef> Action </th>
+          <td mat-cell *matCellDef="let ingredient"> x </td>
+        </ng-container>
+        <ng-container matColumnDef="price">
+          <th mat-header-cell *matHeaderCellDef> Price </th>
+          <td mat-cell *matCellDef="let ingredient" [class]="ingredient.futureClass()"> <b>{{ingredient.value() | number:'1.2-3'}}</b> </td>
+        </ng-container>
+        <ng-container matColumnDef="sign">
+          <th mat-header-cell *matHeaderCellDef> Equals </th>
+          <td mat-cell *matCellDef="let ingredient"> = </td>
+        </ng-container>
+        <ng-container matColumnDef="total">
+          <th mat-header-cell *matHeaderCellDef> Total </th>
+          <td mat-cell *matCellDef="let ingredient" [class]="ingredient.currentClass()"> {{ingredient.total() | number:'1.2-3'}} </td>
+        </ng-container>
 
+        <!-- <tr mat-header-row *matHeaderRowDef="columns"></tr> -->
+        <tr mat-row *matRowDef="let row; columns: ['header']" header></tr>
+        <tr mat-row *matRowDef="let ingredient; columns: columns;"></tr>
+      </table>
+      }
+    </div>
   </mat-card-content>
   <mat-card-actions>
     <div class="app-l-flex-spacer-1"></div>
