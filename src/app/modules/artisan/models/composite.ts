@@ -1,7 +1,8 @@
-import { computed, signal } from "@angular/core";
+import { Signal, computed, signal } from "@angular/core";
 
 import { IObject, IRecipe, Index, ObjectRef, TradeSkill, isItem, isRecipe } from "@modules/nw-db/nw-db.module";
-import { Entity, EntityState, coalesce } from "./entity";
+import { sum } from "@app/services/utilities";
+import { Entity, EntityState } from "./entity";
 import { Ingredient } from "./ingredient";
 import { Materials } from "./materials";
 
@@ -21,16 +22,16 @@ export class Composite extends Entity {
   readonly ingredients: Ingredient[] = [];
 
   readonly expand = signal(false);
-  readonly input = computed(() => this.ingredients.reduce((s, x) => s + coalesce(x.total(), 0), 0));
+  readonly input = computed(() => this.ingredients.reduce((s, x) => sum(s, x.total() ?? 0), 0));
   readonly bonus = computed(() => {
     if (this._tradeSkills.includes(this.#recipe.tradeskill)) {
-      const bonus = this.ingredients.reduce((s, x) => s + coalesce(x.bonus, 0), 0);
+      const bonus = this.ingredients.reduce((s, x) => sum(s, x.bonus ?? 0), 0);
       return Math.max(this._tradeSkill / 1000 + this._gearPieces * 0.02 + this.#recipe.qtyBonus + bonus, 0);
     }
     return null;
   });
   override readonly value = computed(() => this.expand() ? this.input() : this.price());
-  readonly isEffective = computed(() => {
+  readonly isEffective: Signal<boolean> = computed(() => {
     const result = (this.price() ?? 0) < this.input();
     return this.expand() ? !result : result;
   });

@@ -1,16 +1,10 @@
-import { computed, signal } from "@angular/core";
+import { Signal, computed, signal } from "@angular/core";
 
 import { IObject, IEntity, Index, ItemType, ObjectRef, ObjectType, Rarity, Tier, isCurrency, isItem, isRecipe } from "@modules/nw-db/nw-db.module";
 import { GamingToolsService } from "@modules/gaming-tools/gaming-tools.module";
 import { __injector } from "../artisan.service";
 import { Composite } from "./composite";
 import { Materials } from "./materials";
-
-export function coalesce(value: number | null, fallback: number): number;
-export function coalesce(value: number | null, fallback: null): number;
-export function coalesce(value: number | null, fallback: number | null): number | null {
-  return value != null && !isNaN(value) ? value : fallback;
-}
 
 export interface EntityState {
 }
@@ -34,6 +28,9 @@ export class Entity implements IEntity {
 
   readonly price = computed(() => this.#gaming.commodities()?.[this.id] ?? null);
   readonly value = computed(() => this.#gaming.commodities()?.[this.id] ?? null);
+  readonly volume: Signal<number> = computed(() => this.#owners().filter(x => x.expand()).reduce((s, x) => {
+    return s + x.ingredients.filter(x => x.entity === this).reduce((s, x) => s + x.parent.volume() * x.quantity, 0);
+  }, 0));
 
   constructor(readonly materials: Materials, ref: ObjectRef, index: Index<IObject>) {
     if (!materials) {

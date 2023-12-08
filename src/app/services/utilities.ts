@@ -25,3 +25,35 @@ export function applyMixins(target: any, ...constructors: any[]) {
     ))
   );
 }
+
+export function coalesce(value: number | null, fallback: number): number;
+export function coalesce(value: number | null, fallback: null): number | null;
+export function coalesce(value: number | null, fallback: number | null): number | null {
+  return value != null && !isNaN(value) ? value : fallback;
+}
+
+export function product(a: number, b: number): number;
+export function product(a: number, b: number | null): number | null;
+export function product(a: number | null, b: number): number | null;
+export function product(a: number | null, b: number | null): number | null {
+  if (a == null || isNaN(a)) {
+    return null;
+  }
+  if (b == null || isNaN(b)) {
+    return null;
+  }
+  return a * b;
+}
+
+export function sum(a: number, b: number): number;
+export function sum(a: number, b: number | null): number | null;
+export function sum(a: number | null, b: number): number | null;
+export function sum(a: number | null, b: number | null): number | null {
+  if (a == null || isNaN(a)) {
+    return null;
+  }
+  if (b == null || isNaN(b)) {
+    return null;
+  }
+  return a + b;
+}

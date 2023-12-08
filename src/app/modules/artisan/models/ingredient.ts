@@ -1,7 +1,8 @@
-import { computed } from "@angular/core";
+import { Signal, computed } from "@angular/core";
 
 import { IEntity, IIngredient, ItemType, ObjectRef, ObjectType, Rarity, Tier } from "@modules/nw-db/nw-db.module";
-import { Entity, coalesce } from "./entity";
+import { coalesce, product } from "@app/services/utilities";
+import { Entity } from "./entity";
 import { Composite } from "./composite";
 
 export class Ingredient implements IEntity {
@@ -25,7 +26,8 @@ export class Ingredient implements IEntity {
   get ref(): ObjectRef { return this.#entity.ref; }
 
   readonly value = computed(() => coalesce(this.#entity.value(), null));
-  readonly total = computed(() => coalesce(this.#entity.value(), null) * this.quantity);
+  readonly total = computed(() => product(this.#entity.value(), this.quantity));
+
   readonly futureClass = computed(() => {
     if (this.#entity instanceof Composite) {
       return this.#entity.isEffective() ? 'mat-accent' : 'mat-warn';
