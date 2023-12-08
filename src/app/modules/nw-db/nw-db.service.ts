@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { EMPTY, Observable, catchError, expand, from, iif, last, map, mergeMap, of, toArray } from 'rxjs';
+import { EMPTY, Observable, RetryConfig, catchError, expand, from, iif, last, map, mergeMap, of, retry, throwError, timer, toArray } from 'rxjs';
 
 import { BroadcastService } from '@app/services/broadcast.service';
 import { getStorageItem, setStorageItem } from '@app/services/settings';
@@ -32,6 +32,19 @@ export class NwDbService {
       } as IObject
     }
   };
+
+  private retryStrategy(config: { delay: number, span: number }): RetryConfig {
+    return {
+      delay: (e: HttpErrorResponse, count) => {
+        if (e.status === 429) {
+          const delay = config.delay + Math.random() * config.span * .2 + config.span * count * 0.1;
+          return timer(delay);
+        }
+        return throwError(() => e);
+      },
+      resetOnSuccess: true
+    };
+  }
 
   constructor() {
     this.loadHierarchy();
@@ -176,14 +189,21 @@ export class NwDbService {
   }
 
   search(term: string): Observable<SearchRef[]> {
-    return this.#api.search(term).pipe(catchError(this.handleError([])));
+    return this.#api.search(term).pipe(
+      retry(this.retryStrategy({ delay: 5000, span: 5000 })),
+      catchError(this.handleError([]))
+    );
   }
 
   getHierarchy<T extends IObject>(ref: ObjectRef | null): Observable<Hierarchy<T>> {
     return of(ref).pipe(
       mergeMap(ref => iif(() => !!ref, of(this.refOrCached(ref)).pipe(
         expand(ids => ids.length > 0 ? from(ids).pipe(
-          mergeMap(id => this.#api.getObject<T>(id).pipe(catchError(this.handleError(null))), 5), toArray(),
+          mergeMap(id => this.#api.getObject<T>(id).pipe(
+            retry(this.retryStrategy({ delay: 5000, span: 5000 })),
+            catchError(this.handleError(null))),
+            5),
+          toArray(),
           map(objects => this.cacheAndGet(...objects))
         ) : EMPTY), last(),
         map(() => ({ ref, index: this.buildIndex<T>(ref) }))
