@@ -7,7 +7,10 @@
       "type": "chrome",
       "request": "launch",
       "preLaunchTask": "npm: start",
-      "url": "https://localhost:4300/"
+      "url": "https://localhost:4300/",
+      "runtimeArgs": [
+        "--disable-web-security"
+      ]
     },
     {
       "name": "ng test",
