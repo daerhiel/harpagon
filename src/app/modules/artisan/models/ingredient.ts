@@ -28,8 +28,8 @@ export class Ingredient implements IEntity {
   readonly effectiveValue = computed(() => {
     const bonus = this.#parent.extraItemChance();
     if (bonus) {
-      const effective = product(product(this.#entity.requestedVolume(), this.#entity.effectiveValue()), this.#entity.getRatio(this.#parent));
-      return ratio(effective, (this.#parent.requestedVolume() * this.quantity));
+      const total = product(product(this.#entity.requestedVolume(), this.#entity.effectiveValue()), this.#entity.getRatio(this.#parent));
+      return ratio(total, (this.#parent.requestedVolume() * this.quantity));
     }
     return this.#entity.effectiveValue();
   });

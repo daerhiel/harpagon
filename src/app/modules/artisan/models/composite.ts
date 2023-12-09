@@ -28,7 +28,7 @@ export class Composite extends Entity {
   readonly extraItemChance = computed(() => {
     if (this._tradeSkills.includes(this.#recipe.tradeskill)) {
       const bonus = this.ingredients.reduce((s, x) => sum(s, x.bonus ?? 0), 0);
-      return Math.max(this._tradeSkill / 1000 + this._gearPieces * 0.02 + this.#recipe.qtyBonus + bonus, 0);
+      return Math.max(this._tradeSkill / 1000 + this._gearPieces * 0.02 + this.#recipe.qtyBonus + bonus + .05, 0);
     }
     return null;
   });

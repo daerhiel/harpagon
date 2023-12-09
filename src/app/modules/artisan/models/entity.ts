@@ -29,11 +29,13 @@ export class Entity implements IEntity {
 
   readonly marketPrice = computed(() => this.#gaming.commodities()?.[this.id] ?? null);
   readonly effectiveValue = computed(() => this.#gaming.commodities()?.[this.id] ?? null);
-  readonly requestedVolume: Signal<number> = computed(() => this.#owners().reduce((s, x) => {
-    return s + x.ingredients.filter(x => x.entity === this).reduce((s, x) => {
-      return s + x.parent.actualVolume() * x.quantity;
-    }, 0);
-  }, 0));
+  readonly requestedVolume: Signal<number> = computed(() => {
+    const owners = this.#owners();
+    const active = owners.filter(x => x.useCraft());
+    return (active.length > 0 ? active : owners).reduce((s, x) =>
+      s + x.ingredients.filter(x => x.entity === this).reduce((s, x) =>
+        s + x.parent.actualVolume() * x.quantity, 0), 0);
+  });
   readonly cost = computed(() => product(this.requestedVolume(), this.effectiveValue()));
 
   constructor(readonly materials: Materials, ref: ObjectRef, index: Index<IObject>) {
