@@ -50,6 +50,7 @@
   mat-card-content {
     text-wrap: nowrap;
     font-family: var(--mat-table-row-item-label-text-font, Roboto, sans-serif);
+    --input-background-color: rgba(255, 255, 255, 0.1);
     --label-text-color: rgba(255, 255, 255, 0.4);
     --active-label-text-color: rgba(255, 255, 255, 0.9);
     --value-text-color: rgba(255, 255, 255, 0.6);
@@ -67,6 +68,20 @@
 
       .active {
         color: var(--active-value-text-color);
+      }
+
+      input {
+        color: var(--active-value-text-color);
+        background-color: var(--input-background-color);
+        border: none;
+        border-bottom: 1px solid var(--label-text-color);
+        padding: 2px;
+        width: 50px;
+
+        &:focus {
+          border: none;
+          outline: none;
+        }
       }
     }
   }

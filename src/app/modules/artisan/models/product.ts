@@ -9,7 +9,7 @@ export interface ProductState extends CompositeState {
 }
 
 export class Product extends Composite {
-  override readonly requestedVolume: Signal<number> = signal(100);
+  override readonly requestedVolume = signal(1);
 
   constructor(ref: ObjectRef, index: Index<IObject>) {
     super(new Materials(), ref, index);
