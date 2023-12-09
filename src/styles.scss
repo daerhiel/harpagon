@@ -49,6 +49,7 @@ $hungry-horde-ui-theme: mat.define-dark-theme(
 @include mat.form-field-theme($hungry-horde-ui-theme);
 @include mat.input-theme($hungry-horde-ui-theme);
 @include mat.autocomplete-theme($hungry-horde-ui-theme);
+@include mat.tooltip-theme($hungry-horde-ui-theme);
 @include styles.theme($hungry-horde-ui-theme);
 
 html,
@@ -77,43 +78,55 @@ body {
 /** Layouts **/
 
 .app-l-flex {
-  display: flex;
+  display: flex !important;
 }
 
 .app-l-inline-flex {
-  display: inline-flex;
+  display: inline-flex !important;
 }
 
 .app-l-flex-spacer-1 {
-  flex-grow: 1;
+  flex-grow: 1 !important;
 }
 
 .app-l-flex-column {
-  flex-direction: column;
+  flex-direction: column !important;
 }
 
 .app-l-flex-row {
-  flex-direction: row;
+  flex-direction: row !important;
 }
 
 .app-l-align-start {
-  align-items: flex-start;
+  align-items: flex-start !important;
 }
 
 .app-l-align-center {
-  align-items: center;
+  align-items: center !important;
+}
+
+.app-l-align-end {
+  align-items: flex-end !important;
 }
 
 .app-l-justify-start {
-  justify-content: flex-start;
+  justify-content: flex-start !important;
 }
 
 .app-l-justify-around {
-  justify-content: space-around;
+  justify-content: space-around !important;
+}
+
+.app-l-justify-between {
+  justify-content: space-between !important;
 }
 
 .app-l-justify-center {
-  justify-content: center;
+  justify-content: center !important;
+}
+
+.app-l-justify-center {
+  justify-content: flex-end !important;
 }
 
 /** Spacing **/
@@ -230,6 +243,10 @@ a[mat-link] {
 
 .mat-mdc-menu-panel {
   max-height: 50vh;
+}
+
+.mat-mdc-card-title-group > div {
+  flex-grow: 1;
 }
 
 /** Global App styles **/

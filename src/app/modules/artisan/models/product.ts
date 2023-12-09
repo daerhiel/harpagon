@@ -1,4 +1,5 @@
 import { Index, IObject, ObjectRef } from "@modules/nw-db/nw-db.module";
+import { signal, Signal } from "@angular/core";
 
 import { Composite, CompositeState } from "./composite";
 import { Materials } from "./materials";
@@ -8,9 +9,11 @@ export interface ProductState extends CompositeState {
 }
 
 export class Product extends Composite {
+  override readonly requestedVolume = signal(1);
+
   constructor(ref: ObjectRef, index: Index<IObject>) {
     super(new Materials(), ref, index);
-    this.expand.set(true);
+    this.useCraft.set(true);
   }
 
   override getState(): ProductState {

@@ -1,16 +1,11 @@
-import { computed, signal } from "@angular/core";
+import { Signal, computed, signal } from "@angular/core";
 
 import { IObject, IEntity, Index, ItemType, ObjectRef, ObjectType, Rarity, Tier, isCurrency, isItem, isRecipe } from "@modules/nw-db/nw-db.module";
 import { GamingToolsService } from "@modules/gaming-tools/gaming-tools.module";
+import { product } from "@app/services/utilities";
 import { __injector } from "../artisan.service";
 import { Composite } from "./composite";
 import { Materials } from "./materials";
-
-export function coalesce(value: number | null, fallback: number): number;
-export function coalesce(value: number | null, fallback: null): number;
-export function coalesce(value: number | null, fallback: number | null): number | null {
-  return value != null && !isNaN(value) ? value : fallback;
-}
 
 export interface EntityState {
 }
@@ -32,8 +27,16 @@ export class Entity implements IEntity {
   get ref(): ObjectRef { return { id: this.id, type: this.type }; }
   get isOwned(): boolean { return this.#owners().length > 0; }
 
-  readonly price = computed(() => this.#gaming.commodities()?.[this.id] ?? null);
-  readonly value = computed(() => this.#gaming.commodities()?.[this.id] ?? null);
+  readonly marketPrice = computed(() => this.#gaming.commodities()?.[this.id] ?? null);
+  readonly effectiveValue = computed(() => this.#gaming.commodities()?.[this.id] ?? null);
+  readonly requestedVolume: Signal<number> = computed(() => {
+    const owners = this.#owners();
+    const active = owners.filter(x => x.useCraft());
+    return (active.length > 0 ? active : owners).reduce((s, x) =>
+      s + x.ingredients.filter(x => x.entity === this).reduce((s, x) =>
+        s + x.parent.actualVolume() * x.quantity, 0), 0);
+  });
+  readonly cost = computed(() => product(this.requestedVolume(), this.effectiveValue()));
 
   constructor(readonly materials: Materials, ref: ObjectRef, index: Index<IObject>) {
     if (!materials) {
@@ -81,6 +84,21 @@ export class Entity implements IEntity {
       }
       return owners;
     });
+  }
+
+  getRatio(owner: Composite): number {
+    let total = 0, owned = 0;
+    for (const current of this.#owners()) {
+      const ingredient = current.getIngredient(this);
+      if (ingredient && (current.useCraft() || current === owner)) {
+        const volume = ingredient.quantity * current.actualVolume();
+        if (owner === current) {
+          owned += volume;
+        }
+        total += volume;
+      }
+    }
+    return owned / total;
   }
 
   getState(): EntityState {

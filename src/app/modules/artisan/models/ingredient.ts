@@ -1,7 +1,8 @@
 import { computed } from "@angular/core";
 
 import { IEntity, IIngredient, ItemType, ObjectRef, ObjectType, Rarity, Tier } from "@modules/nw-db/nw-db.module";
-import { Entity, coalesce } from "./entity";
+import { coalesce, product, ratio } from "@app/services/utilities";
+import { Entity } from "./entity";
 import { Composite } from "./composite";
 
 export class Ingredient implements IEntity {
@@ -24,8 +25,16 @@ export class Ingredient implements IEntity {
   get canBeCrafted(): boolean { return this.#entity.canBeCrafted; }
   get ref(): ObjectRef { return this.#entity.ref; }
 
-  readonly value = computed(() => coalesce(this.#entity.value(), null));
-  readonly total = computed(() => coalesce(this.#entity.value(), null) * this.quantity);
+  readonly effectiveValue = computed(() => {
+    const bonus = this.#parent.extraItemChance();
+    if (bonus) {
+      const total = product(product(this.#entity.requestedVolume(), this.#entity.effectiveValue()), this.#entity.getRatio(this.#parent));
+      return ratio(total, (this.#parent.requestedVolume() * this.quantity));
+    }
+    return this.#entity.effectiveValue();
+  });
+  readonly total = computed(() => product(this.effectiveValue(), this.quantity));
+
   readonly futureClass = computed(() => {
     if (this.#entity instanceof Composite) {
       return this.#entity.isEffective() ? 'mat-accent' : 'mat-warn';
@@ -33,7 +42,7 @@ export class Ingredient implements IEntity {
     return null;
   });
   readonly currentClass = computed(() => {
-    if (this.#parent.expand() && this.#entity instanceof Composite) {
+    if (this.#parent.useCraft() && this.#entity instanceof Composite) {
       return this.#entity.isEffective() ? 'mat-accent' : 'mat-warn';
     }
     return null;

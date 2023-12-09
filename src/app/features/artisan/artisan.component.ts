@@ -214,7 +214,7 @@ export class ArtisanComponent {
     }
     const { components, connectors } = this.connectome();
     for (const connector of connectors) {
-      if (connector.parent.expand()) {
+      if (connector.parent.useCraft()) {
         const id = `${connector.parent.id}=>${connector.id}`;
         const source = components[connector.parent.id];
         const target = components[connector.id];

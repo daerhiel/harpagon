@@ -1,7 +1,8 @@
-import { computed, signal } from "@angular/core";
+import { Signal, computed, signal } from "@angular/core";
 
 import { IObject, IRecipe, Index, ObjectRef, TradeSkill, isItem, isRecipe } from "@modules/nw-db/nw-db.module";
-import { Entity, EntityState, coalesce } from "./entity";
+import { product, subtract, sum } from "@app/services/utilities";
+import { Entity, EntityState } from "./entity";
 import { Ingredient } from "./ingredient";
 import { Materials } from "./materials";
 
@@ -20,19 +21,47 @@ export class Composite extends Entity {
 
   readonly ingredients: Ingredient[] = [];
 
-  readonly expand = signal(false);
-  readonly input = computed(() => this.ingredients.reduce((s, x) => s + coalesce(x.total(), 0), 0));
-  readonly bonus = computed(() => {
+  readonly useCraft = signal(false);
+  readonly useExtraItems = signal(true);
+  readonly craftedValue = computed(() => this.ingredients.reduce((s, x) => sum(s, x.total()), null as number | null));
+  override readonly effectiveValue = computed(() => this.useCraft() ? this.craftedValue() : this.marketPrice());
+  readonly extraItemChance = computed(() => {
     if (this._tradeSkills.includes(this.#recipe.tradeskill)) {
-      const bonus = this.ingredients.reduce((s, x) => s + coalesce(x.bonus, 0), 0);
-      return Math.max(this._tradeSkill / 1000 + this._gearPieces * 0.02 + this.#recipe.qtyBonus + bonus, 0);
+      const bonus = this.ingredients.reduce((s, x) => sum(s, x.bonus ?? 0), 0);
+      return Math.max(this._tradeSkill / 1000 + this._gearPieces * 0.02 + this.#recipe.qtyBonus + bonus + .05, 0);
     }
     return null;
   });
-  override readonly value = computed(() => this.expand() ? this.input() : this.price());
-  readonly isEffective = computed(() => {
-    const result = (this.price() ?? 0) < this.input();
-    return this.expand() ? !result : result;
+  readonly effectiveVolume: Signal<number | null> = computed(() => {
+    const bonus = this.extraItemChance();
+    if (bonus && this.useExtraItems()) {
+      const volume = this.requestedVolume();
+      const effect = Math.round(volume / (1 + bonus));
+      if (effect !== volume) {
+        return effect;
+      }
+    }
+    return null;
+  });
+  readonly actualVolume = computed(() => this.useExtraItems() ? this.effectiveVolume() ?? this.requestedVolume() : this.requestedVolume());
+  readonly profit = computed(() => {
+    const requestedVolume = this.requestedVolume();
+    const craftedCost = product(requestedVolume, this.craftedValue());
+    const marketCost = product(requestedVolume, this.marketPrice());
+    return this.useCraft() ? subtract(marketCost, craftedCost) : subtract(craftedCost, marketCost);
+  });
+
+  readonly isEffective: Signal<boolean> = computed(() => {
+    const result = (this.marketPrice() ?? 0) < this.craftedValue()!;
+    return this.useCraft() ? !result : result;
+  });
+
+  readonly profitClass = computed(() => {
+    const profit = this.profit();
+    if (profit) {
+      return profit > 0 ? 'mat-accent' : 'mat-warn';
+    }
+    return null;
   });
 
   constructor(materials: Materials, ref: ObjectRef, index: Index<IObject>) {
@@ -76,6 +105,27 @@ export class Composite extends Entity {
           break;
       }
     }
+
+    this.ingredients.sort((a, b) => {
+      const ta = a.entity instanceof Composite;
+      const tb = b.entity instanceof Composite;
+      return Number(tb) - Number(ta);
+    });
+  }
+
+  getIngredient(value: Entity | string): Ingredient | undefined {
+    const predicate = value instanceof Entity ?
+      (x: Ingredient): boolean => { return x.entity === value; } :
+      (x: Ingredient): boolean => { return x.id === value; };
+    return this.ingredients.find(predicate);
+  }
+
+  toggleCraft(): void {
+    this.useCraft.set(!this.useCraft());
+  }
+
+  toggleExtraItems(): void {
+    this.useExtraItems.set(!this.useExtraItems());
   }
 
   override getState(): CompositeState {
@@ -87,14 +137,14 @@ export class Composite extends Entity {
 
     return {
       ...super.getState(),
-      expand: this.expand(),
+      expand: this.useCraft(),
       ingredients
     };
   }
 
   override setState(state: CompositeState) {
     super.setState(state);
-    this.expand.set(state.expand);
+    this.useCraft.set(state.expand);
 
     if (state) {
       for (const id in state.ingredients) {

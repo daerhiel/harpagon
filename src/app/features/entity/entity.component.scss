@@ -1,17 +1,31 @@
 :host {
   display: block;
 
+  .mat-warn,
+  .mat-accent {
+    color: var(--mdc-slider-handle-color);
+  }
+
   mat-card-header {
     padding-top: 8px;
+    text-wrap: nowrap;
     --icon-size: 40px;
 
     mat-card-title-group {
       flex-direction: row-reverse;
-      justify-content: flex-end;
-      text-wrap: nowrap;
+      justify-content: stretch;
 
-      mat-card-title {
-        white-space: nowrap;
+      mat-card-subtitle {
+        .use-bonus {
+          cursor: pointer;
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+
+        .action {
+          color: var(--mat-table-row-item-outline-color);
+        }
       }
 
       mat-icon {
@@ -26,6 +40,49 @@
           width: var(--icon-size);
         }
       }
+
+      .mat-accent {
+        color: var(--mdc-slider-handle-color);
+      }
+    }
+  }
+
+  mat-card-content {
+    text-wrap: nowrap;
+    font-family: var(--mat-table-row-item-label-text-font, Roboto, sans-serif);
+    --input-background-color: rgba(255, 255, 255, 0.1);
+    --label-text-color: rgba(255, 255, 255, 0.4);
+    --active-label-text-color: rgba(255, 255, 255, 0.9);
+    --value-text-color: rgba(255, 255, 255, 0.6);
+    --active-value-text-color: rgba(255, 255, 255);
+
+    .labels {
+      color: var(--label-text-color);
+
+      .active {
+        color: var(--active-label-text-color);
+      }
+    }
+    .values {
+      color: var(--value-text-color);
+
+      .active {
+        color: var(--active-value-text-color);
+      }
+
+      input {
+        color: var(--active-value-text-color);
+        background-color: var(--input-background-color);
+        border: none;
+        border-bottom: 1px solid var(--label-text-color);
+        padding: 2px;
+        width: 50px;
+
+        &:focus {
+          border: none;
+          outline: none;
+        }
+      }
     }
   }
 
@@ -33,6 +90,7 @@
     min-width: auto;
     --ingredient-name-color: rgba(255, 255, 255, 0.4);
     --formula-component-color: rgba(255, 255, 255, 0.7);
+    border-left: 1px solid var(--ingredient-name-color);
 
     tr.mat-mdc-row {
       height: auto;
