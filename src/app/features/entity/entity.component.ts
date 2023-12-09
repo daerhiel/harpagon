@@ -5,6 +5,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { NwIconDirective, ObjectRef } from '@modules/nw-db/nw-db.module';
 import { Composite, Entity } from '@modules/artisan/artisan.module';
@@ -20,6 +21,7 @@ import { InstancePipe } from '@app/services/instance.pipe';
     MatButtonModule,
     MatSlideToggleModule,
     MatIconModule,
+    MatTooltipModule,
     NwIconDirective,
     InstancePipe
   ],

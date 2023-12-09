@@ -3,15 +3,20 @@
 
   mat-card-header {
     padding-top: 8px;
+    text-wrap: nowrap;
     --icon-size: 40px;
 
     mat-card-title-group {
       flex-direction: row-reverse;
-      justify-content: flex-end;
-      text-wrap: nowrap;
+      justify-content: stretch;
 
-      mat-card-title {
-        white-space: nowrap;
+      mat-card-subtitle {
+        .use-bonus {
+          cursor: pointer;
+          &:hover {
+            text-decoration: underline;
+          }
+        }
       }
 
       mat-icon {
@@ -26,13 +31,22 @@
           width: var(--icon-size);
         }
       }
+
+      .mat-accent {
+        color: var(--mdc-slider-handle-color);
+      }
     }
+  }
+
+  mat-card-content {
+    text-wrap: nowrap;
   }
 
   table[mat-table] {
     min-width: auto;
     --ingredient-name-color: rgba(255, 255, 255, 0.4);
     --formula-component-color: rgba(255, 255, 255, 0.7);
+    border-left: 1px solid var(--ingredient-name-color);
 
     tr.mat-mdc-row {
       height: auto;

@@ -52,7 +52,7 @@ export class Materials {
     while (objects.size > 0) {
       const next = new Set<Entity>();
       for (const entity of objects) {
-        if (entity instanceof Composite && entity.expand()) {
+        if (entity instanceof Composite && entity.useCraft()) {
           for (const ingredient of entity.ingredients) {
             for (const name in stages) {
               stages[name].delete(ingredient.entity);

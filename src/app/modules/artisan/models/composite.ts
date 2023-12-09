@@ -21,19 +21,33 @@ export class Composite extends Entity {
 
   readonly ingredients: Ingredient[] = [];
 
-  readonly expand = signal(false);
-  readonly input = computed(() => this.ingredients.reduce((s, x) => sum(s, x.total() ?? 0), 0));
-  readonly bonus = computed(() => {
+  readonly useCraft = signal(false);
+  readonly useExtraItems = signal(true);
+  readonly craftedValue = computed(() => this.ingredients.reduce((s, x) => sum(s, x.total()), null as number | null));
+  override readonly effectiveValue = computed(() => this.useCraft() ? this.craftedValue() : this.marketPrice());
+  readonly extraItemChance = computed(() => {
     if (this._tradeSkills.includes(this.#recipe.tradeskill)) {
       const bonus = this.ingredients.reduce((s, x) => sum(s, x.bonus ?? 0), 0);
       return Math.max(this._tradeSkill / 1000 + this._gearPieces * 0.02 + this.#recipe.qtyBonus + bonus, 0);
     }
     return null;
   });
-  override readonly value = computed(() => this.expand() ? this.input() : this.price());
+  readonly effectiveVolume: Signal<number | null> = computed(() => {
+    const bonus = this.extraItemChance();
+    if (bonus && this.useExtraItems()) {
+      const volume = this.requestedVolume();
+      const effect = Math.round(volume / (1 + bonus));
+      if (effect !== volume) {
+        return effect;
+      }
+    }
+    return null;
+  });
+  readonly actualVolume = computed(() => this.useExtraItems() ? this.effectiveVolume() ?? this.requestedVolume() : this.requestedVolume());
+
   readonly isEffective: Signal<boolean> = computed(() => {
-    const result = (this.price() ?? 0) < this.input();
-    return this.expand() ? !result : result;
+    const result = (this.marketPrice() ?? 0) < this.craftedValue()!;
+    return this.useCraft() ? !result : result;
   });
 
   constructor(materials: Materials, ref: ObjectRef, index: Index<IObject>) {
@@ -77,6 +91,27 @@ export class Composite extends Entity {
           break;
       }
     }
+
+    this.ingredients.sort((a, b) => {
+      const ta = a.entity instanceof Composite;
+      const tb = b.entity instanceof Composite;
+      return Number(tb) - Number(ta);
+    });
+  }
+
+  getIngredient(value: Entity | string): Ingredient | undefined {
+    const predicate = value instanceof Entity ?
+      (x: Ingredient): boolean => { return x.entity === value; } :
+      (x: Ingredient): boolean => { return x.id === value; };
+    return this.ingredients.find(predicate);
+  }
+
+  toggleCraft(): void {
+    this.useCraft.set(!this.useCraft());
+  }
+
+  toggleExtraItems(): void {
+    this.useExtraItems.set(!this.useExtraItems());
   }
 
   override getState(): CompositeState {
@@ -88,14 +123,14 @@ export class Composite extends Entity {
 
     return {
       ...super.getState(),
-      expand: this.expand(),
+      expand: this.useCraft(),
       ingredients
     };
   }
 
   override setState(state: CompositeState) {
     super.setState(state);
-    this.expand.set(state.expand);
+    this.useCraft.set(state.expand);
 
     if (state) {
       for (const id in state.ingredients) {
