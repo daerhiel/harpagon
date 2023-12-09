@@ -9,7 +9,8 @@
         <button mat-button id="link" class="app-mr-1r" aria-label="Switch to item" (click)="navigate.emit(data.ref)">
           {{data.name}}
         </button>
-        } @else {
+        }
+        @else {
         <div>{{data.name}}</div>
         }
         <div class="app-l-flex-spacer-1"></div>
@@ -19,16 +20,25 @@
       </mat-card-title>
 
       <mat-card-subtitle class="app-l-flex app-l-flex-row">
-        <div>
+        <div class="app-l-flex-spacer-1">
+          <b>{{data.requestedVolume()}}</b>
+          <span class="action"> x </span>
           @if (data | instance:Composite) {
-          <b>{{ data.marketPrice() | number:'1.2-3'}}</b> / <b>{{data.craftedValue() | number:'1.2-3'}}</b>
-          }@else {
-          <b>{{ data.marketPrice() | number:'1.2-3'}}</b>
+          <b>{{(data.useCraft() ? data.effectiveValue() : data.marketPrice()) | number:'1.0-3'}}</b>
+          }
+          @else {
+          <b>{{data.marketPrice() | number:'1.0-3'}}</b>
+          }
+          <span class="action"> = </span>
+          @if (data | instance:Composite) {
+          <b [class]="data.profitClass()">{{data.cost() | number:'1.0-3'}}</b>
+          }
+          @else {
+          <b>{{data.cost() | number:'1.0-3'}}</b>
           }
         </div>
-        <div class="app-l-flex-spacer-1"></div>
         @if ((data | instance:Composite) && data.extraItemChance()) {
-        <div class="use-bonus" [class.mat-accent]="data.useExtraItems()" matTooltip="Extra items chance" matTooltipPosition="right" (click)="data.toggleExtraItems()">
+        <div class="use-bonus" [class.mat-accent]="data.useExtraItems()" matTooltip="Extra item chance" matTooltipPosition="right" (click)="data.toggleExtraItems()">
           +{{data.extraItemChance()! * 100 | number:'1.0'}}%
         </div>
         }
@@ -43,20 +53,34 @@
 
   <mat-card-content>
     <div class="app-l-flex app-l-flex-row app-l-justify-between app-l-align-start app-l-flex-gap-1r app-mt-hr">
-      <div class="app-l-flex app-l-flex-column app-l-flex-gap-hr">
+      <div class="app-l-flex app-l-flex-column app-l-flex-gap-hr labels">
         <div>{{(data | instance:Composite) && data.useCraft() ? 'Make' : 'Buy'}}</div>
-        <div>Market</div>
-        @if (data | instance:Composite) { <div>Crafted</div> }
-        <div>Total</div>
+        <div [class.active]="!(data | instance:Composite) || !data.useCraft()">Market</div>
+        @if (data | instance:Composite) {
+        <div [class.active]="data.useCraft()">Crafted</div>
+        }
+        <div>Cost</div>
+        @if (data | instance:Composite) {
+        <div>Profit</div>
+        }
       </div>
-      <div class="app-l-flex app-l-flex-column app-l-align-end app-l-flex-gap-hr">
-        <div><b>{{data.requestedVolume()}}</b>@if ((data | instance:Composite) && data.effectiveVolume(); as volume) { / <b>{{volume}}</b> }</div>
-        <div><b>{{data.marketPrice() | number:'1.2-3'}}</b></div>
-        @if (data | instance:Composite) { <div><b>{{data.craftedValue() | number:'1.2-3'}}</b></div> }
+      <div class="app-l-flex app-l-flex-column app-l-align-end app-l-flex-spacer-1 app-l-flex-gap-hr values">
+        <div>
+          <b matTooltip="Required by recipe" matTooltipPosition="above">{{data.requestedVolume()}}</b>
+          @if ((data | instance:Composite) && data.effectiveVolume(); as volume) {
+          / <b matTooltip="Should craft at station" matTooltipPosition="above">{{volume}}</b>
+          }
+        </div>
+        <div [class.active]="!(data | instance:Composite) || !data.useCraft()"><b>{{data.marketPrice() | number:'1.2-3'}}</b></div>
+        @if (data | instance:Composite) {
+        <div [class.active]="data.useCraft()"><b>{{data.craftedValue() | number:'1.2-3'}}</b></div>
+        }
         <div><b>{{data.cost() | number:'1.2-3'}}</b></div>
+        @if (data | instance:Composite) {
+        <div [class]="data.profitClass()">{{data.profit() | number:'1.2-3'}}</div>
+        }
       </div>
       @if (data | instance:Composite) {
-      <div class="app-l-flex-spacer-1"></div>
       <table mat-table class="app-pl-1r mat-elevation-z0" [dataSource]="data.ingredients" multiTemplateDataRows>
         <ng-container matColumnDef="header">
           <td mat-cell *matCellDef="let ingredient" [attr.colspan]="columns.length"> {{ingredient.name}} </td>

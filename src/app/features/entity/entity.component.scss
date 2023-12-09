@@ -1,6 +1,11 @@
 :host {
   display: block;
 
+  .mat-warn,
+  .mat-accent {
+    color: var(--mdc-slider-handle-color);
+  }
+
   mat-card-header {
     padding-top: 8px;
     text-wrap: nowrap;
@@ -16,6 +21,10 @@
           &:hover {
             text-decoration: underline;
           }
+        }
+
+        .action {
+          color: var(--mat-table-row-item-outline-color);
         }
       }
 
@@ -40,6 +49,26 @@
 
   mat-card-content {
     text-wrap: nowrap;
+    font-family: var(--mat-table-row-item-label-text-font, Roboto, sans-serif);
+    --label-text-color: rgba(255, 255, 255, 0.4);
+    --active-label-text-color: rgba(255, 255, 255, 0.9);
+    --value-text-color: rgba(255, 255, 255, 0.6);
+    --active-value-text-color: rgba(255, 255, 255);
+
+    .labels {
+      color: var(--label-text-color);
+
+      .active {
+        color: var(--active-label-text-color);
+      }
+    }
+    .values {
+      color: var(--value-text-color);
+
+      .active {
+        color: var(--active-value-text-color);
+      }
+    }
   }
 
   table[mat-table] {

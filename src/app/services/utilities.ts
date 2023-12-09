@@ -77,3 +77,20 @@ export function sum(a: number | null, b: number | null): number | null {
   }
   return a + b;
 }
+
+export function subtract(a: number, b: number): number;
+export function subtract(a: number, b: number | null): number;
+export function subtract(a: number | null, b: number): number;
+export function subtract(a: number | null, b: number | null): number | null;
+export function subtract(a: number | null, b: number | null): number | null {
+  if ((a == null || isNaN(a)) && (b == null || isNaN(b))) {
+    return null;
+  }
+  if (a == null || isNaN(a)) {
+    return b;
+  }
+  if (b == null || isNaN(b)) {
+    return a;
+  }
+  return a - b;
+}

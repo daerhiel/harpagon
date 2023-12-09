@@ -1,7 +1,7 @@
 import { Signal, computed, signal } from "@angular/core";
 
 import { IObject, IRecipe, Index, ObjectRef, TradeSkill, isItem, isRecipe } from "@modules/nw-db/nw-db.module";
-import { sum } from "@app/services/utilities";
+import { product, subtract, sum } from "@app/services/utilities";
 import { Entity, EntityState } from "./entity";
 import { Ingredient } from "./ingredient";
 import { Materials } from "./materials";
@@ -44,10 +44,24 @@ export class Composite extends Entity {
     return null;
   });
   readonly actualVolume = computed(() => this.useExtraItems() ? this.effectiveVolume() ?? this.requestedVolume() : this.requestedVolume());
+  readonly profit = computed(() => {
+    const requestedVolume = this.requestedVolume();
+    const craftedCost = product(requestedVolume, this.craftedValue());
+    const marketCost = product(requestedVolume, this.marketPrice());
+    return this.useCraft() ? subtract(marketCost, craftedCost) : subtract(craftedCost, marketCost);
+  });
 
   readonly isEffective: Signal<boolean> = computed(() => {
     const result = (this.marketPrice() ?? 0) < this.craftedValue()!;
     return this.useCraft() ? !result : result;
+  });
+
+  readonly profitClass = computed(() => {
+    const profit = this.profit();
+    if (profit) {
+      return profit > 0 ? 'mat-accent' : 'mat-warn';
+    }
+    return null;
   });
 
   constructor(materials: Materials, ref: ObjectRef, index: Index<IObject>) {
