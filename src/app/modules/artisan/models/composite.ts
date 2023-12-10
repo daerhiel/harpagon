@@ -36,7 +36,7 @@ export class Composite extends Entity {
     const bonus = this.extraItemChance();
     if (bonus && this.useExtraItems()) {
       const volume = this.requestedVolume();
-      const effect = Math.round(volume / (1 + bonus));
+      const effect = Math.max(Math.floor(volume / (1 + bonus)), 1);
       if (effect !== volume) {
         return effect;
       }
