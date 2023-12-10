@@ -45,10 +45,16 @@ interface Connectome {
 }
 
 export class Connector {
+  private id: string;
   private elements: SVGGeometryElement[] = [];
 
-  constructor(private readonly _canvas: SVGElement, source: ComponentDirective, target: ComponentDirective, connectors: Ingredient[]) {
-    this.appendElement(...this.getPathPoints(source, target, connectors, 20));
+  constructor(
+    private readonly _canvas: SVGElement,
+    private readonly _source: ComponentDirective,
+    private readonly _target: ComponentDirective,
+    private readonly _connectors: Ingredient[]) {
+    this.id = `${_source.id}=>${_target.id}`;
+    this.appendElement(...this.getPathPoints(_source, _target, _connectors, 20));
   }
 
   private getPoint(rect: DOMRect, slot: PointSlot, index: number = 0, range: number = 1): Point {
@@ -123,6 +129,7 @@ export class Connector {
   private appendElement(...data: PathPoint[]): void {
     const element = document.createElementNS(SVG_NS, 'path');
 
+    element.setAttribute('id', this.id);
     element.setAttribute('d', data.map(x => {
       switch (x.type) {
         case 'm':
@@ -139,6 +146,20 @@ export class Connector {
 
     this.elements.push(element);
     this._canvas.appendChild(element);
+  }
+
+  rearrange() {
+    const element = this.elements.find(x => x.id === this.id);
+    if (element) {
+      const data = this.getPathPoints(this._source, this._target, this._connectors, 20)
+      element.setAttribute('d', data.map(x => {
+        switch (x.type) {
+          case 'm':
+          case 'l': return `${x.type} ${x.x} ${x.y}`;
+          default: return '';
+        }
+      }).join(' '));
+    }
   }
 
   remove(): void {
@@ -187,8 +208,8 @@ export class ArtisanComponent {
     tap(() => this.searchItem.reset())
   ));
 
-  protected readonly connectome = signal<Connectome>({ components: {}, connectors: [] });
-  @ViewChildren(ComponentDirective)
+  private readonly _connectome = signal<Connectome>({ components: {}, connectors: [] });
+  @ViewChildren(ComponentDirective, { emitDistinctChangesOnly: true })
   protected set components(value: QueryList<ComponentDirective>) {
     const connectome: Connectome = { components: {}, connectors: [] };
     value.forEach(component => {
@@ -202,9 +223,33 @@ export class ArtisanComponent {
         }
       }
     });
-    this.connectome.set(connectome);
+    this._connectome.set(connectome);
   }
 
+  private readonly _trigger = signal<ResizeObserverEntry[]>([]);
+  private readonly _tracker: ResizeObserver = new ResizeObserver(e => this._trigger.set(e));
+  private readonly _layout: HTMLDivElement[] = [];
+  @ViewChildren('stage', { emitDistinctChangesOnly: true })
+  protected set stages(value: QueryList<ElementRef<HTMLDivElement>>) {
+    while (this._layout.length > 0) {
+      const element = this._layout.shift();
+      if (element) {
+        this._tracker.unobserve(element);
+      }
+    }
+    value.forEach(ref => {
+      const element = ref.nativeElement;
+      this._tracker.observe(element);
+      this._layout.push(element);
+    })
+  }
+
+  protected readonly rearrange = effect(() => {
+    this._trigger();
+    for (const id in this.#connectors) {
+      this.#connectors[id].rearrange();
+    }
+  });
   protected readonly connectify = effect(() => {
     for (const id in this.#connectors) {
       if (this.#connectors[id]) {
@@ -212,7 +257,7 @@ export class ArtisanComponent {
         delete this.#connectors[id];
       }
     }
-    const { components, connectors } = this.connectome();
+    const { components, connectors } = this._connectome();
     for (const connector of connectors) {
       if (connector.parent.useCraft()) {
         const id = `${connector.parent.id}=>${connector.id}`;
