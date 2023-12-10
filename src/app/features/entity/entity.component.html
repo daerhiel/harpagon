@@ -53,36 +53,40 @@
 
   <mat-card-content>
     <div class="app-l-flex app-l-flex-row app-l-justify-between app-l-align-start app-l-flex-gap-1r app-mt-hr">
-      <div class="app-l-flex app-l-flex-column app-l-flex-gap-hr labels">
-        <div>{{(data | instance:Composite) && data.useCraft() ? 'Make' : 'Buy'}}</div>
-        <div [class.active]="!(data | instance:Composite) || !data.useCraft()">Market</div>
-        @if (data | instance:Composite) {
-        <div [class.active]="data.useCraft()">Crafted</div>
-        }
-        <div>Cost</div>
-        @if (data | instance:Composite) {
-        <div>Profit</div>
-        }
-      </div>
-      <div class="app-l-flex app-l-flex-column app-l-align-end app-l-flex-spacer-1 app-l-flex-gap-hr values">
-        <div>
-          @if (data | instance:Product) {
-          <input matInput type="text" [formControl]="required">
-          }
-          @else{
-          <b matTooltip="Required by recipe" matTooltipPosition="above">{{data.requestedVolume()}}</b>
-          }
-          @if ((data | instance:Composite) && data.effectiveVolume(); as volume) {
-          / <b matTooltip="Should craft at station" matTooltipPosition="above">{{volume}}</b>
-          }
+      <div class="app-l-flex app-l-flex-column app-l-flex-gap-hr app-l-flex-spacer-1">
+        <div class="app-l-flex app-l-flex-row app-l-justify-between app-l-flex-gap-1r">
+          <div class="labels">{{(data | instance:Composite) && data.useCraft() ? 'Make' : 'Buy'}}</div>
+          <div class="values">
+            @if (data | instance:Product) {
+            <input matInput type="text" [formControl]="required">
+            }
+            @else{
+            <b matTooltip="Required by recipe" matTooltipPosition="above">{{data.requestedVolume()}}</b>
+            }
+            @if ((data | instance:Composite) && data.effectiveVolume(); as volume) {
+            / <b matTooltip="Should craft at station" matTooltipPosition="above">{{volume}}</b>
+            }
+          </div>
         </div>
-        <div [class.active]="!(data | instance:Composite) || !data.useCraft()"><b>{{data.marketPrice() | number:'1.2-3'}}</b></div>
+        <div class="app-l-flex app-l-flex-row app-l-justify-between app-l-flex-gap-1r" [class.active]="!(data | instance:Composite) || !data.useCraft()">
+          <div class="labels">Market</div>
+          <div class="values"><b>{{data.marketPrice() | number:'1.2-3'}}</b></div>
+        </div>
         @if (data | instance:Composite) {
-        <div [class.active]="data.useCraft()"><b>{{data.craftedValue() | number:'1.2-3'}}</b></div>
+        <div class="app-l-flex app-l-flex-row app-l-justify-between app-l-flex-gap-1r" [class.active]="data.useCraft()">
+          <div class="labels">Crafted</div>
+          <div class="values">{{data.craftedValue() | number:'1.2-3'}}</div>
+        </div>
         }
-        <div><b>{{data.cost() | number:'1.2-3'}}</b></div>
+        <div class="app-l-flex app-l-flex-row app-l-justify-between app-l-flex-gap-1r">
+          <div class="labels">Cost</div>
+          <div class="values"><b>{{data.cost() | number:'1.2-3'}}</b></div>
+        </div>
         @if (data | instance:Composite) {
-        <div [class]="data.profitClass()">{{data.profit() | number:'1.2-3'}}</div>
+        <div class="app-l-flex app-l-flex-row app-l-justify-between app-l-flex-gap-1r">
+          <div class="labels">Profit</div>
+          <div class="values" [class]="data.profitClass()">{{data.profit() | number:'1.2-3'}}</div>
+        </div>
         }
       </div>
       @if (data | instance:Composite) {

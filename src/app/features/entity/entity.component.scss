@@ -1,9 +1,30 @@
 :host {
   display: block;
+  --label-text-color: rgba(255, 255, 255, 0.4);
+  --active-label-text-color: rgba(255, 255, 255, 0.9);
+  --value-text-color: rgba(255, 255, 255, 0.6);
+  --active-value-text-color: rgba(255, 255, 255);
+
+  .labels {
+    color: var(--label-text-color);
+  }
+
+  .values {
+    color: var(--value-text-color);
+  }
+
+  .active {
+    .labels {
+      color: var(--active-label-text-color);
+    }
+    .values {
+      color: var(--active-value-text-color);
+    }
+  }
 
   .mat-warn,
   .mat-accent {
-    color: var(--mdc-slider-handle-color);
+    color: var(--mdc-slider-handle-color) !important;
   }
 
   mat-card-header {
@@ -51,38 +72,19 @@
     text-wrap: nowrap;
     font-family: var(--mat-table-row-item-label-text-font, Roboto, sans-serif);
     --input-background-color: rgba(255, 255, 255, 0.1);
-    --label-text-color: rgba(255, 255, 255, 0.4);
-    --active-label-text-color: rgba(255, 255, 255, 0.9);
-    --value-text-color: rgba(255, 255, 255, 0.6);
-    --active-value-text-color: rgba(255, 255, 255);
+  }
 
-    .labels {
-      color: var(--label-text-color);
+  input {
+    color: var(--active-value-text-color);
+    background-color: var(--input-background-color);
+    border: none;
+    border-bottom: 1px solid var(--label-text-color);
+    padding: 2px;
+    width: 50px;
 
-      .active {
-        color: var(--active-label-text-color);
-      }
-    }
-    .values {
-      color: var(--value-text-color);
-
-      .active {
-        color: var(--active-value-text-color);
-      }
-
-      input {
-        color: var(--active-value-text-color);
-        background-color: var(--input-background-color);
-        border: none;
-        border-bottom: 1px solid var(--label-text-color);
-        padding: 2px;
-        width: 50px;
-
-        &:focus {
-          border: none;
-          outline: none;
-        }
-      }
+    &:focus {
+      border: none;
+      outline: none;
     }
   }
 
@@ -119,11 +121,6 @@
       td.mat-column-total {
         text-align: right;
         color: var(--formula-component-color);
-
-        &.mat-warn,
-        &.mat-accent {
-          color: var(--mdc-slider-handle-color);
-        }
       }
     }
   }
