@@ -24,6 +24,7 @@ export class Ingredient implements IEntity {
   get entity(): Entity { return this.#entity; }
   get canBeCrafted(): boolean { return this.#entity.canBeCrafted; }
   get ref(): ObjectRef { return this.#entity.ref; }
+  get score(): number { return this.#entity.score; }
 
   readonly effectiveValue = computed(() => {
     const bonus = this.#parent.extraItemChance();

@@ -52,7 +52,7 @@ export class EntityComponent implements OnDestroy {
 
   constructor() {
     this.#subscriptions.subscribe(this.required.valueChanges.pipe(tap(x => {
-      if (this.data instanceof Product){
+      if (this.data instanceof Product) {
         let value: number | undefined;
         if (typeof x === 'string' && !isNaN(parseInt(x))) {
           value = parseInt(x);

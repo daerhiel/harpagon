@@ -13,21 +13,25 @@
   </mat-autocomplete>
 </mat-form-field>
 <div class="recipe-selector app-mb-1r app-mt-1r app-width-100 app-height-100">
-  <div #container>
-    @if (!artisan.loading()) {
-    @if (artisan.product(); as product) {
-    <div class="app-l-flex app-l-flex-row app-l-flex-gap-6r">
-      @for (stage of product.materials.stages() | keyvalue; track stage.key) {
-      <div #stage class="app-l-flex app-l-flex-column app-l-justify-around app-l-flex-gap-1r">
-        @for (entity of stage.value; track entity.id) {
-        <entity component [id]="entity.id" [data]="entity"></entity>
-        }
-      </div>
-      }
-    </div>
-    }
-    } @else {
-    <mat-progress-bar mode="query"></mat-progress-bar>
-    }
+  @if (!artisan.loading()) {
+  @if (artisan.product(); as product) {
+  <div class="app-l-flex app-l-flex-row app-mb-1r">
+    <mat-form-field class="app-mr-1r">
+      <mat-label>I need</mat-label>
+      <input matInput type="text" placeholder="Amount..." [formControl]="required">
+    </mat-form-field>
+    <div class="app-l-flex-spacer-1"></div>
+    <button mat-raised-button id="link" class="app-mr-1r" aria-label="Explain craft" (click)="explain(product)">
+      <mat-icon class="static">
+        <img class="mat-img" src="https://nwdb.info/images/db/item_flag_CanBeCrafted_v2.png" loading="lazy">
+      </mat-icon>
+      Build
+    </button>
+    <button mat-raised-button cdkFocusInitial color="primary" (click)="product.optimize()">Optimize</button>
   </div>
+  <app-planner [product]="product"></app-planner>
+  }
+  } @else {
+  <mat-progress-bar mode="query"></mat-progress-bar>
+  }
 </div>

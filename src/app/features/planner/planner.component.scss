@@ -1,0 +1,97 @@
+:host {
+  --icon-size: 24px;
+  --header-text-color: rgba(255, 255, 255, 0.8);
+  --label-text-color: rgba(255, 255, 255, 0.4);
+  --active-label-text-color: rgba(255, 255, 255, 0.9);
+  --value-text-color: rgba(255, 255, 255, 0.6);
+  --active-value-text-color: rgba(255, 255, 255);
+
+  .labels {
+    color: var(--label-text-color);
+  }
+
+  .values {
+    color: var(--value-text-color);
+  }
+
+  .active {
+    .labels {
+      color: var(--active-label-text-color);
+    }
+    .values {
+      color: var(--active-value-text-color);
+    }
+  }
+
+  .mat-warn,
+  .mat-accent {
+    color: var(--mdc-slider-handle-color) !important;
+  }
+
+  mat-icon {
+    margin: -4px 0;
+    overflow: visible;
+    width: calc(var(--icon-size) + 2px);
+    height: calc(var(--icon-size) + 2px);
+    margin-right: 16px;
+
+    img.mat-img {
+      height: var(--icon-size);
+      width: var(--icon-size);
+    }
+  }
+
+  table[mat-table] {
+    .mat-mdc-header-row {
+      .mat-mdc-header-cell {
+        text-wrap: nowrap;
+        color: var(--header-text-color) !important;
+      }
+    }
+    .mat-mdc-row {
+      .mat-mdc-cell {
+        color: var(--value-text-color) !important;
+
+        .ghost {
+          opacity: 0.3;
+        }
+      }
+    }
+
+    .mat-mdc-header-row,
+    .mat-mdc-row {
+      .mat-column-step {
+        color: var(--label-text-color);
+      }
+      .mat-column-action {
+        color: var(--label-text-color);
+      }
+      .mat-column-name {
+        text-wrap: nowrap;
+      }
+      // .mat-column-requested {
+      // }
+      // .mat-column-effective {
+      // }
+      .mat-column-bonus {
+        text-align: right;
+      }
+      .mat-column-market-price {
+        text-align: right;
+      }
+      .mat-column-craft-price {
+        text-align: right;
+      }
+      .mat-column-cost {
+        text-align: right;
+      }
+      .mat-column-profit {
+        text-align: right;
+      }
+    }
+  }
+
+  b {
+    font-weight: var(--mat-table-header-headline-weight, 500);
+  }
+}

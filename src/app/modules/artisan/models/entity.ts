@@ -26,6 +26,7 @@ export class Entity implements IEntity {
   get canBeCrafted(): boolean { return false; }
   get ref(): ObjectRef { return { id: this.id, type: this.type }; }
   get isOwned(): boolean { return this.#owners().length > 0; }
+  get score(): number { return (this.#item.rarity ?? 0) + (this.#item.tier ?? 0); }
 
   readonly marketPrice = computed(() => this.#gaming.commodities()?.[this.id] ?? null);
   readonly effectiveValue = computed(() => this.#gaming.commodities()?.[this.id] ?? null);

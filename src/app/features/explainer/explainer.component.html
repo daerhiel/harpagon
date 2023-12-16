@@ -1,0 +1,6 @@
+<mat-dialog-content class="mat-typography">
+  <app-builder [product]="data.product"></app-builder>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-raised-button cdkFocusInitial color="primary" (click)="data.product.optimize()">Optimize</button>
+</mat-dialog-actions>

@@ -17,7 +17,9 @@ export class Composite extends Entity {
   private readonly _tradeSkill = 250;
   private readonly _gearPieces = 5;
 
+  get stations(): string[] { return this.#recipe.stations; }
   override get canBeCrafted(): boolean { return false; }
+  override get score(): number { return super.score + this.ingredients.reduce((s, x) => s + x.score * 2, 0) + 100; }
 
   readonly ingredients: Ingredient[] = [];
 
@@ -152,6 +154,23 @@ export class Composite extends Entity {
         if (ingredient) {
           ingredient.entity.setState(state.ingredients[id]);
         }
+      }
+    }
+  }
+
+  optimize(): void {
+    for (const ingredient of this.ingredients) {
+      const entity = ingredient.entity;
+      if (entity instanceof Composite) {
+        entity.optimize();
+      }
+    }
+    const profit = this.profit();
+    if (profit) {
+      const current = this.useCraft();
+      this.useCraft.set(!current);
+      if (this.profit()! < profit) {
+        this.useCraft.set(current);
       }
     }
   }

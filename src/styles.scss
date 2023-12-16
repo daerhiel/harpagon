@@ -34,6 +34,7 @@ $hungry-horde-ui-theme: mat.define-dark-theme(
 // that you are using.
 
 @include mat.core-theme($hungry-horde-ui-theme);
+@include mat.dialog-theme($hungry-horde-ui-theme);
 @include mat.sidenav-theme($hungry-horde-ui-theme);
 @include mat.toolbar-theme($hungry-horde-ui-theme);
 @include mat.card-theme($hungry-horde-ui-theme);

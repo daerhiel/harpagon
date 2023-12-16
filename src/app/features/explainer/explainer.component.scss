@@ -1,0 +1,11 @@
+:host {
+  mat-dialog-content {
+    max-height: none;
+    margin: 1rem;
+    padding: 1rem;
+    background-color: var(--mat-sidenav-content-background-color);
+  }
+  mat-dialog-actions {
+    padding: 0 1rem 1rem 1rem;
+  }
+}
