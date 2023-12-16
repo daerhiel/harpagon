@@ -1,5 +1,7 @@
 :host {
   display: block;
+
+  --icon-size: 40px;
   --label-text-color: rgba(255, 255, 255, 0.4);
   --active-label-text-color: rgba(255, 255, 255, 0.9);
   --value-text-color: rgba(255, 255, 255, 0.6);
@@ -30,7 +32,6 @@
   mat-card-header {
     padding-top: 8px;
     text-wrap: nowrap;
-    --icon-size: 40px;
 
     mat-card-title-group {
       flex-direction: row-reverse;
