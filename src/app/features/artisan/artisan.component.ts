@@ -5,7 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input'
-import { MatAutocompleteModule } from '@angular/material/autocomplete'
+import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete'
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -53,8 +53,7 @@ export class ArtisanComponent implements OnDestroy {
   protected readonly switch = toSignal(this.searchItem.valueChanges.pipe(
     filter(item => typeof item !== 'string' && item != null), map(x => x as SearchRef),
     distinctUntilChanged(),
-    tap(entity => this.artisan.load(entity)), debounceTime(100),
-    tap(() => this.searchItem.reset())
+    tap(entity => this.artisan.load(entity))
   ));
 
   constructor() {
@@ -72,6 +71,11 @@ export class ArtisanComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     this.#subscriptions.unsubscribe();
+  }
+
+  protected change(event: MatAutocompleteSelectedEvent) {
+    this.searchItem.reset();
+    this.required.reset();
   }
 
   protected explain(product: Product): void {
