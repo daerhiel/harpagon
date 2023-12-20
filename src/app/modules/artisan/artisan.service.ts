@@ -34,7 +34,7 @@ export class ArtisanService implements OnDestroy {
       let product: Product | null = null;
       if (ref) {
         product = new Product(ref, index);
-        const state = getStorageItem<ProductState | null>(`state:${product.id}`, null);
+        const state = getStorageItem<ProductState | null>(`state:${product.recipeId}`, null);
         if (state) {
           product.setState(state);
         }
@@ -49,7 +49,7 @@ export class ArtisanService implements OnDestroy {
     __injector = injector;
     this.#subscriptions.subscribe(this.#stream.pipe(tap(state => {
       if (state) {
-        setStorageItem(`state:${state.id}`, state);
+        setStorageItem(`state:${state.recipeId}`, state);
       }
     })));
   }

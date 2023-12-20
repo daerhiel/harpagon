@@ -1,14 +1,19 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { EMPTY, Observable, RetryConfig, catchError, expand, from, iif, last, map, mergeMap, of, retry, throwError, timer, toArray } from 'rxjs';
+import { EMPTY, Observable, ReplaySubject, RetryConfig, catchError, expand, from, iif, last, map, mergeMap, of, retry, switchMap, tap, throwError, timer, toArray } from 'rxjs';
 
 import { BroadcastService } from '@app/services/broadcast.service';
 import { getStorageItem, setStorageItem } from '@app/services/settings';
 import { NwDbApiService } from './nw-db-api.service';
 import { IIngredient, IObject, isItem, isRecipe } from './models/objects';
 import { ObjectRef, ObjectType, SearchRef } from './models/types';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 export type Index<T extends IObject> = Partial<Record<ObjectType, Record<string, T>>>;
+
+export interface IVersion {
+  _version: number;
+}
 
 export interface Hierarchy<T extends IObject> {
   ref: ObjectRef | null;
@@ -21,17 +26,25 @@ export interface Hierarchy<T extends IObject> {
 export class NwDbService {
   readonly #broadcast: BroadcastService = inject(BroadcastService);
   readonly #api: NwDbApiService = inject(NwDbApiService);
-  readonly #storage: Index<IObject> = {
+  readonly #version = timer(0, 300000).pipe(
+    switchMap(() => this.#api.getVersion()),
+    tap(version => this.#current.next(version))
+  );
+  readonly #current = new ReplaySubject<number>(1);
+  readonly #storage: Index<IObject & IVersion> = {
     currency: {
       azoth_currency: {
+        _version: 0,
         id: 'azoth_currency',
         type: 'currency',
         name: 'Azoth',
         icon: 'currency_azoth',
         rarity: 2
-      } as IObject
+      } as IObject & IVersion
     }
   };
+
+  readonly version = toSignal(this.#version);
 
   private retryStrategy(config: { delay: number, span: number }): RetryConfig {
     return {
@@ -62,7 +75,7 @@ export class NwDbService {
       const key = localStorage.key(i)!;
       switch (true) {
         case key && key.startsWith('object:'): {
-          const object = getStorageItem<IObject | null>(key, null);
+          const object = getStorageItem<(IObject & IVersion) | null>(key, null);
           if (object) {
             (this.#storage[object.type] ?? (this.#storage[object.type] = {}))[object.id] = object;
           }
@@ -71,11 +84,11 @@ export class NwDbService {
     }
   }
 
-  private refOrCached(ref: ObjectRef | null): ObjectRef[] {
+  private refOrCached(version: number, ref: ObjectRef | null): ObjectRef[] {
     const storage = ref && this.#storage[ref.type];
     const object = storage && storage[ref.id];
     if (object) {
-      return this.cacheAndGet(object);
+      return this.cacheAndGet(version, object);
     } else if (ref) {
       return [ref];
     } else {
@@ -83,12 +96,18 @@ export class NwDbService {
     }
   }
 
-  private cacheAndGet<T extends IObject>(...objects: (T | null)[]): ObjectRef[] {
+  private cacheAndGet<T extends IObject>(version: number, ...objects: (T | null)[]): ObjectRef[] {
     const ids: ObjectRef[] = [];
 
-    const set = (ref: ObjectRef): void => {
+    const expired = (ref: ObjectRef): boolean => {
       const storage = ref && this.#storage[ref.type];
-      if ((!storage || !(ref.id in storage)) && !ids.some(x => x.id === ref.id && x.type === ref.type)) {
+      return !storage || !(ref.id in storage) || storage[ref.id]._version == null || (
+        storage[ref.id]._version > 0 && storage[ref.id]._version < version
+      );
+    }
+
+    const set = (ref: ObjectRef): void => {
+      if (expired(ref) && !ids.some(x => x.id === ref.id && x.type === ref.type)) {
         ids.push(ref);
       }
     }
@@ -126,10 +145,10 @@ export class NwDbService {
 
     for (const object of objects) {
       if (object) {
-        const storage = this.#storage[object.type];
-        if (!storage || !(object.id in storage)) {
-          (this.#storage[object.type] ?? (this.#storage[object.type] = {}))[object.id] = object;
-          setStorageItem(`object:${object.type}/${object.id}`, object);
+        if (expired(object)) {
+          const value: IObject & IVersion = { ...object, _version: version };
+          (this.#storage[object.type] ?? (this.#storage[object.type] = {}))[object.id] = value;
+          setStorageItem<IObject & IVersion>(`object:${object.type}/${object.id}`, value);
         }
 
         traverse(object);
@@ -148,8 +167,8 @@ export class NwDbService {
         if (storage && ref.id in storage) {
           if (!(ref.type in index) || !(ref.id in index[ref.type]!)) {
             const object = storage[ref.id];
-            (index[ref.type] ?? (index[ref.type] = {}))[ref.id] = object as T;
-            return object as T;
+            (index[ref.type] ?? (index[ref.type] = {}))[ref.id] = object as IObject as T;
+            return object as IObject as T;
           }
         }
         return null;
@@ -188,26 +207,26 @@ export class NwDbService {
     return index;
   }
 
-  search(term: string): Observable<SearchRef[]> {
-    return this.#api.search(term).pipe(
-      retry(this.retryStrategy({ delay: 5000, span: 5000 })),
-      catchError(this.handleError([]))
-    );
-  }
-
   getHierarchy<T extends IObject>(ref: ObjectRef | null): Observable<Hierarchy<T>> {
-    return of(ref).pipe(
-      mergeMap(ref => iif(() => !!ref, of(this.refOrCached(ref)).pipe(
+    return this.#current.pipe(
+      mergeMap(version => iif(() => !!ref, of(this.refOrCached(version, ref)).pipe(
         expand(ids => ids.length > 0 ? from(ids).pipe(
           mergeMap(id => this.#api.getObject<T>(id).pipe(
             retry(this.retryStrategy({ delay: 5000, span: 5000 })),
             catchError(this.handleError(null))),
-            5),
+            3),
           toArray(),
-          map(objects => this.cacheAndGet(...objects))
+          map(objects => this.cacheAndGet(version, ...objects))
         ) : EMPTY), last(),
         map(() => ({ ref, index: this.buildIndex<T>(ref) }))
       ), of({ ref, index: {} })), 1)
+    );
+  }
+
+  search(term: string): Observable<SearchRef[]> {
+    return this.#api.search(term).pipe(
+      retry(this.retryStrategy({ delay: 5000, span: 5000 })),
+      catchError(this.handleError([]))
     );
   }
 }

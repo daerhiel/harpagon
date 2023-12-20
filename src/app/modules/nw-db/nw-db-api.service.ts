@@ -70,8 +70,8 @@ export class NwDbApiService {
   readonly #http: HttpClient = inject(HttpClient);
   readonly #url: string = environment.apiNwDbUrl;
 
-  search(term: string): Observable<SearchRef[]> {
-    return this.#http.get<Response<SearchRef[]>>(buildUrl(this.#url, 'db', ['search', term])).pipe(map(x => x.data));
+  getVersion(): Observable<number> {
+    return this.#http.get<{ v: number }>(buildUrl(this.#url, 'version.json')).pipe(map(x => Number(x.v)));
   }
 
   getObject<T extends IObject>(ref: ObjectRef | null): Observable<T | null> {
@@ -80,5 +80,9 @@ export class NwDbApiService {
 
   getRecipe(id: string): Observable<IRecipe> {
     return this.#http.get<Response<IRecipe>>(buildUrl(this.#url, 'db', ['recipe', `${id}.json`])).pipe(map(x => reduceMap(x.data)));
+  }
+
+  search(term: string): Observable<SearchRef[]> {
+    return this.#http.get<Response<SearchRef[]>>(buildUrl(this.#url, 'db', ['search', term])).pipe(map(x => x.data));
   }
 }

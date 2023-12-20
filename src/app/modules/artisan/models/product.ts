@@ -1,11 +1,12 @@
 import { Index, IObject, ObjectRef } from "@modules/nw-db/nw-db.module";
-import { signal, Signal } from "@angular/core";
+import { signal } from "@angular/core";
 
 import { Composite, CompositeState } from "./composite";
 import { Materials } from "./materials";
 
 export interface ProductState extends CompositeState {
   id: string
+  recipeId: string
 }
 
 export class Product extends Composite {
@@ -19,7 +20,14 @@ export class Product extends Composite {
   override getState(): ProductState {
     return {
       id: this.id,
+      recipeId: this.recipeId,
       ...super.getState()
     };
+  }
+
+  override setState(state: ProductState) {
+    if (state && state.recipeId == this.recipeId) {
+      super.setState(state);
+    }
   }
 }

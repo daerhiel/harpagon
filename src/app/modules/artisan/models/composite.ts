@@ -17,7 +17,9 @@ export class Composite extends Entity {
   private readonly _tradeSkill = 250;
   private readonly _gearPieces = 5;
 
+  get recipeId(): string { return this.#recipe.id; }
   get stations(): string[] { return this.#recipe.stations; }
+
   override get canBeCrafted(): boolean { return false; }
   override get score(): number { return super.score + this.ingredients.reduce((s, x) => s + x.score * 2, 0) + 100; }
 
