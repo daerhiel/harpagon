@@ -1,13 +1,18 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, Signal, inject } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { EMPTY, Observable, ReplaySubject, RetryConfig, catchError, expand, from, iif, last, map, mergeMap, of, retry, switchMap, tap, throwError, timer, toArray } from 'rxjs';
+import {
+  EMPTY, Observable, ReplaySubject, RetryConfig,
+  catchError, combineLatest, distinctUntilChanged,
+  expand, from, iif, last, map, mergeMap, of, retry, switchMap, take, tap, throwError, timer, toArray
+} from 'rxjs';
 
 import { BroadcastService } from '@app/services/broadcast.service';
 import { getStorageItem, setStorageItem } from '@app/services/settings';
 import { NwDbApiService } from './nw-db-api.service';
 import { IIngredient, IObject, isItem, isRecipe } from './models/objects';
-import { ObjectRef, ObjectType, SearchRef } from './models/types';
+import { ObjectRef, ObjectType, SearchRef, TradeSkill } from './models/types';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { Equipment } from '../artisan/models/equipment';
 
 export type Index<T extends IObject> = Partial<Record<ObjectType, Record<string, T>>>;
 
@@ -26,7 +31,7 @@ export interface Hierarchy<T extends IObject> {
 export class NwDbService {
   readonly #broadcast: BroadcastService = inject(BroadcastService);
   readonly #api: NwDbApiService = inject(NwDbApiService);
-  readonly #version = timer(0, 300000).pipe(
+  readonly #version = timer(0, 60 * 60 * 1000).pipe(
     switchMap(() => this.#api.getVersion()),
     tap(version => this.#current.next(version))
   );
@@ -43,8 +48,24 @@ export class NwDbService {
       } as IObject & IVersion
     }
   };
+  readonly #cooking: ObjectRef[] = [
+    { id: 'perkid_armor_cook', type: 'perk' },
+    { id: 'perkid_earring_cook', type: 'perk' },
+    { id: 'perkid_armor_cook_faction', type: 'perk' },
+    { id: 'house_housingitem_buff_uber_crafting', type: 'item' }
+  ];
+  readonly #cookingPipeline = this.#current.pipe(distinctUntilChanged(), switchMap(version =>
+    combineLatest(this.#cooking.map(ref =>
+      this.#api.getObject(ref).pipe(catchError(this.handleError(null)))
+    )).pipe(map(objects => new Equipment('Cooking', ...objects.filter(x => !!x).map(x => x!))))
+  ));
 
+  readonly cooking = toSignal(this.#cookingPipeline);
   readonly version = toSignal(this.#version);
+
+  readonly tradeSkills: Partial<Record<TradeSkill, Signal<Equipment | undefined>>> = {
+    Cooking: this.cooking,
+  } as const;
 
   private retryStrategy(config: { delay: number, span: number }): RetryConfig {
     return {
@@ -209,6 +230,7 @@ export class NwDbService {
 
   getHierarchy<T extends IObject>(ref: ObjectRef | null): Observable<Hierarchy<T>> {
     return this.#current.pipe(
+      take(1),
       mergeMap(version => iif(() => !!ref, of(this.refOrCached(version, ref)).pipe(
         expand(ids => ids.length > 0 ? from(ids).pipe(
           mergeMap(id => this.#api.getObject<T>(id).pipe(

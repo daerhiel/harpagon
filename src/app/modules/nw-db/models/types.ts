@@ -1,11 +1,11 @@
 export type Tier = 1 | 2 | 3 | 4 | 5 | 100;
 export type Rarity = 0 | 1 | 2 | 3 | 4 | 5;
 
-export type ObjectType = 'item' | 'recipe' | 'quest' | 'currency' | 'category';
+export type ObjectType = 'item' | 'recipe' | 'quest' | 'currency' | 'category' | 'perk';
 
 export type ItemType = 'Resource' | 'Weapon';
 
-export type TradeSkill = 'Armoring' | 'Engineering' | 'Weaponsmithing' | 'Weaving' | 'Leatherworking' | 'Smelting' | 'Stonecutting' | 'Woodworking';
+export type TradeSkill = 'Armoring' | 'Engineering' | 'Weaponsmithing' | 'Cooking' | 'Weaving' | 'Leatherworking' | 'Smelting' | 'Stonecutting' | 'Woodworking';
 
 export type RecipeCategory = 'Refined Resources' | 'Material Conversion';
 
