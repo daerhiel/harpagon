@@ -44,8 +44,10 @@ const itemSchema: Schema<IItem> = {
   recommendedItems: false,
   recommendedItemsTypeString: false,
   lootTableIds: false,
+  drops_salvage: false,
   drops_salvage_from: false,
   drops_lootcontainer_from: false,
+  monstersWithDrop: false,
   gatherablesWithItem: false,
   salvageOutput: false,
   upgradeRecipes: false,
@@ -76,10 +78,6 @@ export class NwDbApiService {
 
   getObject<T extends IObject>(ref: ObjectRef | null): Observable<T | null> {
     return ref ? this.#http.get<Response<T>>(buildUrl(this.#url, 'db', [ref.type, `${ref.id}.json`])).pipe(map(x => reduceMap(x.data))) : of(null);
-  }
-
-  getRecipe(id: string): Observable<IRecipe> {
-    return this.#http.get<Response<IRecipe>>(buildUrl(this.#url, 'db', ['recipe', `${id}.json`])).pipe(map(x => reduceMap(x.data)));
   }
 
   search(term: string): Observable<SearchRef[]> {

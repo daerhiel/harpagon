@@ -24,7 +24,7 @@ export class ArtisanService implements OnDestroy {
   readonly #loading = signal(false);
   readonly #pipeline = toObservable(this.#entity).pipe(
     tap(() => this.#loading.set(true)),
-    switchMap(ref => this.#nwDb.getHierarchy(ref)),
+    switchMap(ref => this.#nwDb.getHierarchy(ref!)),
     tap(() => this.#loading.set(false))
   );
 

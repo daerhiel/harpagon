@@ -1,15 +1,33 @@
-import { IEntity, IQuantity, RecipeCategory, TradeSkill, ObjectType, ItemType, Tier, Rarity } from "./types";
+import { IEntity, IQuantity, RecipeCategory, TradeSkill } from "./types";
 
-export interface IPerk {
-  id: string;
-  type: "Generated";
-  name: string;
+export interface IPerk extends IEntity {
+  type: "perk";
+  perkType: string;
   description: string;
-  icon: string;
   attributes: [];
-  ScalingPerGearScore: number;
+  condition: "OnEquip";
   labels: string[];
   labelsString: string;
+  statusEffect: IStatusEffect[];
+  statusEffects: IStatusEffect[];
+  gearScoreMin: number;
+  gearScoreMax: number;
+  gemsWithPerk: IEntity[];
+  itemsWithPerk: IEntity[];
+  ScalingPerGearScore: number;
+  PreferHigherScaling: boolean;
+  ExclusiveLabels: string[];
+  AttributeScale: [];
+}
+
+export interface IStatusEffect extends IEntity {
+  description: string;
+  categories: string[];
+  maxStack: number;
+  duration: number;
+  bonuses: string[];
+  removeOnDeath: boolean;
+  PotencyPerLevel: string;
 }
 
 export interface IPerkSlot {
@@ -94,7 +112,7 @@ export interface IItem extends IObject {
   durability: number;
   namedItem: number;
   refinedAt: string,
-  statusEffects: any[];
+  statusEffects: IStatusEffect[];
   flagCanBeCrafted: { id: string };
   flagCraftModMissingPerk: boolean;
   canReplaceGem: number;
@@ -103,8 +121,10 @@ export interface IItem extends IObject {
   lootTableIds: string[];
   recommendedItems: IEntity[];
   recommendedItemsTypeString: string;
+  drops_salvage: IEntity[];
   drops_salvage_from: IEntity[];
   drops_lootcontainer_from: IEntity[];
+  monstersWithDrop: IEntity[];
   gatherablesWithItem: any[],
   salvageOutput: any[];
   upgradeRecipes: any[];
@@ -121,6 +141,14 @@ export function isRecipe(object: IEntity | null | undefined): object is IRecipe 
 
 export function isItem(object: IEntity | null | undefined): object is IItem {
   return !!object && object.type === 'item';
+}
+
+export function isPerk(object: IEntity | null | undefined): object is IPerk {
+  return !!object && object.type === 'perk';
+}
+
+export function isStatusEffect(object: IEntity | null | undefined): object is IStatusEffect {
+  return !!object && 'bonuses' in object;
 }
 
 export function isCurrency(object: IEntity | null | undefined): object is IItem {

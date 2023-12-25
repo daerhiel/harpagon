@@ -1,23 +1,72 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { EMPTY, Observable, ReplaySubject, RetryConfig, catchError, expand, from, iif, last, map, mergeMap, of, retry, switchMap, tap, throwError, timer, toArray } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
+import {
+  Observable, ObservableInput, OperatorFunction, ObservedValueOf, Subscriber,
+  ReplaySubject,
+  timer, of, from, EMPTY, take,
+  retry, RetryConfig,
+  switchMap, mergeMap,
+  tap, map, toArray, expand, last,
+  throwError, catchError
+} from 'rxjs';
+import { operate } from 'rxjs/internal/util/lift';
+import { innerFrom } from 'rxjs/internal/observable/innerFrom';
+import { createOperatorSubscriber } from 'rxjs/internal/operators/OperatorSubscriber';
 
 import { BroadcastService } from '@app/services/broadcast.service';
 import { getStorageItem, setStorageItem } from '@app/services/settings';
 import { NwDbApiService } from './nw-db-api.service';
 import { IIngredient, IObject, isItem, isRecipe } from './models/objects';
 import { ObjectRef, ObjectType, SearchRef } from './models/types';
-import { toSignal } from '@angular/core/rxjs-interop';
 
 export type Index<T extends IObject> = Partial<Record<ObjectType, Record<string, T>>>;
 
-export interface IVersion {
+export type Stored<T> = T & {
   _version: number;
-}
+};
 
 export interface Hierarchy<T extends IObject> {
   ref: ObjectRef | null;
   index: Index<T>;
+}
+
+export function getStored<T>(value: T, version: number): Stored<T> {
+  return { ...value, _version: version };
+}
+
+export function cacheMap<T extends IObject, O extends ObservableInput<any>>(cache: Index<Stored<IObject>>,
+  project: (ref: Stored<ObjectRef>, index: number) => O
+): OperatorFunction<Stored<ObjectRef>, ObservedValueOf<O> | Stored<T>> {
+  return operate((source, subscriber) => {
+    let innerSubscriber: Subscriber<ObservedValueOf<O>> | null = null;
+    let index = 0;
+    let isComplete = false;
+
+    const checkComplete = () => isComplete && !innerSubscriber && subscriber.complete();
+    source.subscribe(createOperatorSubscriber(subscriber, (ref: Stored<ObjectRef>) => {
+      innerSubscriber?.unsubscribe();
+      const outerIndex = index++;
+
+      const storage = (cache[ref.type] ?? (cache[ref.type] = {}));
+      const cachedValue = storage[ref.id];
+      if (!cachedValue || cachedValue._version == null || cachedValue._version > 0 && cachedValue._version < ref._version) {
+        const inner = project(ref, outerIndex);
+        innerFrom(inner).subscribe((innerSubscriber = createOperatorSubscriber(
+          subscriber,
+          (innerValue: ObservedValueOf<O>) => {
+            const object = getStored(innerValue, ref._version);
+            setStorageItem<Stored<T>>(`object:${ref.type}/${ref.id}`, object);
+            return subscriber.next(storage[ref.id] = innerValue);
+          },
+          () => { innerSubscriber = null; checkComplete(); }
+        )));
+      } else {
+        subscriber.next(cachedValue as Stored<T>);
+        checkComplete();
+      }
+    }, () => { isComplete = true; checkComplete(); }));
+  });
 }
 
 @Injectable({
@@ -26,12 +75,12 @@ export interface Hierarchy<T extends IObject> {
 export class NwDbService {
   readonly #broadcast: BroadcastService = inject(BroadcastService);
   readonly #api: NwDbApiService = inject(NwDbApiService);
-  readonly #version = timer(0, 300000).pipe(
+  readonly #version = timer(0, 60 * 60 * 1000).pipe(
     switchMap(() => this.#api.getVersion()),
     tap(version => this.#current.next(version))
   );
   readonly #current = new ReplaySubject<number>(1);
-  readonly #storage: Index<IObject & IVersion> = {
+  readonly #storage: Index<Stored<IObject>> = {
     currency: {
       azoth_currency: {
         _version: 0,
@@ -40,7 +89,7 @@ export class NwDbService {
         name: 'Azoth',
         icon: 'currency_azoth',
         rarity: 2
-      } as IObject & IVersion
+      } as Stored<IObject>
     }
   };
 
@@ -54,8 +103,7 @@ export class NwDbService {
           return timer(delay);
         }
         return throwError(() => e);
-      },
-      resetOnSuccess: true
+      }, resetOnSuccess: true
     };
   }
 
@@ -75,7 +123,7 @@ export class NwDbService {
       const key = localStorage.key(i)!;
       switch (true) {
         case key && key.startsWith('object:'): {
-          const object = getStorageItem<(IObject & IVersion) | null>(key, null);
+          const object = getStorageItem<Stored<IObject> | null>(key, null);
           if (object) {
             (this.#storage[object.type] ?? (this.#storage[object.type] = {}))[object.id] = object;
           }
@@ -146,9 +194,9 @@ export class NwDbService {
     for (const object of objects) {
       if (object) {
         if (expired(object)) {
-          const value: IObject & IVersion = { ...object, _version: version };
+          const value = getStored(object, version);
           (this.#storage[object.type] ?? (this.#storage[object.type] = {}))[object.id] = value;
-          setStorageItem<IObject & IVersion>(`object:${object.type}/${object.id}`, value);
+          setStorageItem<Stored<IObject>>(`object:${object.type}/${object.id}`, value);
         }
 
         traverse(object);
@@ -207,9 +255,9 @@ export class NwDbService {
     return index;
   }
 
-  getHierarchy<T extends IObject>(ref: ObjectRef | null): Observable<Hierarchy<T>> {
-    return this.#current.pipe(
-      mergeMap(version => iif(() => !!ref, of(this.refOrCached(version, ref)).pipe(
+  getHierarchy<T extends IObject>(ref: ObjectRef): Observable<Hierarchy<T>> {
+    return this.#current.pipe(take(1),
+      mergeMap(version => of(this.refOrCached(version, ref)).pipe(
         expand(ids => ids.length > 0 ? from(ids).pipe(
           mergeMap(id => this.#api.getObject<T>(id).pipe(
             retry(this.retryStrategy({ delay: 5000, span: 5000 })),
@@ -219,7 +267,17 @@ export class NwDbService {
           map(objects => this.cacheAndGet(version, ...objects))
         ) : EMPTY), last(),
         map(() => ({ ref, index: this.buildIndex<T>(ref) }))
-      ), of({ ref, index: {} })), 1)
+      ), 1)
+    );
+  }
+
+  getObject<T extends IObject>(ref: ObjectRef): Observable<T | null> {
+    return this.#current.pipe(take(1),
+      map(version => getStored(ref, version)),
+      cacheMap<T, Observable<T | null>>(this.#storage, ref => this.#api.getObject<T>(ref).pipe(
+        retry(this.retryStrategy({ delay: 5000, span: 5000 })),
+        catchError(this.handleError(null))
+      ))
     );
   }
 

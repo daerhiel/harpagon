@@ -17,7 +17,7 @@ export class Entity implements IEntity {
 
   get id(): string { return this.#item.id; }
   get type(): ObjectType { return this.#item.type; }
-  get itemType(): ItemType { return this.#item.itemType; }
+  get itemType(): ItemType | undefined { return this.#item.itemType; }
   get name(): string { return this.#item.name; }
   get icon(): string | undefined { return this.#item.icon; }
   get tier(): Tier | undefined { return this.#item.tier; }
