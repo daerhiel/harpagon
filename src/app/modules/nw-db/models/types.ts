@@ -3,7 +3,7 @@ export type Rarity = 0 | 1 | 2 | 3 | 4 | 5;
 
 export type ObjectType = 'item' | 'recipe' | 'quest' | 'currency' | 'category' | 'perk';
 
-export type ItemType = 'Resource' | 'Weapon' | 'Armor';
+export type ItemType = 'Resource' | 'Weapon' | 'Armor' | 'HousingItem';
 
 export type TradeSkill = 'Armoring' | 'Engineering' | 'Weaponsmithing' | 'Cooking' | 'Weaving' | 'Leatherworking' | 'Smelting' | 'Stonecutting' | 'Woodworking';
 

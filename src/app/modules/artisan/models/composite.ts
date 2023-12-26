@@ -2,6 +2,7 @@ import { Signal, computed, signal } from "@angular/core";
 
 import { IObject, IRecipe, Index, ObjectRef, TradeSkill, isItem, isRecipe } from "@modules/nw-db/nw-db.module";
 import { product, subtract, sum } from "@app/services/utilities";
+import { ArtisanService, __injector } from "../artisan.service";
 import { Entity, EntityState } from "./entity";
 import { Ingredient } from "./ingredient";
 import { Materials } from "./materials";
@@ -12,8 +13,10 @@ export interface CompositeState extends EntityState {
 }
 
 export class Composite extends Entity {
+  readonly #artisan: ArtisanService = __injector.get(ArtisanService);
   readonly #recipe: IRecipe;
-  private readonly _tradeSkills: TradeSkill[] = ['Weaving', 'Leatherworking', 'Smelting', 'Stonecutting', 'Woodworking'];
+
+  private readonly _tradeSkills: TradeSkill[] = ['Weaving', 'Leatherworking', 'Smelting', 'Stonecutting', 'Woodworking', 'Cooking'];
   private readonly _tradeSkill = 250;
   private readonly _gearPieces = 5;
 
@@ -32,7 +35,12 @@ export class Composite extends Entity {
   readonly extraItemChance = computed(() => {
     if (this._tradeSkills.includes(this.#recipe.tradeskill)) {
       const bonus = this.ingredients.reduce((s, x) => sum(s, x.bonus ?? 0), 0);
-      return Math.max(this._tradeSkill / 1000 + this._gearPieces * 0.02 + this.#recipe.qtyBonus + bonus + .05, 0);
+      const equipment = this.#artisan.tradeSkills[this.#recipe.tradeskill]?.();
+      if (equipment) {
+        return Math.max(equipment.bonus() + this.#recipe.qtyBonus + bonus, 0);
+      } else {
+        return Math.max(this._tradeSkill / 1000 + this._gearPieces * 0.02 + this.#recipe.qtyBonus + bonus + .05, 0);
+      }
     }
     return null;
   });

@@ -1,11 +1,11 @@
-import { Injectable, Injector, OnDestroy, computed, inject, signal } from '@angular/core';
+import { Injectable, Injector, OnDestroy, Signal, computed, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { map, switchMap, tap } from 'rxjs';
 
-import { NwDbService, IEntity } from '@modules/nw-db/nw-db.module';
+import { NwDbService, IEntity, ObjectRef, TradeSkill } from '@modules/nw-db/nw-db.module';
 import { Subscriptions } from '@app/services/subscriptions';
 import { getStorageItem, setStorageItem } from '@app/services/settings';
-import { Product, ProductState } from './artisan.module';
+import { Equipment, Product, ProductState } from './artisan.module';
 
 const ENTITY_PROPERTY_NAME = 'artisan.entity';
 
@@ -44,6 +44,21 @@ export class ArtisanService implements OnDestroy {
   ));
   readonly #state = computed(() => this.product()?.getState())
   readonly #stream = toObservable(this.#state).pipe();
+
+  readonly #cookingPipeline = this.#nwDb.getEquipment(...[
+    { id: 'perkid_armor_cook', type: 'perk' },
+    { id: 'perkid_armor_cook_faction', type: 'perk' },
+    { id: 'perkid_earring_cook', type: 'perk' },
+    { id: 'house_housingitem_buff_uber_crafting', type: 'item' }
+  ] satisfies ObjectRef[]).pipe(map(objects =>
+    new Equipment('Cooking', ...objects))
+  );
+
+  readonly cooking = toSignal(this.#cookingPipeline);
+
+  readonly tradeSkills: Partial<Record<TradeSkill, Signal<Equipment | undefined>>> = {
+    Cooking: this.cooking,
+  } as const;
 
   constructor(injector: Injector) {
     __injector = injector;
