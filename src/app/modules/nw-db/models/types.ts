@@ -40,3 +40,11 @@ export interface SearchRef extends IEntity {
   recipeSkill: TradeSkill;
   searchRank: number;
 }
+
+export function isRef(object: object): object is ObjectRef {
+  return object && 'type' in object && 'type' in object;
+}
+
+export function isEntity(object: object): object is IEntity {
+  return isRef(object) && 'name' in object;
+}

@@ -76,8 +76,8 @@ export class NwDbApiService {
     return this.#http.get<{ v: number }>(buildUrl(this.#url, 'version.json')).pipe(map(x => Number(x.v)));
   }
 
-  getObject<T extends IObject>(ref: ObjectRef | null): Observable<T | null> {
-    return ref ? this.#http.get<Response<T>>(buildUrl(this.#url, 'db', [ref.type, `${ref.id}.json`])).pipe(map(x => reduceMap(x.data))) : of(null);
+  getObject<T extends IObject>(ref: ObjectRef): Observable<T> {
+    return this.#http.get<Response<T>>(buildUrl(this.#url, 'db', [ref.type, `${ref.id}.json`])).pipe(map(x => reduceMap(x.data)));
   }
 
   search(term: string): Observable<SearchRef[]> {

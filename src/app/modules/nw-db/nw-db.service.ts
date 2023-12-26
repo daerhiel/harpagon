@@ -8,7 +8,7 @@ import {
   retry, RetryConfig,
   switchMap, mergeMap,
   tap, map, toArray, expand, last,
-  throwError, catchError
+  throwError, catchError, filter, reduce
 } from 'rxjs';
 import { operate } from 'rxjs/internal/util/lift';
 import { innerFrom } from 'rxjs/internal/observable/innerFrom';
@@ -17,8 +17,8 @@ import { createOperatorSubscriber } from 'rxjs/internal/operators/OperatorSubscr
 import { BroadcastService } from '@app/services/broadcast.service';
 import { getStorageItem, setStorageItem } from '@app/services/settings';
 import { NwDbApiService } from './nw-db-api.service';
-import { IIngredient, IObject, isItem, isRecipe } from './models/objects';
-import { ObjectRef, ObjectType, SearchRef } from './models/types';
+import { IIngredient, IObject, isItem, isPerk, isRecipe } from './models/objects';
+import { IEntity, ObjectRef, ObjectType, SearchRef } from './models/types';
 
 export type Index<T extends IObject> = Partial<Record<ObjectType, Record<string, T>>>;
 
@@ -31,8 +31,30 @@ export interface Hierarchy<T extends IObject> {
   index: Index<T>;
 }
 
+export function isStored<T>(value: T): value is Stored<T> {
+  return value && typeof value === 'object' && '_version' in value;
+}
+
 export function getStored<T>(value: T, version: number): Stored<T> {
   return { ...value, _version: version };
+}
+
+export function getRefs(selector: (entity: IEntity) => ObjectRef[], ...objects: IEntity[]): ObjectRef[] {
+  return objects.reduce<ObjectRef[]>((refs, object) => {
+    for (const ref of selector(object)) {
+      if (!refs.some(x => x.id === ref.id && x.type === ref.type)) {
+        refs.push({ id: ref.id, type: ref.type });
+      }
+    }
+    return refs;
+  }, []);
+}
+
+export function getPerkItems(ref: IEntity): ObjectRef[] {
+  if (isPerk(ref)) {
+    return ref.itemsWithPerk;
+  }
+  return [];
 }
 
 export function cacheMap<T extends IObject, O extends ObservableInput<any>>(cache: Index<Stored<IObject>>,
@@ -253,6 +275,18 @@ export class NwDbService {
     }
 
     return index;
+  }
+
+  getEquipment(...refs: ObjectRef[]): Observable<IObject[]> {
+    return from(refs).pipe(mergeMap(ref => this.getObject(ref)), filter(x => !!x), map(x => x!), toArray()).pipe(
+      expand(objects => {
+        const refs = getRefs(getPerkItems, ...objects);
+        return refs.length > 0 ? from(refs).pipe(
+          mergeMap(ref => this.getObject(ref), 3), filter(x => !!x), map(x => x!), toArray()
+        ) : EMPTY;
+      }),
+      reduce((objects, value) => objects.concat(value))
+    );
   }
 
   getHierarchy<T extends IObject>(ref: ObjectRef): Observable<Hierarchy<T>> {

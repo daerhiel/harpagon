@@ -1,7 +1,7 @@
 import { computed } from "@angular/core";
 
 import { IEntity, IIngredient, ItemType, ObjectRef, ObjectType, Rarity, Tier } from "@modules/nw-db/nw-db.module";
-import { coalesce, product, ratio } from "@app/services/utilities";
+import { product, ratio } from "@app/services/utilities";
 import { Entity } from "./entity";
 import { Composite } from "./composite";
 
@@ -12,7 +12,7 @@ export class Ingredient implements IEntity {
 
   get id(): string { return this.#entity.id; }
   get type(): ObjectType { return this.#entity.type; }
-  get itemType(): ItemType { return this.#entity.itemType; }
+  get itemType(): ItemType | undefined { return this.#entity.itemType; }
   get name(): string { return this.#entity.name; }
   get icon(): string | undefined { return this.#entity.icon; }
   get tier(): Tier | undefined { return this.#entity.tier; }
