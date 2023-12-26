@@ -14,11 +14,17 @@
         "harpagon",
         "Headwear",
         "housingitem",
+        "leatherworkeryield",
+        "Leatherworking",
         "Legwear",
         "lootcontainer",
         "nwmp",
         "perkid",
+        "smelteryield",
+        "stonecutteryield",
         "tradeskill",
-        "Turnins"
+        "Turnins",
+        "weaveryield",
+        "woodworkeryield"
     ]
 }

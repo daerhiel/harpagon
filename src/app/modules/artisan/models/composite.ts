@@ -1,6 +1,6 @@
 import { Signal, computed, signal } from "@angular/core";
 
-import { IObject, IRecipe, Index, ObjectRef, TradeSkill, isItem, isRecipe } from "@modules/nw-db/nw-db.module";
+import { IObject, IRecipe, Index, ItemType, ObjectRef, TradeSkill, isItem, isRecipe } from "@modules/nw-db/nw-db.module";
 import { product, subtract, sum } from "@app/services/utilities";
 import { ArtisanService, __injector } from "../artisan.service";
 import { Entity, EntityState } from "./entity";
@@ -16,9 +16,7 @@ export class Composite extends Entity {
   readonly #artisan: ArtisanService = __injector.get(ArtisanService);
   readonly #recipe: IRecipe;
 
-  private readonly _tradeSkills: TradeSkill[] = ['Weaving', 'Leatherworking', 'Smelting', 'Stonecutting', 'Woodworking', 'Cooking'];
-  private readonly _tradeSkill = 250;
-  private readonly _gearPieces = 5;
+  private readonly _types: ItemType[] = ['Weapon', 'Armor', 'HousingItem'];
 
   get recipeId(): string { return this.#recipe.id; }
   get stations(): string[] { return this.#recipe.stations; }
@@ -33,13 +31,11 @@ export class Composite extends Entity {
   readonly craftedValue = computed(() => this.ingredients.reduce((s, x) => sum(s, x.total()), null as number | null));
   override readonly effectiveValue = computed(() => this.useCraft() ? this.craftedValue() : this.marketPrice());
   readonly extraItemChance = computed(() => {
-    if (this._tradeSkills.includes(this.#recipe.tradeskill)) {
+    if (!this.#recipe.itemType || !this._types.includes(this.#recipe.itemType)) {
       const bonus = this.ingredients.reduce((s, x) => sum(s, x.bonus ?? 0), 0);
       const equipment = this.#artisan.tradeSkills[this.#recipe.tradeskill]?.();
       if (equipment) {
         return Math.max(equipment.bonus() + this.#recipe.qtyBonus + bonus, 0);
-      } else {
-        return Math.max(this._tradeSkill / 1000 + this._gearPieces * 0.02 + this.#recipe.qtyBonus + bonus + .05, 0);
       }
     }
     return null;

@@ -38,20 +38,16 @@ export class Equipment {
     const multipliers: Record<string, number> = {};
     const armor: Record<string, IItem> = {};
 
-    if (this.head()) {
-      armor['Light Headwear'] = this.#armor['Light Headwear'];
-    }
-    if (this.chest()) {
-      armor['Light Chestwear'] = this.#armor['Light Chestwear'];
-    }
-    if (this.hands()) {
-      armor['Light Glove'] = this.#armor['Light Glove'];
-    }
-    if (this.legs()) {
-      armor['Light Legwear'] = this.#armor['Light Legwear'];
-    }
-    if (this.feet()) {
-      armor['Light Footwear'] = this.#armor['Light Footwear'];
+    for (const name in this.#armor) {
+      if (
+        name.includes('Headwear') && this.head() ||
+        name.includes('Chestwear') && this.chest() ||
+        name.includes('Glove') && this.hands() ||
+        name.includes('Legwear') && this.legs() ||
+        name.includes('Footwear') && this.feet()
+      ) {
+        armor[name] = this.#armor[name];
+      }
     }
     if (this.faction()) {
       for (const name in this.#faction) {
@@ -72,7 +68,7 @@ export class Equipment {
     this.trophy2() && this.useItem(this.#trophy['house_housingitem_buff_uber_crafting'], multipliers);
     this.trophy3() && this.useItem(this.#trophy['house_housingitem_buff_uber_crafting'], multipliers);
 
-    let value = this.level() / 1000;
+    let value = this.base + this.level() / 1000;
     for (const bonus in multipliers) {
       if (multipliers[bonus] != null && this.#bonuses[bonus] != null) {
         value += multipliers[bonus] * this.#bonuses[bonus]();
@@ -81,7 +77,7 @@ export class Equipment {
     return value;
   });
 
-  constructor(readonly skill: TradeSkill, ...objects: IObject[]) {
+  constructor(readonly skill: TradeSkill, readonly base: number, ...objects: IObject[]) {
     for (const object of objects) {
       if (isPerk(object)) {
         this.#perks[object.id] = object;
@@ -95,11 +91,15 @@ export class Equipment {
     for (const object of objects) {
       if (isItem(object)) {
         if (['Armor', 'armor'].includes(object.itemType!)) {
-          const perk = this.#perks[object.perks[0]?.id];
-          if (!perk || perk.itemsWithPerk.length > 1) {
-            this.#armor[object.typeName] = object;
-          } else {
-            this.#faction[object.typeName] = object;
+          if (object.tier && object.tier >= 4) {
+            const perk = this.#perks[object.perks[0]?.id];
+            if (!perk || perk.itemsWithPerk.length > 1) {
+              if (object.perks.length === 1) {
+                this.#armor[object.typeName] = object;
+              }
+            } else {
+              this.#faction[object.typeName] = object;
+            }
           }
         } else {
           if (['Resource', 'resource'].includes(object.itemType!)) {

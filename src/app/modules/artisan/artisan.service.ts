@@ -45,19 +45,60 @@ export class ArtisanService implements OnDestroy {
   readonly #state = computed(() => this.product()?.getState())
   readonly #stream = toObservable(this.#state).pipe();
 
+  readonly #arcanaPipeline = this.#nwDb.getEquipment(...[
+  ] satisfies ObjectRef[]).pipe(map(objects =>
+    new Equipment('Arcana', 0, ...objects))
+  );
   readonly #cookingPipeline = this.#nwDb.getEquipment(...[
     { id: 'perkid_armor_cook', type: 'perk' },
     { id: 'perkid_armor_cook_faction', type: 'perk' },
     { id: 'perkid_earring_cook', type: 'perk' },
     { id: 'house_housingitem_buff_uber_crafting', type: 'item' }
   ] satisfies ObjectRef[]).pipe(map(objects =>
-    new Equipment('Cooking', ...objects))
+    new Equipment('Cooking', 0, ...objects))
+  );
+  readonly #woodworkingPipeline = this.#nwDb.getEquipment(...[
+    { id: 'perkid_armor_woodworkeryield', type: 'perk' }
+  ] satisfies ObjectRef[]).pipe(map(objects =>
+    new Equipment('Woodworking', 0.05, ...objects))
+  );
+  readonly #leatherworkingPipeline = this.#nwDb.getEquipment(...[
+    { id: 'perkid_armor_leatherworkeryield', type: 'perk' }
+  ] satisfies ObjectRef[]).pipe(map(objects =>
+    new Equipment('Leatherworking', 0.05, ...objects))
+  );
+  readonly #stonecuttingPipeline = this.#nwDb.getEquipment(...[
+    { id: 'perkid_armor_stonecutteryield', type: 'perk' }
+  ] satisfies ObjectRef[]).pipe(map(objects =>
+    new Equipment('Stonecutting', 0.05, ...objects))
+  );
+  readonly #smeltingPipeline = this.#nwDb.getEquipment(...[
+    { id: 'perkid_armor_smelteryield', type: 'perk' }
+  ] satisfies ObjectRef[]).pipe(map(objects =>
+    new Equipment('Smelting', 0.05, ...objects))
+  );
+  readonly #weavingPipeline = this.#nwDb.getEquipment(...[
+    { id: 'perkid_armor_weaveryield', type: 'perk' }
+  ] satisfies ObjectRef[]).pipe(map(objects =>
+    new Equipment('Weaving', 0.05, ...objects))
   );
 
+  readonly arcana = toSignal(this.#arcanaPipeline);
   readonly cooking = toSignal(this.#cookingPipeline);
+  readonly woodworking = toSignal(this.#woodworkingPipeline);
+  readonly leatherworking = toSignal(this.#leatherworkingPipeline);
+  readonly stonecutting = toSignal(this.#stonecuttingPipeline);
+  readonly smelting = toSignal(this.#smeltingPipeline);
+  readonly weaving = toSignal(this.#weavingPipeline);
 
   readonly tradeSkills: Partial<Record<TradeSkill, Signal<Equipment | undefined>>> = {
+    Arcana: this.arcana,
     Cooking: this.cooking,
+    Woodworking: this.woodworking,
+    Leatherworking: this.leatherworking,
+    Stonecutting: this.stonecutting,
+    Smelting: this.smelting,
+    Weaving: this.weaving,
   } as const;
 
   constructor(injector: Injector) {
