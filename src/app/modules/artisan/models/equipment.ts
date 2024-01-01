@@ -50,7 +50,7 @@ export class Equipment extends Mutator {
 
     let bonus = this.base + this.level() / 1000;
     const housing = this.housing();
-    if (housing) {
+    if (housing && housing.skill === this.skill) {
       bonus += housing.bonus();
     }
     return bonus + this.getBonus(multipliers);
