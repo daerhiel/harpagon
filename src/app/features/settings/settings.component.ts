@@ -11,7 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 
-import { IItem, NwIconDirective } from '@modules/nw-db/nw-db.module';
+import { IItem, IconRef, NwIconDirective, ObjectType } from '@modules/nw-db/nw-db.module';
 import { ArtisanService } from '@modules/artisan/artisan.module';
 
 type ControlSet = 'armor' | 'faction' | 'earring';
@@ -29,7 +29,7 @@ type SelectorType<TSelector extends Selector<any, any>> =
 
 class Section<TModel, TSelector extends {
   [K in keyof any]: Selector<TModel, any>;
-}> {
+}> implements IconRef {
   protected readonly bind = effect(() => {
     const model = this.model();
     if (model) {
@@ -45,7 +45,7 @@ class Section<TModel, TSelector extends {
 
   readonly formGroup = new FormGroup(this.build());
 
-  constructor(readonly name: string, readonly model: Signal<TModel>, readonly controls: TSelector) {
+  constructor(readonly name: string, readonly icon: string, readonly model: Signal<TModel>, readonly controls: TSelector) {
   }
 
   protected build(): {
@@ -115,7 +115,7 @@ export class SettingsComponent {
   readonly #artisan: ArtisanService = inject(ArtisanService);
 
   protected readonly settings = new Sections({
-    arcana: new Section('Arcana', this.#artisan.arcana, {
+    arcana: new Section('Arcana', 'icons/filters/tradeskills/arcana', this.#artisan.arcana, {
       level: { name: 'Tradeskill level', value: model => model.level },
       head: { name: 'Headwear', value: model => model.head, set: 'armor', item: model => model.getHeadwear() },
       chest: { name: 'Chestwear', value: model => model.chest, set: 'armor', item: model => model.getChestwear() },
@@ -123,7 +123,7 @@ export class SettingsComponent {
       legs: { name: 'Legwear', value: model => model.legs, set: 'armor', item: model => model.getLegwear() },
       feet: { name: 'Footwear', value: model => model.feet, set: 'armor', item: model => model.getFootwear() }
     }),
-    cooking: new Section('Cooking', this.#artisan.cooking, {
+    cooking: new Section('Cooking', 'icons/filters/tradeskills/cooking', this.#artisan.cooking, {
       level: { name: 'Tradeskill level', value: model => model.level },
       head: { name: 'Headwear', value: model => model.head, set: 'armor', item: model => model.getHeadwear() },
       chest: { name: 'Chestwear', value: model => model.chest, set: 'armor', item: model => model.getChestwear() },
@@ -133,7 +133,7 @@ export class SettingsComponent {
       faction: { name: 'Faction', value: model => model.faction, set: 'faction', item: model => model.getFaction() },
       earring: { name: 'Earring', value: model => model.earring, set: 'earring', item: model => model.getEarring() },
     }),
-    woodworking: new Section('Woodworking', this.#artisan.woodworking, {
+    woodworking: new Section('Woodworking', 'icons/filters/tradeskills/woodworking', this.#artisan.woodworking, {
       level: { name: 'Tradeskill level', value: model => model.level },
       head: { name: 'Headwear', value: model => model.head, set: 'armor', item: model => model.getHeadwear() },
       chest: { name: 'Chestwear', value: model => model.chest, set: 'armor', item: model => model.getChestwear() },
@@ -141,7 +141,7 @@ export class SettingsComponent {
       legs: { name: 'Legwear', value: model => model.legs, set: 'armor', item: model => model.getLegwear() },
       feet: { name: 'Footwear', value: model => model.feet, set: 'armor', item: model => model.getFootwear() },
     }),
-    leatherworking: new Section('Leatherworking', this.#artisan.leatherworking, {
+    leatherworking: new Section('Leatherworking', 'icons/filters/tradeskills/leatherworking', this.#artisan.leatherworking, {
       level: { name: 'Tradeskill level', value: model => model.level },
       head: { name: 'Headwear', value: model => model.head, set: 'armor', item: model => model.getHeadwear() },
       chest: { name: 'Chestwear', value: model => model.chest, set: 'armor', item: model => model.getChestwear() },
@@ -149,7 +149,7 @@ export class SettingsComponent {
       legs: { name: 'Legwear', value: model => model.legs, set: 'armor', item: model => model.getLegwear() },
       feet: { name: 'Footwear', value: model => model.feet, set: 'armor', item: model => model.getFootwear() },
     }),
-    stonecutting: new Section('Stonecutting', this.#artisan.stonecutting, {
+    stonecutting: new Section('Stonecutting', 'icons/filters/tradeskills/stonecutting', this.#artisan.stonecutting, {
       level: { name: 'Tradeskill level', value: model => model.level },
       head: { name: 'Headwear', value: model => model.head, set: 'armor', item: model => model.getHeadwear() },
       chest: { name: 'Chestwear', value: model => model.chest, set: 'armor', item: model => model.getChestwear() },
@@ -157,7 +157,7 @@ export class SettingsComponent {
       legs: { name: 'Legwear', value: model => model.legs, set: 'armor', item: model => model.getLegwear() },
       feet: { name: 'Footwear', value: model => model.feet, set: 'armor', item: model => model.getFootwear() },
     }),
-    smelting: new Section('Smelting', this.#artisan.smelting, {
+    smelting: new Section('Smelting', 'icons/filters/tradeskills/smelting', this.#artisan.smelting, {
       level: { name: 'Tradeskill level', value: model => model.level },
       head: { name: 'Headwear', value: model => model.head, set: 'armor', item: model => model.getHeadwear() },
       chest: { name: 'Chestwear', value: model => model.chest, set: 'armor', item: model => model.getChestwear() },
@@ -165,7 +165,7 @@ export class SettingsComponent {
       legs: { name: 'Legwear', value: model => model.legs, set: 'armor', item: model => model.getLegwear() },
       feet: { name: 'Footwear', value: model => model.feet, set: 'armor', item: model => model.getFootwear() },
     }),
-    weaving: new Section('Weaving', this.#artisan.weaving, {
+    weaving: new Section('Weaving', 'icons/filters/tradeskills/weaving', this.#artisan.weaving, {
       level: { name: 'Tradeskill level', value: model => model.level },
       head: { name: 'Headwear', value: model => model.head, set: 'armor', item: model => model.getHeadwear() },
       chest: { name: 'Chestwear', value: model => model.chest, set: 'armor', item: model => model.getChestwear() },

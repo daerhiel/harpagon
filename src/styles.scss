@@ -251,6 +251,20 @@ a[mat-link] {
   flex-grow: 1;
 }
 
+.mat-mdc-tab-header {
+  --icon-size: 28px;
+
+  .mat-mdc-tab {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  mat-icon {
+    margin: 0 !important;
+    margin-right: 10px !important;
+  }
+}
+
 /** Global App styles **/
 
 img.mat-img {
