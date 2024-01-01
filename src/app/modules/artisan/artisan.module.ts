@@ -6,7 +6,9 @@ export * from './models/composite';
 export * from './models/ingredient';
 export * from './models/materials';
 export * from './models/product';
+export * from './models/mutator';
 export * from './models/equipment';
+export * from './models/housing';
 export * from './artisan.service';
 
 @NgModule({

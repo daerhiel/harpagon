@@ -5,7 +5,7 @@ import { map, switchMap, tap } from 'rxjs';
 import { NwDbService, IEntity, ObjectRef, TradeSkill } from '@modules/nw-db/nw-db.module';
 import { Subscriptions } from '@app/services/subscriptions';
 import { getStorageItem, setStorageItem } from '@app/services/settings';
-import { Equipment, Product, ProductState } from './artisan.module';
+import { Equipment, Housing, Product, ProductState } from './artisan.module';
 
 const ENTITY_PROPERTY_NAME = 'artisan.entity';
 
@@ -45,45 +45,50 @@ export class ArtisanService implements OnDestroy {
   readonly #state = computed(() => this.product()?.getState())
   readonly #stream = toObservable(this.#state).pipe();
 
-  readonly #arcanaPipeline = this.#nwDb.getEquipment(...[
-    { id: 'perkid_armor_jeweler', type: 'perk' },
+  readonly #housingPipeline = this.#nwDb.getEquipment(...[
+    { id: 'house_housingitem_buff_uber_crafting', type: 'item' }
   ] satisfies ObjectRef[]).pipe(map(objects =>
-    new Equipment('Arcana', 0, ...objects))
+    new Housing('Cooking', ...objects))
+  );
+  readonly #arcanaPipeline = this.#nwDb.getEquipment(...[
+    { id: 'perkid_armor_jeweler', type: 'perk' }
+  ] satisfies ObjectRef[]).pipe(map(objects =>
+    new Equipment(this.housing, 'Arcana', 0, ...objects))
   );
   readonly #cookingPipeline = this.#nwDb.getEquipment(...[
     { id: 'perkid_armor_cook', type: 'perk' },
     { id: 'perkid_armor_cook_faction', type: 'perk' },
-    { id: 'perkid_earring_cook', type: 'perk' },
-    { id: 'house_housingitem_buff_uber_crafting', type: 'item' }
+    { id: 'perkid_earring_cook', type: 'perk' }
   ] satisfies ObjectRef[]).pipe(map(objects =>
-    new Equipment('Cooking', 0, ...objects))
+    new Equipment(this.housing, 'Cooking', 0, ...objects))
   );
   readonly #woodworkingPipeline = this.#nwDb.getEquipment(...[
     { id: 'perkid_armor_woodworkeryield', type: 'perk' }
   ] satisfies ObjectRef[]).pipe(map(objects =>
-    new Equipment('Woodworking', 0.05, ...objects))
+    new Equipment(this.housing, 'Woodworking', 0.05, ...objects))
   );
   readonly #leatherworkingPipeline = this.#nwDb.getEquipment(...[
     { id: 'perkid_armor_leatherworkeryield', type: 'perk' }
   ] satisfies ObjectRef[]).pipe(map(objects =>
-    new Equipment('Leatherworking', 0.05, ...objects))
+    new Equipment(this.housing, 'Leatherworking', 0.05, ...objects))
   );
   readonly #stonecuttingPipeline = this.#nwDb.getEquipment(...[
     { id: 'perkid_armor_stonecutteryield', type: 'perk' }
   ] satisfies ObjectRef[]).pipe(map(objects =>
-    new Equipment('Stonecutting', 0.05, ...objects))
+    new Equipment(this.housing, 'Stonecutting', 0.05, ...objects))
   );
   readonly #smeltingPipeline = this.#nwDb.getEquipment(...[
     { id: 'perkid_armor_smelteryield', type: 'perk' }
   ] satisfies ObjectRef[]).pipe(map(objects =>
-    new Equipment('Smelting', 0.05, ...objects))
+    new Equipment(this.housing, 'Smelting', 0.05, ...objects))
   );
   readonly #weavingPipeline = this.#nwDb.getEquipment(...[
     { id: 'perkid_armor_weaveryield', type: 'perk' }
   ] satisfies ObjectRef[]).pipe(map(objects =>
-    new Equipment('Weaving', 0.05, ...objects))
+    new Equipment(this.housing, 'Weaving', 0.05, ...objects))
   );
 
+  readonly housing = toSignal(this.#housingPipeline);
   readonly arcana = toSignal(this.#arcanaPipeline);
   readonly cooking = toSignal(this.#cookingPipeline);
   readonly woodworking = toSignal(this.#woodworkingPipeline);
