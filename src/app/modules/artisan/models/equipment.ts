@@ -1,10 +1,16 @@
 import { Signal, computed, signal } from "@angular/core";
 
 import { IItem, IObject, TradeSkill, isItem } from "@modules/nw-db/nw-db.module";
-import { Mutator } from "./mutator";
+import { Mutator, MutatorBlock } from "./mutator";
 import { Housing } from "./housing";
 
-export class Equipment extends Mutator {
+export type EquipmentBlock = 'armor' | 'faction' | 'jewelry';
+
+export class Equipment extends Mutator<EquipmentBlock> {
+  private static readonly _armor: MutatorBlock<EquipmentBlock> = { id: 'armor', name: 'Armor set' };
+  private static readonly _faction: MutatorBlock<EquipmentBlock> = { id: 'faction', name: 'Faction set' };
+  private static readonly _jewelry: MutatorBlock<EquipmentBlock> = { id: 'jewelry', name: 'Jewelry' };
+
   readonly #armor: Record<string, IItem> = {};
   readonly #faction: Record<string, IItem> = {};
   readonly #charms: Record<string, IItem> = {};
@@ -70,13 +76,16 @@ export class Equipment extends Mutator {
             if (!perk || perk.itemsWithPerk.length > 1) {
               if (object.perks.length === 1) {
                 this.#armor[object.typeName] = object;
+                this.addBlock(Equipment._armor);
               }
             } else {
               this.#faction[object.typeName] = object;
+              this.addBlock(Equipment._faction);
             }
           }
         } else if (['Resource', 'resource'].includes(object.itemType!)) {
           this.#charms[object.id] = object;
+          this.addBlock(Equipment._jewelry);
         }
       }
     }

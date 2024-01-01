@@ -12,10 +12,18 @@ function getBonus(value: string, skill: TradeSkill): (() => number) | null {
   return null;
 }
 
-export class Mutator {
+export type MutatorBlock<T> = {
+  id: T;
+  name: string;
+}
+
+export class Mutator<T> {
   readonly #perks: Record<string, IPerk> = {};
   readonly #effects: Record<string, IStatusEffect> = {};
   readonly #bonuses: Record<string, () => number> = {};
+  readonly #blocks: MutatorBlock<T>[] = [];
+
+  get blocks(): MutatorBlock<T>[] { return this.#blocks; }
 
   constructor(readonly skill: TradeSkill, ...objects: IObject[]) {
     for (const object of objects) {
@@ -73,6 +81,12 @@ export class Mutator {
           this.usePerk(this.#perks[perk.id], multipliers);
         }
       }
+    }
+  }
+
+  protected addBlock(block: MutatorBlock<T>): void {
+    if (block && !this.#blocks.includes(block) && !this.#blocks.some(x => x.id === block.id)) {
+      this.#blocks.push(block);
     }
   }
 

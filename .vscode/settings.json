@@ -14,6 +14,7 @@
         "harpagon",
         "Headwear",
         "housingitem",
+        "itemtypes",
         "leatherworkeryield",
         "Leatherworking",
         "Legwear",
@@ -23,6 +24,7 @@
         "smelteryield",
         "stonecutteryield",
         "tradeskill",
+        "tradeskills",
         "Turnins",
         "weaveryield",
         "woodworkeryield"

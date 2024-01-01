@@ -1,9 +1,15 @@
 import { computed, signal } from "@angular/core";
 
 import { IItem, IObject, TradeSkill, isItem } from "@modules/nw-db/nw-db.module";
-import { Mutator } from "./mutator";
+import { Mutator, MutatorBlock } from "./mutator";
 
-export class Housing extends Mutator {
+type HousingBlock = 'house1' | 'house2' | 'house3';
+
+export class Housing extends Mutator<HousingBlock> {
+  private static readonly _house1: MutatorBlock<HousingBlock> = { id: 'house1', name: 'House 1' };
+  private static readonly _house2: MutatorBlock<HousingBlock> = { id: 'house2', name: 'House 2' };
+  private static readonly _house3: MutatorBlock<HousingBlock> = { id: 'house3', name: 'House 3' };
+
   readonly #trophy: Record<string, IItem> = {};
 
   readonly trophy1 = signal(true);
@@ -26,8 +32,15 @@ export class Housing extends Mutator {
       if (isItem(object)) {
         if (['HousingItem', 'housingitem'].includes(object.itemType!)) {
           this.#trophy[object.id] = object;
+          this.addBlock(Housing._house1);
+          this.addBlock(Housing._house2);
+          this.addBlock(Housing._house3);
         }
       }
     }
+  }
+
+  getCraftingTrophy(): IItem {
+    return this.#trophy['house_housingitem_buff_uber_crafting'] ?? null;
   }
 }

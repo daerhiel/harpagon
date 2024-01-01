@@ -1,6 +1,6 @@
 <mat-dialog-content class="mat-typography">
   <mat-tab-group animationDuration="150ms">
-    @for (section of settings.sections | keyvalue; track section.key) {
+    @for (section of settings.sections | keyvalue | sort:true:'value':'id'; track section.key) {
     @if (section.value.model(); as model) {
     <mat-tab>
       <ng-template mat-tab-label>
@@ -12,7 +12,7 @@
       <form class="app-l-flex app-l-flex-row app-l-flex-gap-2r app-mt-1r" [formGroup]="section.value.formGroup">
         <fieldset id="{{section.key}}-general">
           @for (control of section.value.controls | keyvalue; track control.key) {
-          @if (!control.value.set) {
+          @if (!control.value.block) {
           <mat-form-field>
             <mat-label>{{control.value.name}}</mat-label>
             <input matInput type="text" [formControlName]="control.key">
@@ -20,13 +20,14 @@
           }
           }
         </fieldset>
-        @if (model.hasArmor) {
-        <fieldset id="{{section.key}}-armor" class="app-l-flex app-l-flex-column">
-          <div class="app-mt-hr app-mb-1r">Armor set</div>
+
+        @for (block of model.blocks; track block.id) {
+        <fieldset id="{{section.key}}-{{block.id}}" class="app-l-flex app-l-flex-column">
+          <div class="app-mt-hr app-mb-1r">{{block.name}}</div>
           <mat-divider></mat-divider>
           @for (control of section.value.controls | keyvalue; track control.key) {
-          @if (control.value.set === 'armor' && control.value.item?.(model); as item) {
-          <mat-checkbox [formControlName]="control.key" [matTooltip]="item.description" matTooltipPosition="after">
+          @if (control.value.block === block.id && control.value.item($any(model)); as item) {
+          <mat-checkbox [formControlName]="control.key" [matTooltip]="item.description.replaceAll('\\n', '\n')" matTooltipPosition="after">
             <span class="app-l-flex app-l-flex-row app-l-align-center">
               <mat-icon>
                 <img [nwIcon]="item" class="mat-img" loading="lazy">
@@ -38,44 +39,6 @@
           }
         </fieldset>
         }
-        <div>
-          @if(model.hasFaction) {
-          <fieldset id="{{section.key}}-armor" class="app-l-flex app-l-flex-column">
-            <div class="app-mt-hr app-mb-1r">Faction Armor</div>
-            <mat-divider></mat-divider>
-            @for (control of section.value.controls | keyvalue; track control.key) {
-            @if (control.value.set === 'faction' && control.value.item?.(model); as item) {
-            <mat-checkbox [formControlName]="control.key" [matTooltip]="item.description" matTooltipPosition="after">
-              <span class="app-l-flex app-l-flex-row app-l-align-center">
-                <mat-icon>
-                  <img [nwIcon]="item" class="mat-img" loading="lazy">
-                </mat-icon>
-                {{item.name}}
-              </span>
-            </mat-checkbox>
-            }
-            }
-          </fieldset>
-          }
-          @if(model.hasCharms) {
-          <fieldset id="{{section.key}}-armor" class="app-l-flex app-l-flex-column">
-            <div class="app-mt-hr app-mb-1r">Jewelry</div>
-            <mat-divider></mat-divider>
-            @for (control of section.value.controls | keyvalue; track control.key) {
-            @if (control.value.set === 'earring' && control.value.item?.(model); as item) {
-            <mat-checkbox [formControlName]="control.key" [matTooltip]="item.description" matTooltipPosition="after">
-              <span class="app-l-flex app-l-flex-row app-l-align-center">
-                <mat-icon>
-                  <img [nwIcon]="item" class="mat-img" loading="lazy">
-                </mat-icon>
-                {{item.name}}
-              </span>
-            </mat-checkbox>
-            }
-            }
-          </fieldset>
-          }
-        </div>
       </form>
     </mat-tab>
     }
