@@ -51,6 +51,7 @@ $hungry-horde-ui-theme: mat.define-dark-theme(
 @include mat.input-theme($hungry-horde-ui-theme);
 @include mat.autocomplete-theme($hungry-horde-ui-theme);
 @include mat.tooltip-theme($hungry-horde-ui-theme);
+@include mat.divider-theme($hungry-horde-ui-theme);
 @include styles.theme($hungry-horde-ui-theme);
 
 html,
@@ -258,6 +259,13 @@ img.mat-img {
   height: 30px;
   width: 30px;
   overflow: visible;
+}
+
+fieldset {
+  margin-inline-start: 0;
+  margin-inline-end: 0;
+  border: none;
+  padding: 0;
 }
 
 /** NwDb Items **/

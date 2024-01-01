@@ -46,6 +46,7 @@ export class ArtisanService implements OnDestroy {
   readonly #stream = toObservable(this.#state).pipe();
 
   readonly #arcanaPipeline = this.#nwDb.getEquipment(...[
+    { id: 'perkid_armor_jeweler', type: 'perk' },
   ] satisfies ObjectRef[]).pipe(map(objects =>
     new Equipment('Arcana', 0, ...objects))
   );

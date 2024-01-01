@@ -77,6 +77,10 @@ export class Equipment {
     return value;
   });
 
+  get hasArmor(): boolean { return Object.keys(this.#armor).length > 0; }
+  get hasFaction(): boolean { return Object.keys(this.#faction).length > 0; }
+  get hasCharms(): boolean { return Object.keys(this.#charms).length > 0; }
+
   constructor(readonly skill: TradeSkill, readonly base: number, ...objects: IObject[]) {
     for (const object of objects) {
       if (isPerk(object)) {
@@ -159,5 +163,33 @@ export class Equipment {
         }
       }
     }
+  }
+
+  getHeadwear(): IItem | null {
+    return Object.keys(this.#armor).map(x => this.#armor[x]).find(x => x.typeName.includes('Headwear')) ?? null;
+  }
+
+  getChestwear(): IItem | null {
+    return Object.keys(this.#armor).map(x => this.#armor[x]).find(x => x.typeName.includes('Chestwear')) ?? null;
+  }
+
+  getGlove(): IItem | null {
+    return Object.keys(this.#armor).map(x => this.#armor[x]).find(x => x.typeName.includes('Glove')) ?? null;
+  }
+
+  getLegwear(): IItem | null {
+    return Object.keys(this.#armor).map(x => this.#armor[x]).find(x => x.typeName.includes('Legwear')) ?? null;
+  }
+
+  getFootwear(): IItem | null {
+    return Object.keys(this.#armor).map(x => this.#armor[x]).find(x => x.typeName.includes('Footwear')) ?? null;
+  }
+
+  getFaction(): IItem | null {
+    return Object.keys(this.#faction).map(x => this.#faction[x]).find(x => x) ?? null;
+  }
+
+  getEarring(): IItem | null {
+    return Object.keys(this.#charms).map(x => this.#charms[x]).find(x => x) ?? null;
   }
 }

@@ -1,0 +1,16 @@
+:host {
+  --icon-size: 34px;
+
+  mat-icon {
+    margin: 10px 0;
+    overflow: visible;
+    width: calc(var(--icon-size) + 2px);
+    height: calc(var(--icon-size) + 2px);
+    margin-right: 16px;
+
+    img.mat-img {
+      height: var(--icon-size);
+      width: var(--icon-size);
+    }
+  }
+}

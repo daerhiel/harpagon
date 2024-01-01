@@ -1,0 +1,84 @@
+<mat-dialog-content class="mat-typography">
+  <mat-tab-group animationDuration="150ms">
+    @for (section of settings.sections | keyvalue; track section.key) {
+    @if (section.value; as section) {
+    @if (section.model(); as model) {
+    <mat-tab [label]="section.name">
+      <form class="app-l-flex app-l-flex-row app-l-flex-gap-2r app-mt-1r" [formGroup]="section.formGroup">
+        <fieldset id="{{section.name}}-general">
+          @for (control of section.controls | keyvalue; track control.key) {
+          @if (!control.value.set) {
+          <mat-form-field>
+            <mat-label>{{control.value.name}}</mat-label>
+            <input matInput type="text" [formControlName]="control.key">
+          </mat-form-field>
+          }
+          }
+        </fieldset>
+        @if (model.hasArmor) {
+        <fieldset id="{{section.name}}-armor" class="app-l-flex app-l-flex-column">
+          <div class="app-mt-hr app-mb-1r">Armor set</div>
+          <mat-divider></mat-divider>
+          @for (control of section.controls | keyvalue; track control.key) {
+          @if (control.value.set === 'armor' && control.value.item?.(model); as item) {
+          <mat-checkbox [formControlName]="control.key" [matTooltip]="item.description" matTooltipPosition="after">
+            <span class="app-l-flex app-l-flex-row app-l-align-center">
+              <mat-icon>
+                <img [nwIcon]="item" class="mat-img" loading="lazy">
+              </mat-icon>
+              {{item.name}}
+            </span>
+          </mat-checkbox>
+          }
+          }
+        </fieldset>
+        }
+        <div>
+          @if(model.hasFaction) {
+          <fieldset id="{{section.name}}-armor" class="app-l-flex app-l-flex-column">
+            <div class="app-mt-hr app-mb-1r">Faction Armor</div>
+            <mat-divider></mat-divider>
+            @for (control of section.controls | keyvalue; track control.key) {
+            @if (control.value.set === 'faction' && control.value.item?.(model); as item) {
+            <mat-checkbox [formControlName]="control.key" [matTooltip]="item.description" matTooltipPosition="after">
+              <span class="app-l-flex app-l-flex-row app-l-align-center">
+                <mat-icon>
+                  <img [nwIcon]="item" class="mat-img" loading="lazy">
+                </mat-icon>
+                {{item.name}}
+              </span>
+            </mat-checkbox>
+            }
+            }
+          </fieldset>
+          }
+          @if(model.hasCharms) {
+          <fieldset id="{{section.name}}-armor" class="app-l-flex app-l-flex-column">
+            <div class="app-mt-hr app-mb-1r">Jewelry</div>
+            <mat-divider></mat-divider>
+            @for (control of section.controls | keyvalue; track control.key) {
+            @if (control.value.set === 'earring' && control.value.item?.(model); as item) {
+            <mat-checkbox [formControlName]="control.key" [matTooltip]="item.description" matTooltipPosition="after">
+              <span class="app-l-flex app-l-flex-row app-l-align-center">
+                <mat-icon>
+                  <img [nwIcon]="item" class="mat-img" loading="lazy">
+                </mat-icon>
+                {{item.name}}
+              </span>
+            </mat-checkbox>
+            }
+            }
+          </fieldset>
+          }
+        </div>
+      </form>
+    </mat-tab>
+    }
+    }
+    }
+  </mat-tab-group>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-raised-button cdkFocusInitial color="primary">Save</button>
+  <button mat-button>Cancel</button>
+</mat-dialog-actions>

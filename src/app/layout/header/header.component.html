@@ -6,6 +6,10 @@
   <div class="app-l-flex app-l-flex-column app-l-align-start app-l-flex-gap-hr app-p-1r">
   </div>
   <span class="mat-spacer"></span>
+  <button id="setup" mat-button aria-label="Setup environment" (click)="setup()">
+    <mat-icon>settings</mat-icon>
+    Setup
+  </button>
   <button id="domain" mat-button [matMenuTriggerFor]="menu" aria-label="Server selector" [disabled]="!gaming.servers()?.length">
     {{gaming.domain()?.name ?? '(Server)'}}
   </button>
