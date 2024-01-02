@@ -46,6 +46,6 @@
   </mat-tab-group>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-  <button mat-raised-button cdkFocusInitial color="primary">Save</button>
-  <button mat-button>Cancel</button>
+  <button mat-raised-button color="primary" [disabled]="!modified()" (click)="save()">Save</button>
+  <button mat-button (click)="cancel()">Cancel</button>
 </mat-dialog-actions>

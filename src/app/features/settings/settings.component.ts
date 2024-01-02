@@ -1,7 +1,8 @@
-import { Component, Signal, WritableSignal, effect, inject } from '@angular/core';
+import { Component, Signal, WritableSignal, computed, effect, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -10,6 +11,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
+import { combineLatest } from 'rxjs';
 
 import { IItem, IconRef, NwIconDirective } from '@modules/nw-db/nw-db.module';
 import { ArtisanService } from '@modules/artisan/artisan.module';
@@ -38,7 +40,7 @@ class Section<TModel, TSelector extends {
         const value = this.controls[accessor].value(model);
         const control = this.formGroup.controls[accessor];
         if (control) {
-          control.setValue(value());
+          control.setValue(value(), { emitEvent: true, emitModelToViewChange: true, emitViewToModelChange: true });
         }
       }
     }
@@ -50,7 +52,7 @@ class Section<TModel, TSelector extends {
   constructor(readonly name: string, readonly icon: string, readonly model: Signal<TModel>, readonly controls: TSelector) {
   }
 
-  protected build(): {
+  private build(): {
     [K in keyof TSelector]: FormControl<SelectorType<TSelector[K]>>
   } {
     const controls: {
@@ -60,6 +62,19 @@ class Section<TModel, TSelector extends {
       controls[control] = new FormControl();
     }
     return controls;
+  }
+
+  save(): void {
+    const model = this.model();
+    if (model) {
+      for (const accessor in this.controls) {
+        const value = this.controls[accessor].value(model);
+        const control = this.formGroup.controls[accessor];
+        if (control && control.valid && control.dirty) {
+          value.set(control.value);
+        }
+      }
+    }
   }
 }
 
@@ -90,6 +105,12 @@ class Sections<TSection extends {
     }
     return formGroups;
   }
+
+  save(): void {
+    for (const section in this.sections) {
+      this.sections[section].save();
+    }
+  }
 }
 
 @Component({
@@ -116,6 +137,7 @@ class Sections<TSection extends {
 })
 export class SettingsComponent {
   readonly #artisan: ArtisanService = inject(ArtisanService);
+  readonly #dialog: MatDialogRef<SettingsComponent> = inject(MatDialogRef<SettingsComponent>);
 
   protected readonly settings = new Sections({
     housing: new Section('Housing', 'icons/filters/itemtypes/housing', this.#artisan.housing, {
@@ -183,4 +205,31 @@ export class SettingsComponent {
     }),
   });
   protected readonly form = this.settings.formGroups;
+
+  readonly #statuses = toSignal(combineLatest([
+    this.form.housing.statusChanges,
+    this.form.arcana.statusChanges,
+    this.form.cooking.statusChanges,
+    this.form.woodworking.statusChanges,
+    this.form.leatherworking.statusChanges,
+    this.form.stonecutting.statusChanges,
+    this.form.smelting.statusChanges,
+    this.form.weaving.statusChanges,
+  ]));
+  protected readonly modified = computed(() => {
+    const statuses = this.#statuses();
+    return statuses && statuses.every(x => x === 'VALID');
+  });
+
+  protected save(): void {
+    if (this.modified()) {
+      this.settings.save();
+      this.#artisan.saveSettings();
+      this.#dialog.close();
+    }
+  }
+
+  protected cancel(): void {
+    this.#dialog.close();
+  }
 }

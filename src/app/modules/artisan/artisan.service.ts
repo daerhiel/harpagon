@@ -8,6 +8,7 @@ import { getStorageItem, setStorageItem } from '@app/services/settings';
 import { Equipment, Housing, Product, ProductState } from './artisan.module';
 
 const ENTITY_PROPERTY_NAME = 'artisan.entity';
+const SETTINGS_PROPERTY_NAME = 'artisan.settings';
 
 export var __injector: Injector;
 
@@ -107,6 +108,17 @@ export class ArtisanService implements OnDestroy {
     Weaving: this.weaving,
   } as const;
 
+  protected readonly settings = getStorageItem(SETTINGS_PROPERTY_NAME, {
+    housing: this.housing(),
+    arcana: this.arcana(),
+    cooking: this.cooking(),
+    woodworking: this.woodworking(),
+    leatherworking: this.leatherworking(),
+    stonecutting: this.stonecutting(),
+    smelting: this.smelting(),
+    weaving: this.weaving(),
+  });
+
   constructor(injector: Injector) {
     __injector = injector;
     this.#subscriptions.subscribe(this.#stream.pipe(tap(state => {
@@ -123,5 +135,18 @@ export class ArtisanService implements OnDestroy {
   load(entity: IEntity): void {
     this.#entity.set(entity);
     setStorageItem(ENTITY_PROPERTY_NAME, entity);
+  }
+
+  saveSettings(): void {
+    setStorageItem(SETTINGS_PROPERTY_NAME, {
+      housing: this.housing()?.getState(),
+      arcana: this.arcana()?.getState(),
+      cooking: this.cooking()?.getState(),
+      woodworking: this.woodworking()?.getState(),
+      leatherworking: this.leatherworking()?.getState(),
+      stonecutting: this.stonecutting()?.getState(),
+      smelting: this.smelting()?.getState(),
+      weaving: this.weaving()?.getState(),
+    })
   }
 }
