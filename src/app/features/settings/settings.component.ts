@@ -1,7 +1,7 @@
-import { Component, Signal, WritableSignal, effect, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Signal, WritableSignal, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -38,7 +38,7 @@ class Section<TModel, TSelector extends {
         const value = this.controls[accessor].value(model);
         const control = this.formGroup.controls[accessor];
         if (control) {
-          control.setValue(value());
+          control.setValue(value(), { emitEvent: true, emitModelToViewChange: true, emitViewToModelChange: true });
         }
       }
     }
@@ -50,7 +50,7 @@ class Section<TModel, TSelector extends {
   constructor(readonly name: string, readonly icon: string, readonly model: Signal<TModel>, readonly controls: TSelector) {
   }
 
-  protected build(): {
+  private build(): {
     [K in keyof TSelector]: FormControl<SelectorType<TSelector[K]>>
   } {
     const controls: {
@@ -60,6 +60,19 @@ class Section<TModel, TSelector extends {
       controls[control] = new FormControl();
     }
     return controls;
+  }
+
+  save(): void {
+    const model = this.model();
+    if (model) {
+      for (const accessor in this.controls) {
+        const value = this.controls[accessor].value(model);
+        const control = this.formGroup.controls[accessor];
+        if (control && control.valid && control.dirty) {
+          value.set(control.value);
+        }
+      }
+    }
   }
 }
 
@@ -81,6 +94,18 @@ class Sections<TSection extends {
   constructor(readonly sections: TSection) {
   }
 
+  get disabled(): boolean {
+    let valid = true, dirty = false;
+
+    for (const group in this.formGroups) {
+      const formGroup = this.formGroups[group];
+      dirty ||= formGroup.dirty;
+      valid &&= formGroup.valid;
+    }
+
+    return !dirty || !valid;
+  }
+
   private build(): {
     [K in keyof TSection]: FormGroup<SectionFormGroup<TSection[K]>>;
   } {
@@ -89,6 +114,12 @@ class Sections<TSection extends {
       formGroups[section] = this.sections[section].formGroup;
     }
     return formGroups;
+  }
+
+  save(): void {
+    for (const section in this.sections) {
+      this.sections[section].save();
+    }
   }
 }
 
@@ -112,10 +143,12 @@ class Sections<TSection extends {
     SortPipe
   ],
   templateUrl: './settings.component.html',
-  styleUrl: './settings.component.scss'
+  styleUrl: './settings.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SettingsComponent {
   readonly #artisan: ArtisanService = inject(ArtisanService);
+  readonly #dialog: MatDialogRef<SettingsComponent> = inject(MatDialogRef<SettingsComponent>);
 
   protected readonly settings = new Sections({
     housing: new Section('Housing', 'icons/filters/itemtypes/housing', this.#artisan.housing, {
@@ -183,4 +216,16 @@ export class SettingsComponent {
     }),
   });
   protected readonly form = this.settings.formGroups;
+
+  protected save(): void {
+    if (!this.settings.disabled) {
+      this.settings.save();
+      this.#artisan.saveSettings();
+      this.#dialog.close();
+    }
+  }
+
+  protected cancel(): void {
+    this.#dialog.close();
+  }
 }

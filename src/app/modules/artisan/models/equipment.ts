@@ -118,4 +118,31 @@ export class Equipment extends Mutator<EquipmentBlock> {
   getEarring(): IItem | null {
     return Object.keys(this.#charms).map(x => this.#charms[x]).find(x => x) ?? null;
   }
+
+  setState(value: ReturnType<typeof this.getState> | undefined) {
+    if (value) {
+      this.level.set(value.level);
+      this.head.set(value.head);
+      this.chest.set(value.chest);
+      this.hands.set(value.hands);
+      this.legs.set(value.legs);
+      this.feet.set(value.feet);
+      this.faction.set(value.faction);
+      this.earring.set(value.earring);
+    }
+    return this;
+  }
+
+  getState() {
+    return {
+      level: this.level(),
+      head: this.head(),
+      chest: this.chest(),
+      hands: this.hands(),
+      legs: this.legs(),
+      feet: this.feet(),
+      faction: this.faction(),
+      earring: this.earring()
+    }
+  }
 }
