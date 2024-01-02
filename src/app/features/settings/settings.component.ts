@@ -1,5 +1,4 @@
-import { Component, Signal, WritableSignal, computed, effect, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, Signal, WritableSignal, computed, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -11,7 +10,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
-import { combineLatest } from 'rxjs';
 
 import { IItem, IconRef, NwIconDirective } from '@modules/nw-db/nw-db.module';
 import { ArtisanService } from '@modules/artisan/artisan.module';
@@ -96,6 +94,18 @@ class Sections<TSection extends {
   constructor(readonly sections: TSection) {
   }
 
+  get disabled(): boolean {
+    let valid = true, dirty = false;
+
+    for (const group in this.formGroups) {
+      const formGroup = this.formGroups[group];
+      dirty ||= formGroup.dirty;
+      valid &&= formGroup.valid;
+    }
+
+    return !dirty || !valid;
+  }
+
   private build(): {
     [K in keyof TSection]: FormGroup<SectionFormGroup<TSection[K]>>;
   } {
@@ -133,7 +143,8 @@ class Sections<TSection extends {
     SortPipe
   ],
   templateUrl: './settings.component.html',
-  styleUrl: './settings.component.scss'
+  styleUrl: './settings.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SettingsComponent {
   readonly #artisan: ArtisanService = inject(ArtisanService);
@@ -206,23 +217,8 @@ export class SettingsComponent {
   });
   protected readonly form = this.settings.formGroups;
 
-  readonly #statuses = toSignal(combineLatest([
-    this.form.housing.statusChanges,
-    this.form.arcana.statusChanges,
-    this.form.cooking.statusChanges,
-    this.form.woodworking.statusChanges,
-    this.form.leatherworking.statusChanges,
-    this.form.stonecutting.statusChanges,
-    this.form.smelting.statusChanges,
-    this.form.weaving.statusChanges,
-  ]));
-  protected readonly modified = computed(() => {
-    const statuses = this.#statuses();
-    return statuses && statuses.every(x => x === 'VALID');
-  });
-
   protected save(): void {
-    if (this.modified()) {
+    if (!this.settings.disabled) {
       this.settings.save();
       this.#artisan.saveSettings();
       this.#dialog.close();
