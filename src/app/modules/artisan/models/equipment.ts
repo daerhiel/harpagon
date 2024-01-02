@@ -119,7 +119,7 @@ export class Equipment extends Mutator<EquipmentBlock> {
     return Object.keys(this.#charms).map(x => this.#charms[x]).find(x => x) ?? null;
   }
 
-  setState(value: ReturnType<typeof this.getState>): void {
+  setState(value: ReturnType<typeof this.getState> | undefined) {
     if (value) {
       this.level.set(value.level);
       this.head.set(value.head);
@@ -130,6 +130,7 @@ export class Equipment extends Mutator<EquipmentBlock> {
       this.faction.set(value.faction);
       this.earring.set(value.earring);
     }
+    return this;
   }
 
   getState() {

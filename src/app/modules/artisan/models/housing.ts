@@ -44,12 +44,13 @@ export class Housing extends Mutator<HousingBlock> {
     return this.#trophy['house_housingitem_buff_uber_crafting'] ?? null;
   }
 
-  setState(value: ReturnType<typeof this.getState>): void {
+  setState(value: ReturnType<typeof this.getState> | undefined) {
     if (value) {
       this.trophy1.set(value.trophy1);
       this.trophy2.set(value.trophy2);
       this.trophy3.set(value.trophy3);
     }
+    return this;
   }
 
   getState() {

@@ -1,5 +1,5 @@
 <mat-dialog-content class="mat-typography">
-  <mat-tab-group animationDuration="150ms">
+  <mat-tab-group animationDuration="0">
     @for (section of settings.sections | keyvalue | sort:true:'value':'id'; track section.key) {
     @if (section.value.model(); as model) {
     <mat-tab>
@@ -27,7 +27,7 @@
           <mat-divider></mat-divider>
           @for (control of section.value.controls | keyvalue; track control.key) {
           @if (control.value.block === block.id && control.value.item($any(model)); as item) {
-          <mat-checkbox [formControlName]="control.key" [matTooltip]="item.description.replaceAll('\\n', '\n')" matTooltipPosition="after">
+          <mat-checkbox [formControlName]="control.key" [matTooltip]="item.description.replaceAll('\\n', '\n')" matTooltipPosition="after" matTooltipShowDelay="300">
             <span class="app-l-flex app-l-flex-row app-l-align-center">
               <mat-icon>
                 <img [nwIcon]="item" class="mat-img" loading="lazy">
