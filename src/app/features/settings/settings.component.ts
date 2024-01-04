@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, Signal, WritableSignal, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -20,11 +20,22 @@ type Selector<TModel, TValue> = {
   value: (model: NonNullable<TModel>) => WritableSignal<TValue>;
   block?: string;
   item?: (model: NonNullable<TModel>) => IItem | null;
+  convert?: (value: TValue) => TValue;
+  validators?: ValidatorFn | ValidatorFn[];
 };
 
 type SelectorType<TSelector extends Selector<any, any>> =
   ReturnType<TSelector['value']> extends WritableSignal<infer TValue> ?
   TValue : never;
+
+function toNumber(value: number): number {
+  return typeof value !== 'number' ? Number(value) : value;
+}
+
+const tradeskillLevel: ValidatorFn[] = [
+  Validators.pattern(/^\d+$/i),
+  Validators.max(250)
+]
 
 class Section<TModel, TSelector extends {
   [K in keyof any]: Selector<TModel, any>;
@@ -58,6 +69,10 @@ class Section<TModel, TSelector extends {
     } = {} as any;
     for (const control in this.controls) {
       controls[control] = new FormControl();
+      const validators = this.controls[control].validators;
+      if (validators) {
+        controls[control].addValidators(validators);
+      }
     }
     return controls;
   }
@@ -69,7 +84,8 @@ class Section<TModel, TSelector extends {
         const value = this.controls[accessor].value(model);
         const control = this.formGroup.controls[accessor];
         if (control && control.valid && control.dirty) {
-          value.set(control.value);
+          const convert = this.controls[accessor].convert;
+          value.set(convert ? convert(control.value) : control.value);
         }
       }
     }
@@ -157,7 +173,7 @@ export class SettingsComponent {
       crafting3: { name: 'Crafting', value: model => model.trophy3, block: 'house3', item: model => model.getCraftingTrophy() },
     }),
     arcana: new Section('Arcana', 'icons/filters/tradeskills/arcana', this.#artisan.arcana, {
-      level: { name: 'Tradeskill level', value: model => model.level },
+      level: { name: 'Tradeskill level', value: model => model.level, convert: toNumber, validators: tradeskillLevel },
       head: { name: 'Headwear', value: model => model.head, block: 'armor', item: model => model.getHeadwear() },
       chest: { name: 'Chestwear', value: model => model.chest, block: 'armor', item: model => model.getChestwear() },
       hands: { name: 'Gloves', value: model => model.hands, block: 'armor', item: model => model.getGlove() },
@@ -165,7 +181,7 @@ export class SettingsComponent {
       feet: { name: 'Footwear', value: model => model.feet, block: 'armor', item: model => model.getFootwear() }
     }),
     cooking: new Section('Cooking', 'icons/filters/tradeskills/cooking', this.#artisan.cooking, {
-      level: { name: 'Tradeskill level', value: model => model.level },
+      level: { name: 'Tradeskill level', value: model => model.level, convert: toNumber, validators: tradeskillLevel },
       head: { name: 'Headwear', value: model => model.head, block: 'armor', item: model => model.getHeadwear() },
       chest: { name: 'Chestwear', value: model => model.chest, block: 'armor', item: model => model.getChestwear() },
       hands: { name: 'Gloves', value: model => model.hands, block: 'armor', item: model => model.getGlove() },
@@ -175,7 +191,7 @@ export class SettingsComponent {
       earring: { name: 'Earring', value: model => model.earring, block: 'jewelry', item: model => model.getEarring() },
     }),
     woodworking: new Section('Woodworking', 'icons/filters/tradeskills/woodworking', this.#artisan.woodworking, {
-      level: { name: 'Tradeskill level', value: model => model.level },
+      level: { name: 'Tradeskill level', value: model => model.level, convert: toNumber, validators: tradeskillLevel },
       head: { name: 'Headwear', value: model => model.head, block: 'armor', item: model => model.getHeadwear() },
       chest: { name: 'Chestwear', value: model => model.chest, block: 'armor', item: model => model.getChestwear() },
       hands: { name: 'Gloves', value: model => model.hands, block: 'armor', item: model => model.getGlove() },
@@ -183,7 +199,7 @@ export class SettingsComponent {
       feet: { name: 'Footwear', value: model => model.feet, block: 'armor', item: model => model.getFootwear() },
     }),
     leatherworking: new Section('Leatherworking', 'icons/filters/tradeskills/leatherworking', this.#artisan.leatherworking, {
-      level: { name: 'Tradeskill level', value: model => model.level },
+      level: { name: 'Tradeskill level', value: model => model.level, convert: toNumber, validators: tradeskillLevel },
       head: { name: 'Headwear', value: model => model.head, block: 'armor', item: model => model.getHeadwear() },
       chest: { name: 'Chestwear', value: model => model.chest, block: 'armor', item: model => model.getChestwear() },
       hands: { name: 'Gloves', value: model => model.hands, block: 'armor', item: model => model.getGlove() },
@@ -191,7 +207,7 @@ export class SettingsComponent {
       feet: { name: 'Footwear', value: model => model.feet, block: 'armor', item: model => model.getFootwear() },
     }),
     stonecutting: new Section('Stonecutting', 'icons/filters/tradeskills/stonecutting', this.#artisan.stonecutting, {
-      level: { name: 'Tradeskill level', value: model => model.level },
+      level: { name: 'Tradeskill level', value: model => model.level, convert: toNumber, validators: tradeskillLevel },
       head: { name: 'Headwear', value: model => model.head, block: 'armor', item: model => model.getHeadwear() },
       chest: { name: 'Chestwear', value: model => model.chest, block: 'armor', item: model => model.getChestwear() },
       hands: { name: 'Gloves', value: model => model.hands, block: 'armor', item: model => model.getGlove() },
@@ -199,7 +215,7 @@ export class SettingsComponent {
       feet: { name: 'Footwear', value: model => model.feet, block: 'armor', item: model => model.getFootwear() },
     }),
     smelting: new Section('Smelting', 'icons/filters/tradeskills/smelting', this.#artisan.smelting, {
-      level: { name: 'Tradeskill level', value: model => model.level },
+      level: { name: 'Tradeskill level', value: model => model.level, convert: toNumber, validators: tradeskillLevel },
       head: { name: 'Headwear', value: model => model.head, block: 'armor', item: model => model.getHeadwear() },
       chest: { name: 'Chestwear', value: model => model.chest, block: 'armor', item: model => model.getChestwear() },
       hands: { name: 'Gloves', value: model => model.hands, block: 'armor', item: model => model.getGlove() },
@@ -207,7 +223,7 @@ export class SettingsComponent {
       feet: { name: 'Footwear', value: model => model.feet, block: 'armor', item: model => model.getFootwear() },
     }),
     weaving: new Section('Weaving', 'icons/filters/tradeskills/weaving', this.#artisan.weaving, {
-      level: { name: 'Tradeskill level', value: model => model.level },
+      level: { name: 'Tradeskill level', value: model => model.level, convert: toNumber, validators: tradeskillLevel },
       head: { name: 'Headwear', value: model => model.head, block: 'armor', item: model => model.getHeadwear() },
       chest: { name: 'Chestwear', value: model => model.chest, block: 'armor', item: model => model.getChestwear() },
       hands: { name: 'Gloves', value: model => model.hands, block: 'armor', item: model => model.getGlove() },
