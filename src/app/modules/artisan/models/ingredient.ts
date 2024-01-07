@@ -138,8 +138,12 @@ export class Ingredient implements IEntity {
     }
   }
 
+  contains(id: string): boolean {
+    return id in this.#entities;
+  }
+
   set(id: string) {
-    if (this.#id !== id) {
+    if (this.#id !== id && id in this.#entities) {
       this.entity.unbind(this.#parent);
       this.#id = id;
       this.entity.bind(this.#parent);

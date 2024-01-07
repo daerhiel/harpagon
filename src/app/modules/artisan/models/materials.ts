@@ -3,6 +3,7 @@ import { computed, signal } from "@angular/core";
 import { IIngredient, IObject, Index } from "@modules/nw-db/nw-db.module";
 import { Entity } from "./entity";
 import { Composite } from "./composite";
+import { Product } from "./product";
 
 function equal(a: Record<string, Entity>, b: Record<string, Entity>): boolean {
   if (a !== b) {
@@ -37,7 +38,7 @@ export class Materials {
       const objects = new Set<Entity>();
       for (const id in index) {
         const entity = index[id];
-        if (!entity.isOwned) {
+        if (entity instanceof Product && !entity.isOwned) {
           objects.add(entity);
         }
       }

@@ -42,10 +42,22 @@ export class EntityComponent implements OnDestroy {
   protected readonly Product = Product;
   protected readonly Composite = Composite;
 
-  protected readonly required = new FormControl<string | ObjectRef | null>(null);
+  protected readonly required = new FormControl<string | number | null>(null);
 
   @Input()
-  data: Entity | null = null;
+  get data(): Entity | null {
+    return this.#data;
+  }
+  set data(value: Entity | null) {
+    if (value !== this.#data) {
+      if (value instanceof Product) {
+        const volume = value.requestedVolume();
+        volume && this.required.setValue(volume);
+      }
+      this.#data = value;
+    }
+  }
+  #data: Entity | null = null;
 
   @Output()
   readonly navigate = new EventEmitter<ObjectRef>();
