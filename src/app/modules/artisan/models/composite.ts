@@ -142,9 +142,9 @@ export class Composite extends Entity {
 
   override setState(state: CompositeState) {
     super.setState(state);
-    this.useCraft.set(state.expand);
 
     if (state) {
+      this.useCraft.set(state.expand);
       for (const id in state.ingredients) {
         const ingredient = this.ingredients.find(x => x.id === id);
         if (ingredient) {
