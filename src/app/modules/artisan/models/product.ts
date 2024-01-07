@@ -6,7 +6,8 @@ import { Materials } from "./materials";
 
 export interface ProductState extends CompositeState {
   id: string
-  recipeId: string
+  recipeId: string;
+  volume: number;
 }
 
 export class Product extends Composite {
@@ -21,6 +22,7 @@ export class Product extends Composite {
     return {
       id: this.id,
       recipeId: this.recipeId,
+      volume: this.requestedVolume(),
       ...super.getState()
     };
   }
@@ -28,6 +30,10 @@ export class Product extends Composite {
   override setState(state: ProductState): void {
     if (state && state.recipeId == this.recipeId) {
       super.setState(state);
+      const volume = Number(state.volume);
+      if (!isNaN(volume) && volume > 0) {
+        this.requestedVolume.set(state.volume);
+      }
     }
   }
 }

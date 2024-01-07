@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -8,7 +8,7 @@ import { MatInputModule } from '@angular/material/input'
 import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete'
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, filter, map, switchMap, tap } from 'rxjs';
 
 import { NwDbService, NwIconDirective, ObjectRef, SearchRef } from '@modules/nw-db/nw-db.module';
@@ -47,7 +47,7 @@ export class ArtisanComponent implements OnDestroy {
     distinctUntilChanged(), debounceTime(300),
     switchMap(term => this.#nwDb.search(term).pipe(map(x => x.filter(v => v.type === 'recipe'))))
   ));
-  protected readonly required = new FormControl<number | null>(null);
+  protected readonly required = new FormControl<number | null>(null, Validators.pattern(/^\d+$/i));
 
   protected readonly artisan: ArtisanService = inject(ArtisanService);
   protected readonly switch = toSignal(this.searchItem.valueChanges.pipe(
@@ -55,8 +55,15 @@ export class ArtisanComponent implements OnDestroy {
     distinctUntilChanged(),
     tap(entity => this.artisan.load(entity))
   ));
+  protected readonly project = toObservable(this.artisan.product);
 
   constructor() {
+    this.#subscriptions.subscribe(this.project.pipe(tap(product => {
+      if (product) {
+        const volume = product.requestedVolume();
+        volume && this.required.setValue(volume, { emitEvent: false });
+      }
+    })));
     this.#subscriptions.subscribe(this.required.valueChanges.pipe(tap(x => {
       const product = this.artisan.product();
       if (product instanceof Product) {

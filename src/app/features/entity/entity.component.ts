@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
 import { MatInputModule } from '@angular/material/input';
@@ -42,7 +42,7 @@ export class EntityComponent implements OnDestroy {
   protected readonly Product = Product;
   protected readonly Composite = Composite;
 
-  protected readonly required = new FormControl<string | number | null>(null);
+  protected readonly required = new FormControl<number | null>(null, Validators.pattern(/^\d+$/i));
 
   @Input()
   get data(): Entity | null {
