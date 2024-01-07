@@ -3,7 +3,6 @@ import { computed, signal } from "@angular/core";
 import { IIngredient, IObject, Index } from "@modules/nw-db/nw-db.module";
 import { Entity } from "./entity";
 import { Composite } from "./composite";
-import { Ingredient } from "./ingredient";
 
 function equal(a: Record<string, Entity>, b: Record<string, Entity>): boolean {
   if (a !== b) {
@@ -80,6 +79,19 @@ export class Materials {
     return result;
   });
 
+  get(ingredient: IIngredient, index: Index<IObject>): Entity {
+    let entity = this.#index()[ingredient.id];
+    if (!entity) {
+      const recipeId = ingredient.recipeId;
+      if (recipeId && Entity.isRecipeSupported(recipeId.id, index)) {
+        entity = new Composite(this, ingredient, index);
+      } else {
+        entity = new Entity(this, ingredient, index);
+      }
+    }
+    return entity;
+  }
+
   add(entity: Entity): void {
     if (!entity) {
       throw new ReferenceError(`The object entity is not specified.`);
@@ -95,30 +107,5 @@ export class Materials {
       }
       return value;
     });
-  }
-
-  createAndLink(parent: Composite, ingredient: IIngredient, index: Index<IObject>): Ingredient {
-    if (!parent) {
-      throw new ReferenceError(`The parent object entity is not specified.`);
-    }
-    if (!ingredient) {
-      throw new ReferenceError(`The ingredient is not specified.`);
-    }
-    if (!index) {
-      throw new ReferenceError(`The object index is not specified.`);
-    }
-
-    let entity = this.#index()[ingredient.id];
-    if (!entity) {
-      const recipeId = ingredient.recipeId;
-      if (recipeId && Entity.isRecipeSupported(recipeId.id, index)) {
-        entity = new Composite(this, ingredient, index);
-      } else {
-        entity = new Entity(this, ingredient, index);
-      }
-    }
-    entity.bind(parent);
-
-    return new Ingredient(parent, ingredient, entity);
   }
 }

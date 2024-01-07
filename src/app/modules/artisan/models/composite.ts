@@ -101,17 +101,7 @@ export class Composite extends Entity {
     }
 
     for (const ingredient of this.#recipe.ingredients) {
-      switch (ingredient.type) {
-        case 'category':
-          for (const subIngredient of ingredient.subIngredients) {
-            this.ingredients.push(this.materials.createAndLink(this, subIngredient, index));
-            break;
-          }
-          break;
-        default:
-          this.ingredients.push(this.materials.createAndLink(this, ingredient, index));
-          break;
-      }
+      this.ingredients.push(new Ingredient(this, ingredient, index));
     }
 
     this.ingredients.sort((a, b) => {

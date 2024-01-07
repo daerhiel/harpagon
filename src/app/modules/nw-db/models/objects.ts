@@ -154,3 +154,7 @@ export function isStatusEffect(object: IEntity | null | undefined): object is IS
 export function isCurrency(object: IEntity | null | undefined): object is IItem {
   return !!object && object.type === 'currency';
 }
+
+export function isCategory(object: IIngredient | ICategory | null | undefined): object is ICategory {
+  return !!object && object.type === 'category';
+}

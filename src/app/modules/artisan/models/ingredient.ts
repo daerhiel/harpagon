@@ -1,14 +1,31 @@
 import { computed } from "@angular/core";
 
-import { IEntity, IIngredient, ItemType, ObjectRef, ObjectType, Rarity, Tier } from "@modules/nw-db/nw-db.module";
+import { ICategory, IEntity, IIngredient, IObject, Index, ItemType, ObjectRef, ObjectType, Rarity, Tier, isCategory } from "@modules/nw-db/nw-db.module";
 import { product, ratio } from "@app/services/utilities";
 import { Entity } from "./entity";
 import { Composite } from "./composite";
+
+function compare(a: any, b: any, asc: boolean): number {
+  let result = 0;
+  if (a != null && b != null) {
+    if (a > b) {
+      result = 1;
+    } else if (a < b) {
+      result = -1;
+    }
+  } else if (a != null) {
+    result = 1;
+  } else if (b != null) {
+    result = -1;
+  }
+  return result * (asc ? 1 : -1);
+}
 
 export class Ingredient implements IEntity {
   readonly #parent: Composite;
   readonly #ingredient: IIngredient;
   readonly #entity: Entity;
+  readonly #entities: Record<string, Entity> = {};
 
   get id(): string { return this.#entity.id; }
   get type(): ObjectType { return this.#entity.type; }
@@ -49,18 +66,52 @@ export class Ingredient implements IEntity {
     return null;
   });
 
-  constructor(parent: Composite, ingredient: IIngredient, entity: Entity) {
+  constructor(parent: Composite, ingredient: IIngredient | ICategory, index: Index<IObject>) {
     if (!parent) {
       throw new ReferenceError(`The parent object entity is not specified.`);
     }
     if (!ingredient) {
       throw new ReferenceError(`The ingredient is not specified.`);
     }
-    if (!entity) {
-      throw new ReferenceError(`The object entity is not specified.`);
+    if (!index) {
+      throw new ReferenceError(`The object index is not specified.`);
     }
 
     this.#parent = parent;
+    const materials = parent.materials;
+    const entities: Entity[] = [];
+    if (isCategory(ingredient)) {
+      for (const subIngredient of ingredient.subIngredients) {
+        entities.push(materials.get(subIngredient, index));
+      }
+    } else {
+      entities.push(materials.get(ingredient, index));
+    }
+
+    let entity: Entity | undefined;
+    if (isCategory(ingredient)) {
+      for (const entity of entities) {
+        this.#entities[entity.id] = entity;
+      }
+      ingredient.subIngredients.sort((a, b) => {
+        const valueA = product(a.quantity, this.#entities[a.id].marketPrice());
+        const valueB = product(a.quantity, this.#entities[b.id].marketPrice());
+        return compare(valueA, valueB, false);
+      })
+      for (const subIngredient of ingredient.subIngredients) {
+        if (!parent.ingredients.some(x => x.id === subIngredient.id)) {
+          ingredient = subIngredient;
+          entity = this.#entities[ingredient.id];
+        }
+      }
+      if (isCategory(ingredient) || !entity) {
+        throw new RangeError(`Unable to bind ingredients`);
+      }
+    } else {
+      entity = entities[0];
+    }
+    entity.bind(parent);
+
     this.#ingredient = ingredient;
     this.#entity = entity;
   }
