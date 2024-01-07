@@ -40,7 +40,8 @@ export class Ingredient implements IEntity {
 
   get id(): string { return this.#id; }
   get type(): ObjectType { return this.entity.type; }
-  get category(): string | null { return this.#category ?? null; }
+  get category(): string | undefined { return this.#category; }
+  get primary(): boolean | undefined { return this.#primary; }
   get itemType(): ItemType | undefined { return this.entity.itemType; }
   get name(): string { return this.entity.name; }
   get icon(): string | undefined { return this.entity.icon; }

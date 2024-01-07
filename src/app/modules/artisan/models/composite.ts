@@ -156,11 +156,23 @@ export class Composite extends Entity {
     super.setState(state);
 
     if (state) {
+      const used: IngredientState[] = [];
       this.useCraft.set(state.expand);
-      for (const id in state.ingredients) {
-        const ingredient = this.ingredients.find(x => x.id === id);
-        if (ingredient) {
-          ingredient.setState(state.ingredients[id]);
+
+      for (const ingredient of this.ingredients) {
+        if (ingredient.category) {
+          const category = state.categories[ingredient.category];
+          if (category) {
+            for (const id in category) {
+              const state = category[id];
+              if (ingredient.primary === state.primary && !used.includes(state)) {
+                ingredient.setState(state);
+                used.push(state);
+              }
+            }
+          }
+        } else {
+          ingredient.setState(state.ingredients[ingredient.id]);
         }
       }
     }
