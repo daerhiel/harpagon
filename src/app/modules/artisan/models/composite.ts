@@ -161,18 +161,20 @@ export class Composite extends Entity {
 
       for (const ingredient of this.ingredients) {
         if (ingredient.category) {
-          const category = state.categories[ingredient.category];
+          const category = state.categories?.[ingredient.category];
           if (category) {
             for (const id in category) {
               const state = category[id];
               if (ingredient.primary === state.primary && !used.includes(state)) {
+                ingredient.set(id);
                 ingredient.setState(state);
                 used.push(state);
+                break;
               }
             }
           }
         } else {
-          ingredient.setState(state.ingredients[ingredient.id]);
+          ingredient.setState(state.ingredients?.[ingredient.id]);
         }
       }
     }

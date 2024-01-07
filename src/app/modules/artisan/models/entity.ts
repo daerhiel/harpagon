@@ -87,6 +87,15 @@ export class Entity implements IEntity {
     });
   }
 
+  unbind(owner: Composite) {
+    this.#owners.update(owners => {
+      if (owner) {
+        owners.splice(owners.indexOf(owner), 1);
+      }
+      return owners;
+    });
+  }
+
   getRatio(owner: Composite): number {
     let total = 0, owned = 0;
     for (const current of this.#owners()) {

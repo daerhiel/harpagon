@@ -32,7 +32,7 @@ export class Ingredient implements IEntity {
   readonly #entities: Record<string, Entity> = {};
   readonly #category: string | undefined;
   readonly #primary: boolean | undefined;
-  readonly #id: string;
+  #id: string;
 
   get parent(): Composite { return this.#parent; }
   private get ingredient(): IIngredient { return this.#ingredients[this.#id]; }
@@ -135,6 +135,14 @@ export class Ingredient implements IEntity {
   setState(state: IngredientState): void {
     if (state && this.#primary === state.primary) {
       this.entity.setState(state.entity);
+    }
+  }
+
+  set(id: string) {
+    if (this.#id !== id) {
+      this.entity.unbind(this.#parent);
+      this.#id = id;
+      this.entity.bind(this.#parent);
     }
   }
 }
