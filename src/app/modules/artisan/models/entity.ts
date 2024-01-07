@@ -107,7 +107,7 @@ export class Entity implements IEntity {
     };
   }
 
-  setState(state: EntityState) {
+  setState(state: EntityState): void {
     if (state) {
     }
   }

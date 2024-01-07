@@ -2,7 +2,7 @@ import { computed } from "@angular/core";
 
 import { ICategory, IEntity, IIngredient, IObject, Index, ItemType, ObjectRef, ObjectType, Rarity, Tier, isCategory } from "@modules/nw-db/nw-db.module";
 import { product, ratio } from "@app/services/utilities";
-import { Entity } from "./entity";
+import { Entity, EntityState } from "./entity";
 import { Composite } from "./composite";
 
 function compare(a: any, b: any, asc: boolean): number {
@@ -21,10 +21,17 @@ function compare(a: any, b: any, asc: boolean): number {
   return result * (asc ? 1 : -1);
 }
 
+export interface IngredientState {
+  primary: boolean | undefined;
+  entity: EntityState;
+}
+
 export class Ingredient implements IEntity {
   readonly #parent: Composite;
   readonly #ingredients: Record<string, IIngredient> = {};
   readonly #entities: Record<string, Entity> = {};
+  readonly #category: string | undefined;
+  readonly #primary: boolean | undefined;
   readonly #id: string;
 
   get parent(): Composite { return this.#parent; }
@@ -33,6 +40,7 @@ export class Ingredient implements IEntity {
 
   get id(): string { return this.#id; }
   get type(): ObjectType { return this.entity.type; }
+  get category(): string | null { return this.#category ?? null; }
   get itemType(): ItemType | undefined { return this.entity.itemType; }
   get name(): string { return this.entity.name; }
   get icon(): string | undefined { return this.entity.icon; }
@@ -105,6 +113,8 @@ export class Ingredient implements IEntity {
         throw new RangeError(`Unable to bind ingredients`);
       }
       this.#id = id;
+      this.#category = ingredient.name;
+      this.#primary = ingredient.primary;
     } else {
       const id = this.#id = ingredient.id;
       this.#ingredients[id] = ingredient;
@@ -112,5 +122,18 @@ export class Ingredient implements IEntity {
     }
 
     this.entity.bind(parent);
+  }
+
+  getState(): IngredientState {
+    return {
+      primary: this.#primary,
+      entity: this.entity.getState()
+    };
+  }
+
+  setState(state: IngredientState): void {
+    if (state && this.#primary === state.primary) {
+      this.entity.setState(state.entity);
+    }
   }
 }

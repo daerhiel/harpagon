@@ -25,7 +25,7 @@ export class Product extends Composite {
     };
   }
 
-  override setState(state: ProductState) {
+  override setState(state: ProductState): void {
     if (state && state.recipeId == this.recipeId) {
       super.setState(state);
     }

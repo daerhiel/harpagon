@@ -1,15 +1,16 @@
 import { Signal, computed, signal } from "@angular/core";
 
-import { IObject, IRecipe, Index, ItemType, ObjectRef, TradeSkill, isItem, isRecipe } from "@modules/nw-db/nw-db.module";
+import { IObject, IRecipe, Index, ItemType, ObjectRef, isItem, isRecipe } from "@modules/nw-db/nw-db.module";
 import { product, subtract, sum } from "@app/services/utilities";
 import { ArtisanService, __injector } from "../artisan.service";
 import { Entity, EntityState } from "./entity";
-import { Ingredient } from "./ingredient";
+import { Ingredient, IngredientState } from "./ingredient";
 import { Materials } from "./materials";
 
 export interface CompositeState extends EntityState {
   expand: boolean;
-  ingredients: Record<string, EntityState>;
+  ingredients: Record<string, IngredientState>;
+  categories: Record<string, Record<string, IngredientState>>
 }
 
 export class Composite extends Entity {
@@ -127,20 +128,31 @@ export class Composite extends Entity {
   }
 
   override getState(): CompositeState {
-    const ingredients: Record<string, EntityState> = {};
+    const ingredients: Record<string, IngredientState> = {};
+    const categories: Record<string, Record<string, IngredientState>> = {};
 
     for (const ingredient of this.ingredients) {
-      ingredients[ingredient.id] = ingredient.entity.getState();
+      const state = ingredient.getState();
+      if (ingredient.category) {
+        let category = categories[ingredient.category];
+        if (!category) {
+          categories[ingredient.category] = category = {};
+        }
+        category[ingredient.id] = state;
+      } else {
+        ingredients[ingredient.id] = state;
+      }
     }
 
     return {
       ...super.getState(),
       expand: this.useCraft(),
-      ingredients
+      ingredients,
+      categories
     };
   }
 
-  override setState(state: CompositeState) {
+  override setState(state: CompositeState): void {
     super.setState(state);
 
     if (state) {
@@ -148,7 +160,7 @@ export class Composite extends Entity {
       for (const id in state.ingredients) {
         const ingredient = this.ingredients.find(x => x.id === id);
         if (ingredient) {
-          ingredient.entity.setState(state.ingredients[id]);
+          ingredient.setState(state.ingredients[id]);
         }
       }
     }
