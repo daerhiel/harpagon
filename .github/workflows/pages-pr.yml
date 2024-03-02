@@ -1,0 +1,13 @@
+# The build check workflow that is triggered on PR updates
+name: Build Checks
+
+on:
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  CI:
+    name: CI
+    uses: ./.github/workflows/build.yml
+    with:
+      package-name: harpagon
