@@ -3,7 +3,7 @@ name: Build Checks
 
 on:
   pull_request:
-    branches: [ "feature/actions" ]
+    branches: [ "master" ]
 
 jobs:
   CI:
