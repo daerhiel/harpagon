@@ -1,54 +1,17 @@
-name: Harpagon Deployment
+name: 'Workflow: Deploy'
 
 on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+  workflow_call:
+
+permissions:
+  pages: write
+  id-token: write
 
 jobs:
-  # Build job
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-
-    env:
-      node-version: 20.x
-
-    steps:
-    - uses: actions/checkout@v3
-
-    - name: Setup Pages
-      uses: actions/configure-pages@v3
-
-    - name: Use Node.js ${{ env.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ env.node-version }}
-
-    - name: Build
-      run: |
-        npm install -g @angular/cli
-        npm install
-        ng build --base-href=/harpagon/
-
-    - name: Fix permissions
-      run: |
-        chmod -c -R +rX "dist/harpagon/browser/" | while read line; do
-          echo "::warning title=Invalid file permissions automatically fixed::$line"
-        done
-
-    - name: Upload Pages
-      uses: actions/upload-pages-artifact@v2
-      with:
-        path: dist/harpagon/browser/
-
   # Deployment job
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
-    needs: build
-    # if: github.event.pull_request.merged
 
     permissions:
       pages: write
@@ -61,4 +24,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4
