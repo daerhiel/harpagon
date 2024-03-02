@@ -1,6 +1,7 @@
 # Reusable workflow to build the application. The following inputs are defined as the working
 # parameters of a build process:
 # - package-name: The name of the package or project to build
+# - upload-artifacts: Defines whether to upload the artifacts to GitHub Pages
 
 name: 'Workflow: Build'
 
@@ -11,6 +12,11 @@ on:
         description: 'The name of the package or project to build'
         required: true
         type: string
+      upload-artifacts:
+        description: 'True if upload the artifacts to GitHub Pages is required; otherwise, false'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   # Build the application and upload the artifacts to Guthub Pages
@@ -26,6 +32,7 @@ jobs:
 
     - name: Setup Pages
       uses: actions/configure-pages@v3
+      if: ${{ inputs.upload-artifacts }}
 
     - name: Use Node.js ${{ env.node-version }}
       uses: actions/setup-node@v3
@@ -39,6 +46,7 @@ jobs:
         ng build --base-href=/${{ inputs.package-name }}/
 
     - name: Fix permissions
+      if: ${{ inputs.upload-artifacts }}
       run: |
         chmod -c -R +rX "dist/${{ inputs.package-name }}/browser/" | while read line; do
           echo "::warning title=Invalid file permissions automatically fixed::$line"
@@ -48,3 +56,4 @@ jobs:
       uses: actions/upload-pages-artifact@v2
       with:
         path: dist/${{ inputs.package-name }}/browser/
+      if: ${{ inputs.upload-artifacts }}
