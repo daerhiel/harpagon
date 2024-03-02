@@ -5,6 +5,10 @@ on:
   push:
     branches: [ "feature/actions" ]
 
+permissions:
+  pages: write
+  id-token: write
+
 jobs:
   ci:
     name: CI
