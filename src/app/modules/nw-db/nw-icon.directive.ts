@@ -1,4 +1,4 @@
-import { Directive, ElementRef, HostListener, Input } from '@angular/core';
+import { Directive, ElementRef, HostListener, effect, inject, input } from '@angular/core';
 
 import { IconRef } from './nw-db.module';
 
@@ -7,11 +7,15 @@ import { IconRef } from './nw-db.module';
   standalone: true
 })
 export class NwIconDirective {
+  private readonly _ref = inject<ElementRef<HTMLImageElement>>(ElementRef);
+
   readonly #default = 'https://nwdb.info/images/db';
   readonly #cdn = 'https://cdn.nwdb.info/db/images/live/v39';
 
-  @Input()
-  set nwIcon(value: IconRef | null | undefined) {
+  readonly nwIcon = input<IconRef | null>(null);
+
+  protected readonly classList = effect(() => {
+    const value = this.nwIcon();
     const element = this._ref.nativeElement;
     if (element && value) {
       let icon = value.icon ?? `${this.#default}/soon.png`;
@@ -29,10 +33,7 @@ export class NwIconDirective {
         element.classList.add(`item-tier-${value.rarity}`)
       }
     }
-  }
-
-  constructor(private readonly _ref: ElementRef<HTMLImageElement>) {
-  }
+  });
 
   @HostListener('error', ['$event'])
   onError(event: Event): void {
