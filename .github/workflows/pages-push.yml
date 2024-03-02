@@ -1,0 +1,19 @@
+# The deployment workflow that is triggered on pushed and PR integration
+name: Deployment
+
+on:
+  push:
+    branches: [ "feature/actions" ]
+
+jobs:
+  ci:
+    name: CI
+    uses: ./.github/workflows/build.yml
+    with:
+      package-name: harpagon
+
+  cd:
+    name: CD
+    uses: ./.github/workflows/deploy.yml
+    needs: ci
+
