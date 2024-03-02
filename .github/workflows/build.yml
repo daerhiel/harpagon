@@ -28,14 +28,14 @@ jobs:
       node-version: 20.x
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Setup Pages
-      uses: actions/configure-pages@v3
+      uses: actions/configure-pages@v4
       if: ${{ inputs.upload-artifacts }}
 
     - name: Use Node.js ${{ env.node-version }}
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: ${{ env.node-version }}
 
@@ -53,7 +53,7 @@ jobs:
         done
 
     - name: Upload Pages
-      uses: actions/upload-pages-artifact@v2
+      uses: actions/upload-pages-artifact@v3
       with:
         path: dist/${{ inputs.package-name }}/browser/
       if: ${{ inputs.upload-artifacts }}
