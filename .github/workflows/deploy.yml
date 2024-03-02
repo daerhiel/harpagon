@@ -3,6 +3,10 @@ name: 'Workflow: Deploy'
 on:
   workflow_call:
 
+permissions:
+  pages: write
+  id-token: write
+
 jobs:
   # Deployment job
   deploy:
