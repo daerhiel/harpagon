@@ -2,6 +2,10 @@ import { Directive, ElementRef, HostListener, effect, inject, input } from '@ang
 
 import { IconRef } from './nw-db.module';
 
+export const imgVersion = 42;
+export const nativeHosting = 'https://nwdb.info/images/db';
+export const cdnHosting = `https://cdn.nwdb.info/db/images/live/v${imgVersion}`;
+
 @Directive({
   selector: 'img[nwIcon]',
   standalone: true
@@ -9,28 +13,27 @@ import { IconRef } from './nw-db.module';
 export class NwIconDirective {
   private readonly _ref = inject<ElementRef<HTMLImageElement>>(ElementRef);
 
-  readonly #default = 'https://nwdb.info/images/db';
-  readonly #cdn = 'https://cdn.nwdb.info/db/images/live/v39';
-
   readonly nwIcon = input<IconRef | null>(null);
 
   protected readonly classList = effect(() => {
     const value = this.nwIcon();
     const element = this._ref.nativeElement;
-    if (element && value) {
-      let icon = value.icon ?? `${this.#default}/soon.png`;
-      const match = /^lyshineui\/images\/(.*)\.png$/.exec(icon);
+    if (element) {
+      let icon = value?.icon || `soon`;
+      const match = /^LyShineUI\/Images\/(.*)\.png$/i.exec(icon);
       if (match?.[1]) {
         icon = match[1].toLocaleLowerCase();
       }
-      element.src = `${/^(?:\w+|icons\/filters.*)$/i.test(icon) ? this.#default : this.#cdn}/${icon}.png`;
-      if (value.rarity != null) {
+      const native = /^(?:\w+|icons\/filters.*)$/i.test(icon);
+      element.src = `${native ? nativeHosting : cdnHosting}/${icon}.png`;
+      const rarity = value?.rarity;
+      if (rarity != null) {
         element.classList.forEach(name => {
           if (name.startsWith('item-tier-')) {
             element.classList.remove(name);
           }
         });
-        element.classList.add(`item-tier-${value.rarity}`)
+        element.classList.add(`item-tier-${rarity}`)
       }
     }
   });
@@ -39,7 +42,7 @@ export class NwIconDirective {
   onError(event: Event): void {
     const element = this._ref.nativeElement;
     if (element && !element.nonce) {
-      element.src = `${this.#default}/soon.png`;
+      element.src = `${nativeHosting}/soon.png`;
       element.nonce = Math.random().toFixed(20);
     }
   }
