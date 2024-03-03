@@ -7,9 +7,9 @@ describe('GamingToolsService', () => {
   let service: GamingToolsService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({imports:[
-      HttpClientTestingModule
-    ]});
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule]
+    });
     service = TestBed.inject(GamingToolsService);
   });
 

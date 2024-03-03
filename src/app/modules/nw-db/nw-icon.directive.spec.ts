@@ -35,14 +35,13 @@ const iconRarityRefs: IconRef[] = [
   { icon: 'test', rarity: 5 }
 ]
 
-fdescribe('NwIconDirective', () => {
+describe('NwIconDirective', () => {
   let component: TestComponent;
   let fixture: ComponentFixture<TestComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TestComponent],
-      teardown: { destroyAfterEach: false }
+      imports: [TestComponent]
     }).compileComponents();
 
     fixture = TestBed.createComponent(TestComponent);
@@ -82,7 +81,7 @@ fdescribe('NwIconDirective', () => {
 
       const img = fixture.debugElement.query(By.css('img'));
       expect(img.nativeElement.src).toBe(`${cdnHosting}/${ref.icon}`
-        .replace(/lyshineui\/images\//i, '').toLowerCase());
+        .replace(/LyShineUI\/Images\//i, '').toLowerCase());
     });
   });
 

@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 import { ArtisanComponent } from './artisan.component';
 
@@ -8,10 +10,9 @@ describe('ArtisanComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ArtisanComponent]
-    })
-    .compileComponents();
-    
+      imports: [HttpClientTestingModule, NoopAnimationsModule, ArtisanComponent]
+    }).compileComponents();
+
     fixture = TestBed.createComponent(ArtisanComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
