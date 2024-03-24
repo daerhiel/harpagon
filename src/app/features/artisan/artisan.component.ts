@@ -46,7 +46,7 @@ export class ArtisanComponent implements OnDestroy {
     filter(term => typeof term === 'string' && term.length > 2), map(x => x as string),
     distinctUntilChanged(), debounceTime(300),
     switchMap(term => this.#nwDb.search(term).pipe(map(x => x.filter(v => v.type === 'recipe'))))
-  ));
+  ), { rejectErrors: true });
   protected readonly required = new FormControl<number | null>(null, Validators.pattern(/^\d+$/i));
 
   protected readonly artisan: ArtisanService = inject(ArtisanService);
