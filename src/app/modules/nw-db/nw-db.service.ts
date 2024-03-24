@@ -115,7 +115,7 @@ export class NwDbService {
     }
   };
 
-  readonly version = toSignal(this.#version);
+  readonly version = toSignal(this.#version, { rejectErrors: true });
 
   private retryStrategy(config: { delay: number, span: number }): RetryConfig {
     return {

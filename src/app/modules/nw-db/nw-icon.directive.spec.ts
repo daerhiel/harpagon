@@ -113,7 +113,7 @@ describe('NwIconDirective', () => {
 
 @Component({
   selector: 'app-test',
-  template: '<img [nwIcon]="icon"/>',
+  template: '<img [nwIcon]="icon" />',
   standalone: true,
   imports: [NwIconDirective]
 })
