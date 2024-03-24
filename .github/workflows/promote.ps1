@@ -55,8 +55,8 @@ function Push-NpmVersion {
   return "v$next"
 }
 
-$codeBase = '.\'
-$searchBase = '.\'
+$solutionBase = '.\'
+$packagesBase = '.\src'
 
 # This pattern should cover project folders to be excluded from the update.
 $patternNonProjectFolders = '\\(node_modules|.angular|.vscode|dist)\\'
@@ -71,7 +71,7 @@ if (-not $Production) {
 $currentBase = Get-Location
 
 # The main script section should have error handling to recover current context.
-Set-Location -Path $codeBase
+Set-Location -Path $solutionBase
 try {
   $workingBase = Get-Location
   $optionDryRun = $DryRun ? '--dry-run' : $null
@@ -114,7 +114,7 @@ try {
   }
 
   # We should go for the library packages update only if the search path is within the code base.
-  Set-Location -Path $searchBase
+  Set-Location -Path $packagesBase
   try {
     if ((Get-Location).Path -ne $workingBase.Path) {
       # Push the versions of every primary entry point library.
