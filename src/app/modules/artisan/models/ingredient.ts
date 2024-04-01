@@ -5,7 +5,7 @@ import { product, ratio } from "@app/services/utilities";
 import { Entity, EntityState } from "./entity";
 import { Composite } from "./composite";
 
-function compare(a: any, b: any, asc: boolean): number {
+function compare(a: unknown, b: unknown, asc: boolean): number {
   let result = 0;
   if (a != null && b != null) {
     if (a > b) {

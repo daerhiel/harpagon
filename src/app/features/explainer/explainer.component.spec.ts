@@ -10,13 +10,12 @@ function createDialogRef<T>(): MatDialogRef<T> {
 describe('ExplainerComponent', () => {
   let component: ExplainerComponent;
   let fixture: ComponentFixture<ExplainerComponent>;
-  let dialogRef: MatDialogRef<ExplainerComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ExplainerComponent],
       providers: [
-        { provide: MatDialogRef, useValue: dialogRef = createDialogRef() },
+        { provide: MatDialogRef, useValue: createDialogRef() },
         { provide: MAT_DIALOG_DATA, useValue: {} }
       ]
     }).compileComponents();

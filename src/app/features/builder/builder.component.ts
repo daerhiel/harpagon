@@ -57,10 +57,10 @@ export class Connector {
     let x: number, y: number;
     switch (slot) {
       case 'top':
-      case 'bottom':
+      case 'bottom': {
         const step = Math.max(rect.width * area / range, spacing);
         x = rect.left + (rect.width - (range - 1) * step) / 2 + index * step;
-        break;
+      } break;
       case 'left': x = rect.left; break;
       case 'right': x = rect.right; break;
     }
@@ -68,10 +68,10 @@ export class Connector {
       case 'top': y = rect.top; break;
       case 'bottom': y = rect.bottom; break;
       case 'left':
-      case 'right':
+      case 'right': {
         const step = Math.max(rect.height * area / range, spacing);
         y = rect.top + (rect.height - (range - 1) * step) / 2 + index * step;
-        break;
+      } break;
     }
     return { x: x - offset.x, y: y - offset.y };
   }

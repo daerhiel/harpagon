@@ -1,6 +1,4 @@
-import { toObservable } from '@angular/core/rxjs-interop';
 import { TestBed } from '@angular/core/testing';
-import { firstValueFrom } from 'rxjs';
 
 import { LayoutService, SIDENAV_OPEN_PROPERTY_NAME } from './layout.service';
 

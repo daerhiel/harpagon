@@ -5,7 +5,7 @@
     <mat-tab>
       <ng-template mat-tab-label>
         <mat-icon>
-          <img [nwIcon]="section.value" class="mat-img" loading="lazy">
+          <img [nwIcon]="section.value" class="mat-img" loading="lazy" alt="icon" />
         </mat-icon>
         {{section.value.name}}
       </ng-template>
@@ -30,7 +30,7 @@
           <mat-checkbox [formControlName]="control.key" [matTooltip]="item.description.replaceAll('\\n', '\n')" matTooltipPosition="after" matTooltipShowDelay="300">
             <span class="app-l-flex app-l-flex-row app-l-align-center">
               <mat-icon>
-                <img [nwIcon]="item" class="mat-img" loading="lazy">
+                <img [nwIcon]="item" class="mat-img" loading="lazy" alt="icon" />
               </mat-icon>
               {{item.name}}
             </span>

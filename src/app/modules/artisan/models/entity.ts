@@ -60,7 +60,7 @@ export class Entity implements IEntity {
         const storage = index[ref.type];
         const item = storage && storage[ref.id];
         if (isItem(item)) {
-          this.#item = item;;
+          this.#item = item;
         } else if (item) {
           throw new ReferenceError(`The '${ref.type}' output is not supported: ${ref.id}.`);
         } else {
@@ -118,6 +118,7 @@ export class Entity implements IEntity {
 
   setState(state: EntityState): void {
     if (state) {
+      void 0;
     }
   }
 

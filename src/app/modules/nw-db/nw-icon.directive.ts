@@ -39,7 +39,7 @@ export class NwIconDirective {
   });
 
   @HostListener('error', ['$event'])
-  onError(event: Event): void {
+  onError(): void {
     const element = this._ref.nativeElement;
     if (element && !element.nonce) {
       element.src = `${nativeHosting}/soon.png`;

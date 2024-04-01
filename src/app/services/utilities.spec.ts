@@ -52,9 +52,6 @@ describe('buildUrl', () => {
   });
 });
 
-export interface TargetClass {
-}
-
 export class TargetClass {
 }
 

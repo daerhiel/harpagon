@@ -11,13 +11,12 @@ function createDialogRef<T>(): MatDialogRef<T> {
 describe('SettingsComponent', () => {
   let component: SettingsComponent;
   let fixture: ComponentFixture<SettingsComponent>;
-  let dialogRef: MatDialogRef<SettingsComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [HttpClientTestingModule, SettingsComponent],
       providers: [
-        { provide: MatDialogRef, useValue: dialogRef = createDialogRef() },
+        { provide: MatDialogRef, useValue: createDialogRef() },
       ]
     }).compileComponents();
 

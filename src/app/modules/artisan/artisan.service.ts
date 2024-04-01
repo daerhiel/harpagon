@@ -10,6 +10,7 @@ import { Equipment, Housing, Product, ProductState } from './artisan.module';
 const ENTITY_PROPERTY_NAME = 'artisan.entity';
 const SETTINGS_PROPERTY_NAME = 'artisan.settings';
 
+// eslint-disable-next-line no-var
 export var __injector: Injector;
 
 type Settings = {

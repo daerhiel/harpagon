@@ -10,8 +10,8 @@ describe('Subscriptions', () => {
   });
 
   it('should subscribe to an observable', () => {
-    let subject1 = new Subject<number>();
-    let subject2 = new Subject<number>();
+    const subject1 = new Subject<number>();
+    const subject2 = new Subject<number>();
     subscriptions.subscribe(subject1);
     subscriptions.subscribe(subject2);
 
@@ -20,8 +20,8 @@ describe('Subscriptions', () => {
   });
 
   it('should unsubscribe from all observables', () => {
-    let subject1 = new Subject<number>();
-    let subject2 = new Subject<number>();
+    const subject1 = new Subject<number>();
+    const subject2 = new Subject<number>();
     subscriptions.subscribe(subject1);
     subscriptions.subscribe(subject2);
 

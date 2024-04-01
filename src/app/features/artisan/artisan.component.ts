@@ -5,7 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input'
-import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete'
+import { MatAutocompleteModule } from '@angular/material/autocomplete'
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
@@ -80,7 +80,7 @@ export class ArtisanComponent implements OnDestroy {
     this.#subscriptions.unsubscribe();
   }
 
-  protected change(event: MatAutocompleteSelectedEvent) {
+  protected change() {
     this.searchItem.reset();
     this.required.reset();
   }

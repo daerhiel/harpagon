@@ -15,6 +15,8 @@ import { IItem, IconRef, NwIconDirective } from '@modules/nw-db/nw-db.module';
 import { ArtisanService } from '@modules/artisan/artisan.module';
 import { SortPipe } from '@app/services/sort.pipe';
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 type Selector<TModel, TValue> = {
   name: string;
   value: (model: NonNullable<TModel>) => WritableSignal<TValue>;
