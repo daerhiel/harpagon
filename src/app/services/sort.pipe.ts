@@ -1,8 +1,8 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
-function getValue<T>(value: T, path: string[]): any {
+function getValue<T>(value: T, path: string[]): unknown {
   return path.reduce((x, name) => {
-    return (x as unknown as Record<string, any>)?.[name];
+    return (x as unknown as Record<string, T>)?.[name];
   }, value);
 }
 

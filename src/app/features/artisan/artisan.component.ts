@@ -5,7 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input'
-import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete'
+import { MatAutocompleteModule } from '@angular/material/autocomplete'
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
@@ -46,7 +46,7 @@ export class ArtisanComponent implements OnDestroy {
     filter(term => typeof term === 'string' && term.length > 2), map(x => x as string),
     distinctUntilChanged(), debounceTime(300),
     switchMap(term => this.#nwDb.search(term).pipe(map(x => x.filter(v => v.type === 'recipe'))))
-  ));
+  ), { rejectErrors: true });
   protected readonly required = new FormControl<number | null>(null, Validators.pattern(/^\d+$/i));
 
   protected readonly artisan: ArtisanService = inject(ArtisanService);
@@ -80,7 +80,7 @@ export class ArtisanComponent implements OnDestroy {
     this.#subscriptions.unsubscribe();
   }
 
-  protected change(event: MatAutocompleteSelectedEvent) {
+  protected change() {
     this.searchItem.reset();
     this.required.reset();
   }

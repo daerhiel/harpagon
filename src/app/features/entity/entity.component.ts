@@ -16,7 +16,7 @@ import { Subscriptions } from '@app/services/subscriptions';
 import { InstancePipe } from '@app/services/instance.pipe';
 
 @Component({
-  selector: 'entity',
+  selector: 'app-entity',
   standalone: true,
   imports: [
     CommonModule,

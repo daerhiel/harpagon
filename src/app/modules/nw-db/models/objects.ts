@@ -125,14 +125,14 @@ export interface IItem extends IObject {
   drops_salvage_from: IEntity[];
   drops_lootcontainer_from: IEntity[];
   monstersWithDrop: IEntity[];
-  gatherablesWithItem: any[],
-  salvageOutput: any[];
-  upgradeRecipes: any[];
+  gatherablesWithItem: unknown[],
+  salvageOutput: unknown[];
+  upgradeRecipes: unknown[];
   craftingRecipesOutput: IObject[];
   craftingRecipesInput: IObject[];
   IngredientCategories: string[];
-  questRewards: any[];
-  questTurnins: any[];
+  questRewards: unknown[];
+  questTurnins: unknown[];
 }
 
 export function isRecipe(object: IEntity | null | undefined): object is IRecipe {

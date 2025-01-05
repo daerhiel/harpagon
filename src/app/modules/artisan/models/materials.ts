@@ -62,7 +62,7 @@ export class Materials {
         }
       }
       if (next.size > 0) {
-        const [_, id] = /^\w+(?:-(\d+))?$/i.exec(name)!;
+        const [, id] = /^\w+(?:-(\d+))?$/i.exec(name)!;
         name = `stage-${(id != null ? Number(id) : 0) + 1}`;
         stages[name] = next;
       }

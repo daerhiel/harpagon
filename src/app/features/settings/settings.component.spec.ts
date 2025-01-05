@@ -1,6 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { MatDialogRef } from '@angular/material/dialog';
 
 import { SettingsComponent } from './settings.component';
+
+function createDialogRef<T>(): MatDialogRef<T> {
+  return jasmine.createSpyObj<MatDialogRef<T>>('MatDialogRef', { close: undefined });
+}
 
 describe('SettingsComponent', () => {
   let component: SettingsComponent;
@@ -8,10 +14,12 @@ describe('SettingsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SettingsComponent]
-    })
-    .compileComponents();
-    
+      imports: [HttpClientTestingModule, SettingsComponent],
+      providers: [
+        { provide: MatDialogRef, useValue: createDialogRef() },
+      ]
+    }).compileComponents();
+
     fixture = TestBed.createComponent(SettingsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

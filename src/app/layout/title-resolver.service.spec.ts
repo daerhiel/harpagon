@@ -13,11 +13,11 @@ import { TitleStrategyService } from '@layout/title-strategy.service';
 class RoutingComponent {
 }
 
-@Component({ selector: 'home' })
+@Component({ selector: 'app-home' })
 class HomeComponent {
 }
 
-@Component({ selector: 'about' })
+@Component({ selector: 'app-about' })
 class AboutComponent {
 }
 

@@ -3,7 +3,7 @@ import { IItem, IObject, IPerk, IStatusEffect, TradeSkill, isItem, isPerk, isSta
 function getBonus(value: string, skill: TradeSkill): (() => number) | null {
   const match = /\+\${(\d+)\s*\*\s*(\w+)\s*\*\s*(\w+)}\s*ROL(\w+)/i.exec(value);
   if (match) {
-    const [, roll, property, potency, trade] = match;
+    const [, roll, , , trade] = match;
     if (skill === trade && !isNaN(Number(roll))) {
       const multiplier = parseInt(roll) / 100 / 100;
       return () => multiplier;

@@ -20,7 +20,7 @@ import { NwDbApiService } from './nw-db-api.service';
 import { IIngredient, IObject, isItem, isPerk, isRecipe } from './models/objects';
 import { IEntity, ObjectRef, ObjectType, SearchRef } from './models/types';
 
-export type Index<T extends IObject> = Partial<Record<ObjectType, Record<string, T>>>;
+export type Index<T extends IObject | null> = Partial<Record<ObjectType, Record<string, T>>>;
 
 export type Stored<T> = T & {
   _version: number;
@@ -57,9 +57,9 @@ export function getPerkItems(ref: IEntity): ObjectRef[] {
   return [];
 }
 
-export function cacheMap<T extends IObject, O extends ObservableInput<any>>(cache: Index<Stored<IObject>>,
+export function cacheMap<T extends IObject, O extends ObservableInput<T | null>>(cache: Index<Stored<IObject> | null>,
   project: (ref: Stored<ObjectRef>, index: number) => O
-): OperatorFunction<Stored<ObjectRef>, ObservedValueOf<O> | Stored<T>> {
+): OperatorFunction<Stored<ObjectRef>, ObservedValueOf<O>> {
   return operate((source, subscriber) => {
     let innerSubscriber: Subscriber<ObservedValueOf<O>> | null = null;
     let index = 0;
@@ -78,13 +78,14 @@ export function cacheMap<T extends IObject, O extends ObservableInput<any>>(cach
           subscriber,
           (innerValue: ObservedValueOf<O>) => {
             const object = getStored(innerValue, ref._version);
-            setStorageItem<Stored<T>>(`object:${ref.type}/${ref.id}`, object);
-            return subscriber.next(storage[ref.id] = innerValue);
+            setStorageItem<Stored<IObject>>(`object:${ref.type}/${ref.id}`, object);
+            storage[ref.id] = innerValue as Stored<IObject>;
+            return subscriber.next(innerValue);
           },
           () => { innerSubscriber = null; checkComplete(); }
         )));
       } else {
-        subscriber.next(cachedValue as Stored<T>);
+        subscriber.next(cachedValue as ObservedValueOf<O>);
         checkComplete();
       }
     }, () => { isComplete = true; checkComplete(); }));
@@ -115,7 +116,7 @@ export class NwDbService {
     }
   };
 
-  readonly version = toSignal(this.#version);
+  readonly version = toSignal(this.#version, { rejectErrors: true });
 
   private retryStrategy(config: { delay: number, span: number }): RetryConfig {
     return {
@@ -308,7 +309,7 @@ export class NwDbService {
   getObject<T extends IObject>(ref: ObjectRef): Observable<T | null> {
     return this.#current.pipe(take(1),
       map(version => getStored(ref, version)),
-      cacheMap<T, Observable<T | null>>(this.#storage, ref => this.#api.getObject<T>(ref).pipe(
+      cacheMap(this.#storage, ref => this.#api.getObject<T>(ref).pipe(
         retry(this.retryStrategy({ delay: 5000, span: 5000 })),
         catchError(this.handleError(null))
       ))

@@ -1,9 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { TitleStrategy } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
+import { RouterModule, TitleStrategy } from '@angular/router';
 import { ComponentHarness } from '@angular/cdk/testing';
-import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
+// import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSnackBarHarness } from '@angular/material/snack-bar/testing';
@@ -22,7 +21,7 @@ export class AppComponentHarness extends ComponentHarness {
 describe('AppComponent', () => {
   let component: AppComponent;
   let fixture: ComponentFixture<AppComponent>;
-  let harness: AppComponentHarness;
+  // let harness: AppComponentHarness;
 
   beforeEach(async () => {
     document.body.classList.add('mat-typography');
@@ -32,7 +31,7 @@ describe('AppComponent', () => {
         NoopAnimationsModule,
         MatSnackBarModule,
         HttpClientTestingModule,
-        RouterTestingModule.withRoutes(routes, { initialNavigation: 'enabledBlocking' }),
+        RouterModule.forRoot(routes, { initialNavigation: 'enabledBlocking' }),
         AppComponent
       ],
       providers: [
@@ -43,7 +42,7 @@ describe('AppComponent', () => {
     fixture = TestBed.createComponent(AppComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-    harness = await TestbedHarnessEnvironment.harnessForFixture(fixture, AppComponentHarness);
+    // harness = await TestbedHarnessEnvironment.harnessForFixture(fixture, AppComponentHarness);
   });
 
   it('should create the app', () => {

@@ -3,7 +3,7 @@
     @for (stage of product.materials.stages() | keyvalue; track stage.key) {
     <div #stage class="app-l-flex app-l-flex-column app-l-justify-around app-l-flex-gap-1r">
       @for (entity of stage.value; track entity.id) {
-      <entity component [id]="entity.id" [data]="entity"></entity>
+      <app-entity component [id]="entity.id" [data]="entity"></app-entity>
       }
     </div>
     }

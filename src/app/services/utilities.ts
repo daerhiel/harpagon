@@ -1,5 +1,7 @@
+import { Type } from "@angular/core";
+
 export interface UrlParams {
-  [key: string]: any
+  [key: string]: string | number | Date;
 }
 
 export function buildUrl(baseUrl: string, version: string, actions?: string[], params: UrlParams = {}): string {
@@ -8,6 +10,8 @@ export function buildUrl(baseUrl: string, version: string, actions?: string[], p
     let param = params[name];
     if (param instanceof Date) {
       param = param.toISOString();
+    } else if (typeof param === 'number') {
+      param = param.toString();
     }
     parameters.set(name, param);
   }
@@ -17,7 +21,7 @@ export function buildUrl(baseUrl: string, version: string, actions?: string[], p
   ].filter(x => x?.length > 0).join('?');
 }
 
-export function applyMixins(target: any, ...constructors: any[]) {
+export function applyMixins(target: Type<unknown>, ...constructors: Type<unknown>[]) {
   constructors.forEach(base => Object.getOwnPropertyNames(base.prototype)
     .forEach(name => Object.defineProperty(target.prototype, name,
       Object.getOwnPropertyDescriptor(base.prototype, name) ||

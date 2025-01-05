@@ -10,6 +10,7 @@ import { Equipment, Housing, Product, ProductState } from './artisan.module';
 const ENTITY_PROPERTY_NAME = 'artisan.entity';
 const SETTINGS_PROPERTY_NAME = 'artisan.settings';
 
+// eslint-disable-next-line no-var
 export var __injector: Injector;
 
 type Settings = {
@@ -28,6 +29,10 @@ type SectionState<T extends Housing | Equipment> = ReturnType<T['getState']>;
 type SettingsState = {
   [K in keyof Settings]?: SectionState<NonNullable<Settings[K]>>;
 };
+
+export function setInjector(injector: Injector): void {
+  __injector = injector;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -59,7 +64,7 @@ export class ArtisanService implements OnDestroy {
       }
       return product;
     })
-  ));
+  ), { rejectErrors: true });
   readonly #state = computed(() => this.product()?.getState())
   readonly #stream = toObservable(this.#state).pipe();
 
@@ -106,14 +111,14 @@ export class ArtisanService implements OnDestroy {
     new Equipment(this.housing, 'Weaving', 0.05, ...objects).setState(this.settings.weaving))
   );
 
-  readonly housing = toSignal(this.#housingPipeline);
-  readonly arcana = toSignal(this.#arcanaPipeline);
-  readonly cooking = toSignal(this.#cookingPipeline);
-  readonly woodworking = toSignal(this.#woodworkingPipeline);
-  readonly leatherworking = toSignal(this.#leatherworkingPipeline);
-  readonly stonecutting = toSignal(this.#stonecuttingPipeline);
-  readonly smelting = toSignal(this.#smeltingPipeline);
-  readonly weaving = toSignal(this.#weavingPipeline);
+  readonly housing = toSignal(this.#housingPipeline, { rejectErrors: true });
+  readonly arcana = toSignal(this.#arcanaPipeline, { rejectErrors: true });
+  readonly cooking = toSignal(this.#cookingPipeline, { rejectErrors: true });
+  readonly woodworking = toSignal(this.#woodworkingPipeline, { rejectErrors: true });
+  readonly leatherworking = toSignal(this.#leatherworkingPipeline, { rejectErrors: true });
+  readonly stonecutting = toSignal(this.#stonecuttingPipeline, { rejectErrors: true });
+  readonly smelting = toSignal(this.#smeltingPipeline, { rejectErrors: true });
+  readonly weaving = toSignal(this.#weavingPipeline, { rejectErrors: true });
 
   readonly tradeSkills: Partial<Record<TradeSkill, Signal<Equipment | undefined>>> = {
     Arcana: this.arcana,
