@@ -30,6 +30,10 @@ type SettingsState = {
   [K in keyof Settings]?: SectionState<NonNullable<Settings[K]>>;
 };
 
+export function setInjector(injector: Injector): void {
+  __injector = injector;
+}
+
 @Injectable({
   providedIn: 'root'
 })

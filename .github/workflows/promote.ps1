@@ -5,7 +5,7 @@
 # the production release, the pre-release identifier, the dry run mode, the push mode and
 # the skip checks mode. The script should be used manually before creating the release.
 #
-# Exaples:
+# Examples:
 #   .\promote.ps1 -Version Release -DryRun -SkipChecks
 #   .\promote.ps1 -Version Major -Production -Id -Push
 
